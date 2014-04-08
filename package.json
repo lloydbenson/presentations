@@ -1,0 +1,14 @@
+{
+  "name": "node-pres",
+  "version": "0.0.0",
+  "description": "node wrapper for presentations",
+  "main": "index.js",
+  "engines": {
+     "node": "0.10.*"
+  },
+  "dependencies": {
+    "hapi": "2.x.x",
+    "reveal.js": "*"
+  },
+  "author": "Lloyd Benson"
+}

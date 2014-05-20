@@ -11,3 +11,8 @@ Public Presentations
 4.  npm install
 5.  ./start
 6.  go to http://localhost:8080 and click on the valid html presentation
+
+Valid presentations are:
+
+1.  introduction to hapi
+2.  jenkins 

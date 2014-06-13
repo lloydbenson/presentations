@@ -15,5 +15,5 @@ Public Presentations
 Valid presentations are:
 
 1.  introduction to hapi
-1.  node at walmart (noderoad)
-2.  jenkins 
+2.  node at walmart (noderoad)
+3.  jenkins 

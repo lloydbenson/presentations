@@ -20,10 +20,16 @@
 		<!-- For syntax highlighting -->
 		<link rel="stylesheet" href="/lib/css/zenburn.css">
 
-		<!-- If the query includes 'print-pdf', use the PDF print sheet -->
-		<script>
-			document.write( '<link rel="stylesheet" href="/css/print/' + ( window.location.search.match( /print-pdf/gi ) ? 'pdf' : 'paper' ) + '.css" type="text/css" media="print">' );
-		</script>
+                <!-- If the query includes 'print-pdf', include the PDF print sheet -->
+                <script>
+                        if( window.location.search.match( /print-pdf/gi ) ) {
+                                var link = document.createElement( 'link' );
+                                link.rel = 'stylesheet';
+                                link.type = 'text/css';
+                                link.href = '/css/print/pdf.css';
+                                document.getElementsByTagName( 'head' )[0].appendChild( link );
+                        }
+                </script>
 
 		<!--[if lt IE 9]>
 		<script src="lib/js/html5shiv.js"></script>
@@ -48,20 +54,17 @@
 				</section>
 				<section>
 					<h3>whoami</h3>
+<p>
                                         <ul>
                                         <li>lloyd benson (lloyd.benson@gmail.com)</li>
                                         <li>architect @walmartlabs node team</li>
                                         <li>many hats (devops/sysadmin/developer/gluer)</li>
                                         <li>the guy that did the black friday node release</li>
                                         </ul>
+</p>
 				</section>
 				<section>
 					<h3>overview</h3>
-<center>
-<table>
-<tbody>
-<tr>
-<td>
 					<ul>
                                            <li>hapi</li>
                                            <li>getting started</li>
@@ -71,11 +74,6 @@
                                            <li>issues</li>
                                            <li>final thoughts</li>
                                         </ul>
-</td>
-</tr>
-</tbody>
-</table>
-</center>
 				</section>
 				<section>
 <img src="/images/spumko/hapi.png" height=90 style="border:none; background:none; box-shadow:none;"/>

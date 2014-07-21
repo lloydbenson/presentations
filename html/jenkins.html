@@ -59,7 +59,6 @@
 				<section>
 					<h3>whoami</h3>
                                         <ul>
-                                        <li>who cares?</li>
                                         <li>lloyd benson (lloyd.benson@gmail.com)</li>
                                         <li>@walmartlabs node team (primarily mobile)</li>
                                         <li>many hats (devops/architect/sysadmin/web developer/gluer of all things)</li>
@@ -82,7 +81,7 @@
 					<h3>what is continuous integration to you?</h3>
 <ul>
 <li class="fragment">automated feedback system on test failures / blame committers!</li>
-<li class="fragment">small autonomous changes (as you can get) so its easy to tell what broke</li>
+<li class="fragment">small autonomous changes to easily to tell what broke</li>
 <li class="fragment">continuous deployment? qa, prod?</li>
 <li class="fragment">reporting / trending of environments and project tests</li>
 </ul>
@@ -117,25 +116,25 @@ A software methodology in which you can do small sets of changes that are automa
 <li>could be too much overhead if you have a very small app</li>
 <li>ci is only as good as your tests!</li>
 <li>it takes alot of commitment to keep up with tests</li>
-<li>ci software is always changing and can break during upgrades! The more complex, the greater the chance.  jenkins itself can be difficult to keep to date with plugins for example.  The irony!</li>
+<li>ci software is always changing and can break during upgrades. The irony!</li>
 </ul>
 				</section>
 				<section>
-					<h3>What is jenkins?</h3>
-<p>jenkins is open source continuous integration tool written in java.  It monitors executions of repeated jobs, such as building a software project or jobs run by cron.</p>
-<p>See <a href="https://jenkins-ci.org">https://jenkins-ci.org</a> for more details.</p>
+					<h3>what is jenkins?</h3>
+<ul>
+<li>jenkins is open source continuous integration tool written in java</li>
+<li>It monitors executions of repeated jobs, such as building a software project or jobs run by cron.</li>
+<li>See <a href="https://jenkins-ci.org">https://jenkins-ci.org</a> for more details.</li>
+</ul>
 				</section>
 				<section>
 					<h3>why use jenkins?</h3>
                                         <ul>
 					<li>take advantage of ci</li>
-					<li>automation of builds</li>
-					<li>improves consistency</li>
-					<li>abstract scripts so you can use a GUI interface</li>
+					<li>abstract scripts to a GUI interface</li>
 					<li>built in restful api</li>
 					<li>extensibility (hooks and plugins to have it work how you need it to)</li>
 					<li>do not have to know java to effectively use it</li>
-					<li>keeps historical data</li>
                                         </ul>
 				</section>
 				<section>
@@ -194,15 +193,15 @@ A software methodology in which you can do small sets of changes that are automa
 				</section>
 				<section>
 					<h3>easy installation</h3>
-<p>java -jar jenkins.war, or deploy it in a servlet container. No additional install, no database.</p>
+<p>java -jar jenkins.war, or deploy it in a servlet container.  It is a flat file structure, no database to setup.</p>
 				</section>
 				<section>
 					<h3>easy configuration</h3>
-<p>jenkins can be configured entirely from its friendly web GUI with extensive on-the-fly error checks and inline help. There's no need to tweak XML manually anymore, although if you'd like to do so, you can do that, too.</p>
+<p>jenkins can be configured entirely from the web GUI. You don't need tweak XML files, although for automation or configuration management, you will still be manipulating them.</p>
 				</section>
 				<section>
 					<h3>change set support</h3>
-<p>jenkins can generate a list of changes made into the build. This is also done in a fairly efficient fashion, to reduce the load on the repository.</p>
+<p>jenkins can generate a list of changes from the previous build.</p>
 				</section>
 				<section>
 					<h3>permanent links</h3>
@@ -210,27 +209,27 @@ A software methodology in which you can do small sets of changes that are automa
 				</section>
 				<section>
 					<h3>feedback integration</h3>
-<p>Monitor build results by RSS,e-mail,IM to get real-time notifications on failures.</p>
+<p>Monitor build results by RSS, e-mail, IM to get real-time notifications on failures.</p>
 				</section>
 				<section>
 					<h3>after-the-fact tagging</h3>
-<p>Builds can be tagged long after builds are completed.</p>
+<p>Builds can be tagged (to source control) after builds are completed.</p>
 				</section>
 				<section>
 					<h3>test reporting</h3>
-<p>JUnit/TestNG test reports can be tabulated, summarized, and displayed with history information, such as when it started breaking, etc. History trend is plotted into a graph.</p>
+<p>JUnit/TestNG test reports can be tabulated, summarized, and displayed with historical information.  historical trending is plotted into a graph.</p>
 				</section>
 				<section>
 					<h3>distributed builds</h3>
-<p>jenkins can distribute build/test loads to multiple computers. This allows you to do OS specific builds, increase the number of jobs you can run, or get the most out of those idle workstations sitting beneath your desk.</p>
+<p>jenkins can distribute build/test loads to multiple computers. This allows you to do OS specific builds, increase the number of jobs you can run, or idle workstations sitting beneath your desk.</p>
 				</section>
 				<section>
 					<h3>file fingerprinting</h3>
-<p>jenkins can keep track of which build produced which jars, and which build is using which version of jars, and so on. This works even for jars that are produced outside jenkins, and is ideal for projects to track dependency.</p>
+<p>jenkins can keep track of which build produced which artifacts.  This works even for artifacts that are produced outside jenkins, and is ideal for projects to track dependency.</p>
 				</section>
 				<section>
 					<h3>plugin support</h3>
-<p>jenkins can be extended via 3rd party plugins. You can write plugins to make jenkins support tools/processes that your team uses.</p>
+<p>jenkins can be extended via 3rd party plugins. You can write your own plugins though you DO need to know java for this.</p>
 				</section>
 				<section>
 					<h3>development flow (pre-demo)</h3>
@@ -268,19 +267,18 @@ A software methodology in which you can do small sets of changes that are automa
 <tr>
 <td>
 <ul>
-<li>general config</li>
+<li>config / security</li>
 <li>updates / plugins</li>
 <li>simple / multi-config job</li>
 <li>scm setup</li>
 <li>build section</li>
-<li>triggers / chaining</li>
 </ul>
 </td>
 <td>
 <ul>
+<li>triggers / chaining</li>
 <li>console output</li>
 <li>trending</li>
-<li>security</li>
 <li>dashboard</li>
 <li>change sets</li>
 </ul>
@@ -291,7 +289,7 @@ A software methodology in which you can do small sets of changes that are automa
 				</section>
 				<section>
 					<h3>best practices</h3>
-There are numerous best practices.  You can decide what is best for your or your organization.
+There are numerous best practices.  You can decide what is best for you or your organization.
 
 				</section>
 				<section>
@@ -326,26 +324,18 @@ There are numerous best practices.  You can decide what is best for your or your
 					<h3>source control management (SCM)</h3>
 <ul>
 <li>fully use source control (should be obvious these days)</li>
-<li>The most reliable builds will be clean builds, which are built fully from SCM</li>
-<li>uou need to track your changes and easily revert when issues occur</li>
-<li>can be a good communication mechanism to talk collaborate with team or community</li>
-<li>also include all code including third-party jars, build scripts, release notes</li>
-<li>you need to have the ability to track all portions of the code to SCM version(s)</li>
-</ul>
-				</section>
-				<section>
-					<h3>clean builds</h3>
-<ul>
-<li>always start with a clean build</li>
-<li>to ensure a build can be reproducible, the build must be a clean build, which is built fully from SCM</li>
-<li>avoids the typical "well it works on my machine" developer mantra and keeps them honest</li>
+<li>reliable builds will be clean builds (avoids the typical "well it works on my machine" developer mantra)</li>
+<li>track your changes and easily revert</li>
+<li>good communication mechanism to collaborate with team or community</li>
+<li>include all code including third-party jars, build scripts, release notes</li>
+<li>ability to track all portions of the code to SCM version(s)</li>
 </ul>
 				</section>
 				<section>
 					<h3>issue tracking</h3>
 <ul>
 <li>tightly integrate with issue tracker</li>
-<li>reduce the need for maintaining a Change Log</li>
+<li>reduce the need for maintaining a change log</li>
 <li>the integration helps to track changes as they are made, including build status, what build has been performed for this requirement or defects, and the link to the actual build results and artifacts.</li>
 </ul>
 				</section>
@@ -370,7 +360,7 @@ There are numerous best practices.  You can decide what is best for your or your
 					<h3>complete tests</h3>
 <ul>
 <li>automate your testing as much as possible</li>
-<li>it may be appropriate to run a limited set of "sniff tests" before the full suite that need to be run quickly</li>
+<li>it may be appropriate to run a limited set of "smoke tests" before the full suite that need to be run quickly</li>
 <li>integration tests should be prioritized above unit tests</li>
 </ul>
 
@@ -390,7 +380,7 @@ There are numerous best practices.  You can decide what is best for your or your
 					<h3>job separation</h3>
 <ul>
 <li>separate jobs for each branch or release</li>
-<li>will help to maximize the benefit of detecting problems early as part of supporting parallel development efforts and reducing risk</li>
+<li>maximize benefit of detecting problems early as part of supporting parallel development efforts and reducing risk</li>
 </ul>
 				</section>
 				<section>
@@ -435,7 +425,7 @@ There are numerous best practices.  You can decide what is best for your or your
                                         <h3>general advice</h3>
 <ul>
 <li>decide if you want to have one jenkins instance to rule them all or distribute per team</li>
-<li>do not get crazy with plugins  (maintanence nightmare)</li>
+<li>do not get crazy with plugins (maintanence nightmare)</li>
 <li>chaining is awesome</li>
 <li>do not do everything as * * * * * (run every minute) unless you have a quick temporary demo!</li>
 <li>keep up to date, but do this from scratch ideally and test out (if you do updates too often you often break stuff and if you decide to do not keep it up to date, it soon becomes really outdated esp when you are doing leading edge software development)</li>

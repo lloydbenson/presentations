@@ -43,7 +43,7 @@
 			<!-- Any section element inside of this container is displayed as a slide -->
 			<div class="slides">
 				<section>
-					<h3>continous integration with jenkins</h3>
+					<h3>continuous integration with jenkins</h3>
 					<h3>automating yourself out of a job</h3>
 					<h3>(one that you don't want)</h3>
 					<p>
@@ -60,7 +60,7 @@
 					<h3>whoami</h3>
                                         <ul>
                                         <li>lloyd benson (lloyd.benson@gmail.com)</li>
-                                        <li>@walmartlabs node team (primarily mobile)</li>
+                                        <li>@walmartlabs node team</li>
                                         <li>many hats (devops/architect/sysadmin/web developer/gluer of all things)</li>
                                         <li>the guy that did the black friday node release</li>
                                         </ul>
@@ -93,21 +93,20 @@ A software methodology in which you can do small sets of changes that are automa
 				<section>
 					<h3>advantages of ci vs traditional integration</h3>
 <ul>
-<li>revert codebase to a bug-free state when unit tests fail or a bug emerges without wasting time debugging
+<li>early detection of issues due to immediate testing</li>
+<li>revert codebase to a bug-free state without wasting time debugging</li>
 <li>avoid last-minute chaos at release dates</li>
 <li>avoid merge issue mess (due to slightly incompatible versions in everyones branches)</li>
 <li>easy isolation of bugs with smaller change sets</li>
-<li>early detection of broken/incompatible code or conflicting changes</li>
 </ul>
 				</section>
 				<section>
 					<h3>advantages of ci (cont)</h3>
 <ul>
-<li>immediate unit testing of all changes</li>
 <li>constant availability of a "current" build for testing, demo, or release purposes</li>
 <li>immediate feedback to developers on the quality, functionality, or system-wide impact of code they are writing</li>
 <li>forces more modular, less complex code due to frequent code pushes</li>
-<li>produces functional and quality code due to metrics generated from automated testing and CI (such as metrics for code coverage, code complexity, and features complete)</li>
+<li>produces higher quality code due to metrics generated (such as code coverage, code complexity, unit/integration tests)</li>
 </ul>
 				</section>
 				<section>
@@ -123,14 +122,16 @@ A software methodology in which you can do small sets of changes that are automa
 					<h3>what is jenkins?</h3>
 <ul>
 <li>jenkins is open source continuous integration tool written in java</li>
-<li>It monitors executions of repeated jobs, such as building a software project or jobs run by cron.</li>
+<li>a tool with a GUI that monitors executions of repeated jobs, such as building a software project or jobs run by cron.</li>
 <li>See <a href="https://jenkins-ci.org">https://jenkins-ci.org</a> for more details.</li>
 </ul>
+<br/>
+<img src="/images/jenkins/jenkins_logo.png" style="border:none; background:none; box-shadow:none;">
 				</section>
 				<section>
 					<h3>why use jenkins?</h3>
                                         <ul>
-					<li>take advantage of ci</li>
+					<li>take advantage of ci methodologies</li>
 					<li>abstract scripts to a GUI interface</li>
 					<li>built in restful api</li>
 					<li>extensibility (hooks and plugins to have it work how you need it to)</li>
@@ -145,6 +146,8 @@ A software methodology in which you can do small sets of changes that are automa
 <li>you have a tiny little project that will never grow</li>
 <li>you have deep respect for butlers and find the logo offensive</li>
 </ul>
+<br/>
+<img src="/images/jenkins/jenkins_logo.png" style="border:none; background:none; box-shadow:none;">
 				</section>
 				<section>
 					<h3>alternative ci</h3>
@@ -296,11 +299,11 @@ There are numerous best practices.  You can decide what is best for you or your 
 					<h3>security</h3>
 <ul>
 <li>always secure jenkins (it is not by default).</li>
-<li>by default anyone can do anything (chaos) and will often blame the jenkins owner for everything</li>
-<li>with anonymous users, you can not track who is doing what</li>
+<li>AD / LDAP / local users (I had issues with the latest active directory plugin)</li>
+<li>by default anyone can do anything (chaos) and will often blame the jenkins admin</li>
+<li>no tracking with anonymous users</li>
 <li>you may have sensitive data (ssl, apikeys)</li>
-<li>i find the audit trail plugin useful when opening up management but still being able to find culprits</li>
-<li>active directory / ldap also useful in corporate environments (I had issues with the latest active directory plugin)</li>
+<li>audit trail plugin is useful for tracking jenkins changes</li>
 </ul>
 				</section>
 				<section>
@@ -344,14 +347,13 @@ There are numerous best practices.  You can decide what is best for you or your 
 <ul>
 <li>tightly integrate with repository view tool (e.g. github or fisheye)</li>
 <li>repository browsing provides a quick update on what happens on a repository</li>
-<li>it also provides a graphical diff on what changes have been made from the previous build</li>
+<li>graphical diff on what changes have been made from the previous build</li>
 </ul>
 				</section>
 				<section>
 					<h3>trend reporting</h3>
 <ul>
-<li>generate trend reports</li>
-<li>trends helps project managers and developers quickly visualize current project progress status</li>
+<li>trend reports help project managers and developers quickly visualize current project progress status</li>
 <li>unit testing is often not enough to provide confidence that the delivered software complies to the desired quality</li>
 <li>The more you test the software, the better the delivered software complies to the desired quality</li>
 </ul>
@@ -359,7 +361,7 @@ There are numerous best practices.  You can decide what is best for you or your 
 				<section>
 					<h3>complete tests</h3>
 <ul>
-<li>automate your testing as much as possible</li>
+<li>do as much testing as possible</li>
 <li>it may be appropriate to run a limited set of "smoke tests" before the full suite that need to be run quickly</li>
 <li>integration tests should be prioritized above unit tests</li>
 </ul>
@@ -474,10 +476,9 @@ There are numerous best practices.  You can decide what is best for you or your 
 <ul>
 <li>under main configuration and manage nodes</li>
 <li>useful to do OS specific builds</li>
-<li>useful if you want more of a 1 instance to rule them all</li>
 <li>useful to pinning jobs to a large compute node</li>
-<li>can use slaves multiple ways, but just a ssh key is a very common way (trivial to setup)</li>
-<li>brings back artifacts back to the master (think of slaves like compute nodes)</li>
+<li>can setup slaves multiple ways (ssh key is a very common way)</li>
+<li>artifacts come back to the master (think of slaves like compute nodes)</li>
 <li>do not have to pin a job to 1 slave, can be more selective about which slaves or allow master if all slaves full</li>
 </ul>
 				</section>

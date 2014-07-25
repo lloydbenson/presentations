@@ -73,7 +73,7 @@
                                         <li>cover features</li>
                                         <li>demonstrate usefulness</li>
                                         <li>best practices</li>
-                                        <li>general advice</li>
+                                        <li>additional advice</li>
                                         <li>advanced topics</li>
                                         </ul>
 				</section>
@@ -82,7 +82,7 @@
 <ul>
 <li class="fragment">automated feedback system on test failures / blame committers!</li>
 <li class="fragment">small autonomous changes to easily to tell what broke</li>
-<li class="fragment">continuous deployment? qa, prod?</li>
+<li class="fragment">continuous deployment to qa or prod?</li>
 <li class="fragment">reporting / trending of environments and project tests</li>
 </ul>
 				</section>
@@ -115,7 +115,7 @@ A software methodology in which you can do small sets of changes that are automa
 <li>could be too much overhead if you have a very small app</li>
 <li>ci is only as good as your tests!</li>
 <li>it takes alot of commitment to keep up with tests</li>
-<li>ci software is always changing and can break during upgrades. The irony!</li>
+<li>ci software is always changing (like any software) and can break during upgrades. The irony!</li>
 </ul>
 				</section>
 				<section>
@@ -127,6 +127,14 @@ A software methodology in which you can do small sets of changes that are automa
 </ul>
 <br/>
 <img src="/images/jenkins/jenkins_logo.png" style="border:none; background:none; box-shadow:none;">
+				</section>
+				<section>
+					<h3>jenkins history</h3>
+<ul>
+<li>jenkins was originally developed as the hudson project</li>
+<li>hudson's creation started in summer of 2004 at sun microsystems</li>
+<li>the project was forked from hudson after a dispute with oracle</li>
+</ul>
 				</section>
 				<section>
 					<h3>why use jenkins?</h3>
@@ -148,24 +156,6 @@ A software methodology in which you can do small sets of changes that are automa
 </ul>
 <br/>
 <img src="/images/jenkins/jenkins_logo.png" style="border:none; background:none; box-shadow:none;">
-				</section>
-				<section>
-					<h3>alternative ci</h3>
-                                        <ul>
-					<li>travis ci</li>
-					<li>buildbot</li>
-					<li>circle ci</li>
-					<li>cruise control</li>
-					<li><a href="http://en.wikipedia.org/wiki/Comparison_of_continuous_integration_software">comparison of continuous integration software</a></li>
-                                        </ul>
-				</section>
-				<section>
-					<h3>jenkins history</h3>
-<ul>
-<li>jenkins was originally developed as the hudson project</li>
-<li>the project was forked from hudson after a dispute with oracle</li>
-<li>hudson's creation started in summer of 2004 at sun microsystems</li>
-</ul>
 				</section>
 				<section>
 					<h3>jenkins features</h3>
@@ -253,7 +243,7 @@ A software methodology in which you can do small sets of changes that are automa
 <li>prepare, start, configure oh myyy</li>
 <li>test that when successful, jenkins automatically builds and deploys</li>
 <li>show pull request integration with github that uses the github api to show status</li>
-<li>with devops and ci automation, it leaves us with lots of time for more lecture!</li>
+<li>with automation, there is more time for boring lecture!</li>
 </ul>
 				</section>
 				<section>
@@ -292,46 +282,41 @@ A software methodology in which you can do small sets of changes that are automa
 				</section>
 				<section>
 					<h3>best practices</h3>
-There are numerous best practices.  You can decide what is best for you or your organization.
-
+There are numerous best practices.<br/>
+You can decide what is best for you or your organization.
 				</section>
 				<section>
 					<h3>security</h3>
 <ul>
 <li>always secure jenkins (it is not by default).</li>
 <li>AD / LDAP / local users (I had issues with the latest active directory plugin)</li>
-<li>by default anyone can do anything (chaos) and will often blame the jenkins admin</li>
-<li>no tracking with anonymous users</li>
-<li>you may have sensitive data (ssl, apikeys)</li>
+<li>by default anyone (anonymous) can do anything which means they will do anything!</li>
+<li>you may have sensitive data like apikeys</li>
 <li>audit trail plugin is useful for tracking jenkins changes</li>
 </ul>
 				</section>
 				<section>
 					<h3>backup</h3>
 <ul>
-<li>Backup jenkins regularly</li>
-<li>Easy to backup jenkins because its flat files</li>
-<li>You can even make a jenkins job to do this on a regular interval</li>
-<li>When doing any upgrades make sure this is done before hand</li>
+<li>backup jenkins regularly</li>
+<li>easy to backup jenkins because of flat files</li>
+<li>make a backup jenkins job!</li>
+<li>especially important for upgrades</li>
 </ul>
 				</section>
 				<section>
 					<h3>fingerprinting</h3>
 <ul>
 <li>use file fingerprinting to manage dependencies</li>
-<li>useful for interdependent projects on jenkins</li>
-<li>externally, useful for ensuring you have the right version and that the copy was successful</li>
 </ul>
 				</section>
 				<section>
 					<h3>source control management (SCM)</h3>
 <ul>
 <li>fully use source control (should be obvious these days)</li>
-<li>reliable builds will be clean builds (avoids the typical "well it works on my machine" developer mantra)</li>
+<li>reliable builds will be clean builds (avoids typical "well it works on my machine" developer mantra)</li>
 <li>track your changes and easily revert</li>
 <li>good communication mechanism to collaborate with team or community</li>
-<li>include all code including third-party jars, build scripts, release notes</li>
-<li>ability to track all portions of the code to SCM version(s)</li>
 </ul>
 				</section>
 				<section>
@@ -339,31 +324,29 @@ There are numerous best practices.  You can decide what is best for you or your 
 <ul>
 <li>tightly integrate with issue tracker</li>
 <li>reduce the need for maintaining a change log</li>
-<li>the integration helps to track changes as they are made, including build status, what build has been performed for this requirement or defects, and the link to the actual build results and artifacts.</li>
+<li>tie builds to defects</li>
 </ul>
 				</section>
 				<section>
 					<h3>repository view</h3>
 <ul>
 <li>tightly integrate with repository view tool (e.g. github or fisheye)</li>
-<li>repository browsing provides a quick update on what happens on a repository</li>
-<li>graphical diff on what changes have been made from the previous build</li>
+<li>repository browsing provides a graphical diff when an update happens</li>
 </ul>
 				</section>
 				<section>
 					<h3>trend reporting</h3>
 <ul>
-<li>trend reports help project managers and developers quickly visualize current project progress status</li>
+<li>project managers and developers can quickly visualize project progress status</li>
 <li>unit testing is often not enough to provide confidence that the delivered software complies to the desired quality</li>
-<li>The more you test the software, the better the delivered software complies to the desired quality</li>
 </ul>
 				</section>
 				<section>
 					<h3>complete tests</h3>
 <ul>
 <li>do as much testing as possible</li>
-<li>it may be appropriate to run a limited set of "smoke tests" before the full suite that need to be run quickly</li>
-<li>integration tests should be prioritized above unit tests</li>
+<li>prioritize integration over unit tests</li>
+<li>run quick limited set of "smoke tests" before full test suite</li>
 </ul>
 
 				</section>
@@ -374,31 +357,30 @@ There are numerous best practices.  You can decide what is best for you or your 
 <li>as with anything the more you keep, the worse the performance may be to keep track of it all</li>
 <li>archive/backup jobs before you fully delete them</li>
 <li>clean up after yourself (e.g. src directories)</li>
-<li>you can wipe workspace too if you do not want to do this within your script but if its large it has to keep around at least 1 copy when job isn't running</li>
-<li>for archival, limit the number of days / builds to keep </li>
+<li>you can wipe workspace</li>
+<li>archive limits for number of days / builds</li>
 </ul>
 				</section>
 				<section>
 					<h3>job separation</h3>
 <ul>
 <li>separate jobs for each branch or release</li>
-<li>maximize benefit of detecting problems early as part of supporting parallel development efforts and reducing risk</li>
+<li>support parallel development efforts</li>
 </ul>
 				</section>
 				<section>
 					<h3>conflicts</h3>
 <ul>
-<li>if jobs require network stack, make sure you allocate different ports for each branch etc to not conflict with other running jobs</li>
-<li>allocate a different port for parallel project builds and avoid scheduling all jobs to start at the same time</li>
+<li>if jobs require network, make sure to allocate different or random ports effectively as there may be parallel jobs running</li>
 <li>in node, we avoid this by injection to not even use the network stack</li>
 <li>think about potential race conditions</li>
 				</section>
 				<section>
 					<h3>manage time</h3>
 <ul>
-<li>try to utilize the time efficiently (do not run everything at once / all the time)</li>
-<li>split out crons to run at different times to more efficiently use the system</li>
-<li>figure out your load and add slaves to distribute this work if it is required</li>
+<li>do not run everything at once</li>
+<li>change job times to efficiently use the system</li>
+<li>add slaves to distribute if required</li>
 </ul>
 				</section>
 				<section>
@@ -406,14 +388,14 @@ There are numerous best practices.  You can decide what is best for you or your 
 <ul>
 <li>setup feedback to ALL team members to improve communication</li>
 <li>ensure failures are reported as soon as possible</li>
-<li>ensure email address or whatever communication mechanism is periodically checked to ensure its working</li>
+<li>periodically check communication mechanism to ensure its working</li>
 </ul>
 				</section>
 				<section>
 					<h3>identify success</h3>
 <ul>
 <li>tag / label / baseline after successful build</li>
-<li>if successful but later you find out there was an issue, find core test that didnt catch it and improve for next time</li>
+<li>if later you find unsuccessful, fix testing to avoid it next time</li>
 </ul>
 				</section>
 				<section>
@@ -424,24 +406,22 @@ There are numerous best practices.  You can decide what is best for you or your 
 </ul>
 				</section>
 				<section>
-                                        <h3>general advice</h3>
+                                        <h3>additional advice</h3>
 <ul>
-<li>decide if you want to have one jenkins instance to rule them all or distribute per team</li>
+<li>decide one jenkins instance or multiple</li>
 <li>do not get crazy with plugins (maintanence nightmare)</li>
+<li>minimize permissions (maintanence nightmare) and try to start with trust!</li>
 <li>chaining is awesome</li>
-<li>do not do everything as * * * * * (run every minute) unless you have a quick temporary demo!</li>
-<li>keep up to date, but do this from scratch ideally and test out (if you do updates too often you often break stuff and if you decide to do not keep it up to date, it soon becomes really outdated esp when you are doing leading edge software development)</li>
+<li>update software regularly, but try to minimize disruption</li>
 </ul>
 				</section>
 				<section>
-                                        <h3>general advice (cont)</h3>
+                                        <h3>additional advice (cont)</h3>
 <ul>
-<li>be careful making too many execution threads</li>
-<li>change default java options if you are doing java related tasks or you will get memory errors</li>
-<li>put all your build scripts in a repo so the blocks are not hard coded</li>
-<li>utilitize views to organize your jobs per tab (can even embed within tabs e.g. teams)</li>
-<li>do not get too crazy with permissions (maintanence nightmare) and try to start with trust!</li>
-<li>focus on integration testing over unit testing</li>
+<li>limit execution threads</li>
+<li>change default java options</li>
+<li>put all scripts in the repo so code blocks are not hard coded</li>
+<li>utilitize views</li>
 </ul>
 				</section>
 				<section>
@@ -449,9 +429,8 @@ There are numerous best practices.  You can decide what is best for you or your 
 <ul>
 <li>cli</li>
 <li>api</li>
-<li>slaves</li>
 <li>automation </li>
-<li>cool plugins</li>
+<li>core plugins</li>
 </ul>
 				</section>
 				<section>
@@ -472,30 +451,19 @@ There are numerous best practices.  You can decide what is best for you or your 
 </ul>
 				</section>
 				<section>
-                                        <h3>slaves</h3>
-<ul>
-<li>under main configuration and manage nodes</li>
-<li>useful to do OS specific builds</li>
-<li>useful to pinning jobs to a large compute node</li>
-<li>can setup slaves multiple ways (ssh key is a very common way)</li>
-<li>artifacts come back to the master (think of slaves like compute nodes)</li>
-<li>do not have to pin a job to 1 slave, can be more selective about which slaves or allow master if all slaves full</li>
-</ul>
-				</section>
-				<section>
                                         <h3>automation</h3>
 <ul>
-<li>look at this project to see automated installation</li>
+<li>look at the demo-jenkins project to see automated installation</li>
 <li>bin/prepare.sh for installation and bin/configure.sh for the plugin and job installation</li>
-<li>utilized the cli, could use the api to check status of kicked off jobs</li>
-<li>webhook can call /build in order to kick off a build</li>
+<li>utilized the cli</li>
+<li>could use the api to check status of kicked off jobs</li>
 <li>automation with authentication is a bit more tricky</li>
 <li>suggest install plugins, then copy in a global config, restart, then from there use authentication to install jobs</li>
 <li>preserve the identity based files that are located in jenkins home directory</li>
 </ul>
 				</section>
 				<section>
-                                        <h3>plugins I use</h3>
+                                        <h3>core plugins I use</h3>
                                         <ul>
                                         <li>git github github-api (should be default)</li>
                                         <li>ghprb (github pull request builder)</li>

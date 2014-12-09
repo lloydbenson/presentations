@@ -1,0 +1,832 @@
+<!doctype html>
+<html lang="en">
+
+	<head>
+		<meta charset="utf-8">
+
+		<title>a hapi introduction</title>
+
+		<meta name="description" content="advanced hapi">
+		<meta name="author" content="Lloyd Benson">
+
+		<meta name="apple-mobile-web-app-capable" content="yes" />
+		<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+		<link rel="stylesheet" href="/css/reveal.min.css">
+		<link rel="stylesheet" href="/css/theme/default.css" id="theme">
+
+		<!-- For syntax highlighting -->
+		<link rel="stylesheet" href="/lib/css/zenburn.css">
+
+                <!-- If the query includes 'print-pdf', include the PDF print sheet -->
+                <script>
+                        if( window.location.search.match( /print-pdf/gi ) ) {
+                                var link = document.createElement( 'link' );
+                                link.rel = 'stylesheet';
+                                link.type = 'text/css';
+                                link.href = '/css/print/pdf.css';
+                                document.getElementsByTagName( 'head' )[0].appendChild( link );
+                        }
+                </script>
+
+		<!--[if lt IE 9]>
+		<script src="lib/js/html5shiv.js"></script>
+		<![endif]-->
+	</head>
+
+	<body>
+
+		<div class="reveal">
+
+			<!-- Any section element inside of this container is displayed as a slide -->
+			<div class="slides">
+				<section>
+					<h2>advanced hapi</h2>
+					<h3>into the bowels of hapi</h3>
+					<p>
+						<small>Created by Lloyd Benson / lloyd.benson@gmail.com</small>
+					</p>
+				</section>
+				<section>
+					<h3>whoami</h3>
+                                        <ul>
+                                        <li>lloyd benson (lloyd.benson@gmail.com)</li>
+                                        <li>@walmartlabs node team (primarily mobile)</li>
+                                        <li>many hats (devops/architect/sysadmin/web developer/gluer of all things)</li>
+                                        <li>the guy that did the black friday node release</li>
+                                        </ul>
+				</section>
+				<section>
+				<section>
+					<p>plugins</p>
+                                        <ul>
+                                         <li>manage your endpoints in smaller components</li>
+                                         <li>manage your endpoints independently of other modules</li>
+                                         <li>although plugins can be shared (like an exchange) its primary goal is to help you with your architecture</li>
+                                        </ul>
+				</section>
+				<section>
+					<p>lots of endpoints</p>
+					<pre><code data-trim contenteditable>
+var Hapi = require('hapi');
+var User = require('./user');
+var Docs = require('./docs');
+
+var server = Hapi.createServer(8000);
+
+server.route([
+    { method: 'GET', path: '/user', handler: User.profile },
+    { method: 'POST', path: '/user', handler: User.update },
+    { method: 'PUT', path: '/user', handler: User.register },
+    { method: 'GET', path: '/doc', handler: Docs.view },
+    { method: 'GET', path: '/doc', handler: Docs.modify },
+    { method: 'PUT', path: '/doc', handler: Docs.create }
+});
+
+					</code></pre>
+File can get large, any changes to one area, may impact other teams, etc
+				</section>
+				<section>
+					<p>register</p>
+					<pre><code data-trim contenteditable>
+var User = require('./user');
+exports.register = function (plugin, options, next) {
+plugin.route([
+    { method: 'GET', path: '/user', handler: User.profile },
+    { method: 'POST', path: '/user', handler: User.update },
+    { method: 'PUT', path: '/user', handler: User.register }
+});
+   return next();
+};
+					</code></pre>
+					<pre><code data-trim contenteditable>
+npm publish
+					</code></pre>
+					<pre><code data-trim contenteditable>
+server.pack.require('myapp',options, callback); // can be private
+					</code></pre>
+				</section>
+				<section>
+					<p>bind</p>
+					<pre><code data-trim contenteditable>
+var User = require('./user');
+exports.register = function (plugin, options, next) {
+var user = new User(options);
+// defaults to all functions unless you override something more specific
+plugin.bind('user');
+plugin.route([
+    { method: 'GET', path: '/user', handler: user.profile },
+    { method: 'POST', path: '/user', handler: user.update },
+    { method: 'PUT', path: '/user', handler: user.register }
+});
+   return next();
+};
+					</code></pre>
+<ul>
+<li> Be careful about using module global area as if you have multiple instances (http and https for instance).</li>
+<li>Plugin is a singleton so its loading twice).</li>
+<li>Shared state should be within the bind object</li>
+</ul>
+				</section>
+				<section>
+					<p>pack</p>
+					<pre><code data-trim contenteditable>
+var pack = new Hapi.Pack();
+pack.server('8000',{labels: [ "http" ] });
+pack.server('8443',{labels: [ "https" ] });
+pack.server('8099',{labels: [ "admin" ] });
+
+// in this case all servers will get all the endpoints
+server.pack.require('myapp',options, callback);
+					</code></pre>
+<ul>
+<li>pack is a collection of servers</li>
+<li>createServer already does a single server instance for you</li>
+<li>for us, https is always valid but not always http</li>
+<li>allows you to manage code more effectively</li>
+</ul>
+				</section>
+				<section>
+					<p>pack.select()</p>
+					<pre><code data-trim contenteditable>
+exports.register = function (plugin, options, next) {
+var user = new User(options);
+// defaults to all functions unless you override something more specific
+plugin.bind('user');
+plugin.select('https').route([
+    { method: 'GET', path: '/user', handler: user.profile },
+    { method: 'POST', path: '/user', handler: user.update },
+    { method: 'PUT', path: '/user', handler: user.register }
+});
+plugin.select('admin').route([
+    { method: 'GET', path: '/user', handler: user.perm },
+});
+   return next();
+};
+					</code></pre>
+				</section>
+				<section>
+					<p>config files</p>
+					<pre><code data-trim contenteditable>
+{
+   "servers": [
+      {
+         "port": 8000,
+         "options": { labels: ["http"] }
+      },
+      {
+         "port": 8443,
+         "options": { labels: ["https"] }
+      },
+      {
+         "port": 8099,
+         "options": { labels: ["admin"] }
+      }
+   ],
+   "plugins": { 
+      "myapp": { //options// }
+   }
+}
+					</code></pre>
+				</section>
+				<section>
+					<p>hapi command line</p>
+					<pre><code data-trim contenteditable>
+# ls
+package.json config.json
+# npm install
+# hapi -c config.json
+					</code></pre>
+<ul>
+<li>setup your package.json with all your requirements for getting software for your plugins</li>
+<li>confidence plugin can help manage multiple environments from 1 file</li>
+</ul>
+				</section>
+				<section>
+					<p>other plugin features</p>
+					<pre><code data-trim contenteditable>
+exports.register = function (plugin, options, next) {
+   // cache is scoped to the plugin
+   var cache = plugin.cache({ 
+      expiresIn: 5 * 60 * 1000
+   });
+
+   // need for required modules black magic!
+   // also useful if you have a plugin that requires other plugins (takes over default require behavior)
+   // this is due to require actually including the path with it
+   plugin.loader(require);
+
+   plugin.view({
+      // handlebars does a require, but this by itself the code doesnt know how to get the hapi module
+      engines: { html: 'handlebars' },
+      path: './templates'
+   });
+   // if you want other plugins to see stuff from your plugin
+   // can use as server.plugins[name][key] or plugin.plugins[name][key] externally
+   plugin.expose('key','value');
+   return next();
+};
+					</code></pre>
+				</section>
+				</section>
+				<section>
+				<section>
+					<p>authentication</p>
+                                        <ul>
+                                         <li>hapi-auth-basic</li>
+                                         <li>hapi-auth-cookie</li>
+                                         <li>hapi-auth-hawk (not covered)</li>
+					 <li>bell</li>
+                                        </ul>
+				</section>
+				<section>
+					<p>http-auth-basic</p>
+					<pre><code data-trim contenteditable>
+// Load modules
+var Hapi = require('hapi');
+var Basic = require('hapi-auth-basic');
+// User database
+var users = {
+leet: {
+password: 'haxor',
+name: 'Leet Haxor'
+}
+};
+// Function used to validate a user
+var validate = function (username, password, callback) {
+var user = users[username];
+var isValid = user && user.password === password;
+var credentials = { name: user.name } // Will be accessible in request.auth.credentials
+return callback(null, isValid, credentials);
+};
+// Handlers
+var publicHandler = function (request, reply) {
+console.log(request.route)
+reply('Everyone can see this...');
+};
+var privateHandler = function (request, reply) {
+reply('Welcome ' + request.auth.credentials.name);
+};
+// Create server
+var server = new Hapi.Server();
+server.connection({ port: 8187 });
+// Load plugins
+server.register(Basic, function (err) {
+// Configure auth scheme
+var authOptions = {
+validateFunc: validate
+};
+server.auth.strategy('YourSimpleAuth', 'basic', authOptions);
+// Configure routes after plugins are loaded
+server.route({
+method: 'GET',
+path: '/public',
+handler: publicHandler
+});
+// Configure protected routes by setting auth
+server.route({
+method: 'GET',
+path: '/private',
+handler: privateHandler,
+config: {
+auth: 'YourSimpleAuth'
+}
+});
+// Start server
+server.start(function () { console.log('Started...'); });
+});
+					</code></pre>
+				</section>
+				<section>
+					<p>http-auth-cookie</p>
+					<pre><code data-trim contenteditable>
+// Load modules
+var Hapi = require('hapi');
+var AuthCookie = require('hapi-auth-cookie');
+var Joi = require('joi');
+// User database
+var users = {
+leet: {
+password: 'haxor',
+name: 'Leet Haxor'
+}
+};
+// Handlers
+var validate = function (request, reply) {
+var username = request.payload.username;
+var password = request.payload.password;
+var user = users[username];
+var isValid = user && user.password === password;
+if (!isValid) {
+return reply().redirect('/login');
+}
+var credentials = { name: user.name } // Will be accessible in request.auth.credentials
+request.auth.session.set(credentials);
+return reply('Logged In');
+};
+var publicHandler = function (request, reply) {
+reply('Everyone can see this...');
+};
+var privateHandler = function (request, reply) {
+reply('Welcome ' + request.auth.credentials.name);
+};
+var loginPage = function (request, reply) {
+var htmlForm = '<form method="post">' +
+' <p>' +
+' Username: <input type="text" name="username" /><br />' +
+' Password: <input type="password" name="password" />' +
+' </p>' +
+' <p><input type="submit" value="login" /></p>' +
+'</form>';
+reply(htmlForm);
+};
+var logout = function (request, reply) {
+request.auth.session.clear();
+reply('Logged out');
+};
+// Create server
+var server = new Hapi.Server();
+server.connection({ port: 8188 })
+// Load plugins
+server.register(AuthCookie, function (err) {
+// Configure auth scheme
+var authOptions = {
+password: 'PasswordUsedToEncryptCookie',
+cookie: 'NameOfCookie',
+redirectTo: '/login',
+isSecure: false
+};
+server.auth.strategy('YourCookieAuth', 'cookie', authOptions);
+// Configure routes after plugins are loaded
+server.route({
+method: 'GET',
+path: '/public',
+handler: publicHandler
+});
+// Configure protected routes by setting auth
+server.route({
+method: 'GET',
+path: '/private',
+handler: privateHandler,
+config: {
+auth: 'YourCookieAuth'
+}
+});
+// Login page
+server.route({
+method: 'GET',
+path: '/login',
+handler: loginPage
+});
+// Logout
+server.route({
+method: 'GET',
+path: '/logout',
+handler: logout,
+config: {
+auth: 'YourCookieAuth'
+}
+});
+// Login form post
+server.route({
+method: 'POST',
+path: '/login',
+handler: validate,
+config: {
+validate: {
+payload: {
+username: Joi.string().required(),
+password: Joi.string().required()
+}
+}
+}
+});
+// Start server
+server.start(function () { console.log('Started...'); });
+});
+					</code></pre>
+				</section>
+				<section>
+					<p>bell</p>
+					<pre><code data-trim contenteditable>
+// Load modules
+var Hapi = require('hapi');
+var Bell = require('bell');
+var AuthCookie = require('hapi-auth-cookie');
+// Handlers
+var publicHandler = function (request, reply) {
+reply('Everyone can see this...');
+};
+var privateHandler = function (request, reply) {
+reply('Welcome ' + request.auth.credentials.name);
+};
+var login = function (request, reply) {
+if (request.auth.isAuthenticated) {
+request.auth.session.set({
+name: request.auth.credentials.profile.displayName
+});
+return reply('Logged in...');
+}
+reply('Not logged in...');
+}
+var logout = function (request, reply) {
+request.auth.session.clear();
+reply('Logged out...');
+}
+// Create server
+var server = new Hapi.Server();
+server.connection({ port: 8189 });
+// Load plugins
+server.register([AuthCookie, Bell], function (err) {
+// Configure cookie auth scheme
+var authCookieOptions = {
+password: 'PasswordUsedToEncryptCookie',
+cookie: 'NameOfCookie',
+redirectTo: '/login',
+isSecure: false
+};
+server.auth.strategy('YourCookieAuth', 'cookie', authCookieOptions);
+// Configure third party auth scheme
+var bellAuthOptions = {
+provider: 'github',
+password: 'PasswordUsedToEncryptThirdPartyAuthCookie',
+clientId: '9be920982e25e4dea143',//'YourAppId',
+clientSecret: '96fb20b27af508d15302cc485638d15d7646e614',//'YourAppSecret',
+isSecure: false
+};
+server.auth.strategy('YourThirdPartyAuth', 'bell', bellAuthOptions);
+// Configure routes after plugins are loaded
+server.route({
+method: 'GET',
+path: '/public',
+handler: publicHandler
+});
+// Configure protected routes by setting auth
+server.route({
+method: 'GET',
+path: '/private',
+handler: privateHandler,
+config: {
+auth: 'YourCookieAuth'
+}
+});
+// Login page
+server.route({
+method: 'GET',
+path: '/login',
+handler: login,
+config: {
+auth: 'YourThirdPartyAuth'
+}
+});
+// Logout
+server.route({
+method: 'GET',
+path: '/logout',
+handler: logout,
+config: {
+auth: 'YourCookieAuth'
+}
+});
+// Start server
+server.start(function () { console.log('Started...'); });
+});
+					</code></pre>
+				</section>
+				</section>
+				<section>
+				<section>
+					<p>extensibility</p>
+                                        <ul>
+                                         <li>You can use an optional extention in the request lifecycle</li>
+                                         <li>onRequest, onPreAuth, onPostAuth, onPreHandler, onPostHandler, onPreResponse</li>
+                                         <li>onRequest, onPreResponse only ones guaranteed because others may fail before</li>
+                                        </ul>
+				</section>
+				<section>
+					<p>onRequest</p>
+					<pre><code data-trim contenteditable>
+					</code></pre>
+				</section>
+				<section>
+					<p>onPreAuth</p>
+					<pre><code data-trim contenteditable>
+					</code></pre>
+				</section>
+				<section>
+					<p>onPostAuth</p>
+					<pre><code data-trim contenteditable>
+					</code></pre>
+				</section>
+				<section>
+					<p>onPreHandler</p>
+					<pre><code data-trim contenteditable>
+					</code></pre>
+				</section>
+				<section>
+					<p>onPostHandler</p>
+					<pre><code data-trim contenteditable>
+					</code></pre>
+				</section>
+				<section>
+					<p>onPreResponse</p>
+					<pre><code data-trim contenteditable>
+					</code></pre>
+				</section>
+				</section>
+				<section>
+				<section>
+					<p>ops</p>
+                                        <ul>
+                                         <li>cors</li>
+                                         <li>logging</li>
+                                         <li>load</li>
+                                         <li>payload</li>
+					 <li>timeout</li>
+                                        </ul>
+				</section>
+				<section>
+					<p>cors</p>
+					<pre><code data-trim contenteditable>
+var Hapi = require('hapi');
+// Create a server with a host and port
+var server = Hapi.createServer(8000, {
+   // cors is false by default
+   cors: true
+});
+					</code></pre>
+                                        <ul>
+                                         <li>origin</li>
+                                         <li>headers / additionalHeaders (defaults Authorization, Content-Type, If-None-Match</li>
+                                         <li>methods (defaults GET, HEAD, POST, PUT, DELETE, OPTIONS)</li>
+                                         <li>maxAge</li>
+					 <li>others</li>
+                                        </ul>
+				</section>
+				<section>
+					<p>logging</p>
+					<pre><code data-trim contenteditable>
+var server = Hapi.createServer(8000, {
+   // cors is false by default
+   cors: true,
+   // implementation maps to internal 500 errors meaning your code is not right
+   // this is default
+   //debug: { request: ['implementation' ] }
+   // this gets all errors
+   debug: { request: [ 'error' ] }
+   // this will suppress all debugging
+   // debug: false
+});
+					</code></pre>
+				</section>
+				<section>
+					<p>custom request log tag</p>
+					<pre><code data-trim contenteditable>
+var handler = function (request, reply) {
+   // if you dont have a cookie and you want to set a cookie automatically
+   if (!request.state.visitor || !request.state.visitor.repeat) {
+      // log that you gave a cookie
+      request.log([ 'user', 'first' ], request.query.ref);
+   }
+   reply('welcome');
+};
+
+server.on('request', function (request, event, tags) {
+  // hapi maps array into an object
+  if (tags.first) {
+     console.log('new cookie');
+  } 
+};
+					</code></pre>
+				</section>
+				<section>
+					<p>custom general log tag</p>
+					<pre><code data-trim contenteditable>
+var handler = function (request, reply) {
+   reply('welcome');
+};
+server.log(["db", "connection", "error" ]);
+
+server.on('log', function (event, tags) {
+  if (tags.db && tags.error) {
+     console.error("Database connection is down");
+  }
+};
+					</code></pre>
+				</section>
+				<section>
+					<p>your code tag</p>
+					<pre><code data-trim contenteditable>
+//hapi narrowly scopes what it does in node domains so you can catch code errors (useful for plugins)
+var handler = function (request, reply) {
+   reply(no.such.variable);
+};
+// recall "implementation" debugging
+server.on('internalError', function (response, err) {
+   console.error('500 response error'); 
+};
+					</code></pre>
+				</section>
+				<section>
+					<p>response tag</p>
+					<pre><code data-trim contenteditable>
+var handler = function (request, reply) {
+   reply('welcome');
+};
+// can only have 1 response can have multiple requests
+server.on('response', function (request) {
+   analytics.report(request.id);
+};
+					</code></pre>
+				</section>
+				<section>
+					<p>tail</p>
+					<pre><code data-trim contenteditable>
+var handler = function (request, reply) {
+   //reply would just next right away and not block without tail
+   //tail allows us to have something that is blocking, be sure to finish before you report on it
+   //but the user doesnt have to wait
+   var tail = request.tail('last login');
+   db.write("user", id, {last: Date.now() }, function (err) {
+      tail();
+   }
+   reply('welcome');
+};
+// when you have done your last tail, it will have a tail event
+server.on('tail', function (request) {
+   analytics.report(request.id);
+};
+					</code></pre>
+				</section>
+				<section>
+					<p>load</p>
+					<p>separated to heavy module</p>
+					<pre><code data-trim contenteditable>
+var server = Hapi.createServer(8000, {
+   cors: true,
+   // helps us be stable please dont die
+   // is a performance hit (because we are checking)
+   // express may be faster as a result but for us its worth it
+   load: {
+      // 1.5g used in our prod
+      maxHeapUsedBytes: 1.5 * 1024 * 1024 * 1024,
+      // 3g rss semed fine for node
+      maxRssBytes: 3 * 1024 * 1024 * 1024,
+      // if your events take longer than expected
+      // these can start piling up and eat your server resources 
+      // this depends on how long you expect responses back
+      // ours is high due to some long api downstream dependencies
+      maxEventLoopDelay: 30 * 1000,
+      // every 5 sec tell us what the 3 values are
+      sampleInterval: 5 * 1000
+   }
+});
+					</code></pre>
+				</section>
+				<section>
+					<p>payload size</p>
+					<pre><code data-trim contenteditable>
+var server = Hapi.createServer(8000, {
+   cors: true,
+   // defaults to 1mb but if you need bigger file uploads..
+   // dont want an infinitely large payload just eating up resources
+   payload: { maxBytes: 1024 * 1024 }
+});
+					</code></pre>
+				</section>
+				<section>
+					<p>timeout</p>
+					<pre><code data-trim contenteditable>
+var server = Hapi.createServer(8000, {
+   cors: true,
+   timeout: {
+      // send a 503 if the server is taking too long
+      // default is false
+      server: 15 * 1000,
+      // send a 408 if client is taking too long
+      // 10s is default
+      client: 10 * 1000
+   }
+});
+					</code></pre>
+				</section>
+				</section>
+				<section>
+				<section>
+					<p>server.inject()</p>
+                                <ul>
+                                <li>Injects a request into the server simulating an incoming HTTP request without making an actual socket connection</li>
+                                <li>Injection is useful for testing purposes</li>
+                                <li>invoking routing logic internally without the overhead or limitations of the network stack (dont have to worry about ports, encoding types etc)</li>
+                                <li>Utilizes shot if you want to know the magic of how it digs into node itself (it puts itself right where node gives http</li>
+                                </ul>
+				</section>
+				<section>
+					<p>server.inject() example</p>
+					<pre><code data-trim contenteditable>
+var Hapi = require('hapi');
+
+var server = Hapi.createServer();
+server.route({
+   method: 'GET',
+   path: '/user',
+   handler: function (request, reply) {
+      reply({status: "ok"});
+   }
+});
+
+server.inject('/user', function(res) {
+   console.log(res.statusCode); // get 200 back
+   console.log(res.headers); // get headers
+   console.log(res.payload); // returns our reply (serialized buffer)
+   //if no result you get payload
+   console.log(res.result.status); // return the actual object
+});
+// note: no server.start(); !
+
+					</code></pre>
+				</section>
+				<section>
+					<p>server.inject() long</p>
+					<pre><code data-trim contenteditable>
+server.route({
+   method: 'GET',
+   path: '/user',
+   handler: function (request, reply) {
+      reply({status: "ok"});
+   }
+});
+server.inject(
+   method: 'GET',
+   url: '/user',
+   //emits a 'close' event after payload transmission (if any). Defaults to false.
+   // dont do this in production!
+   simulate: { close: true }
+   // can also simulate no end and error
+});
+
+					</code></pre>
+				</section>
+				</section>
+				<section>
+					<h3>Need help?</h3>
+                                        <ul>
+                                        <li><a href="https://hapijs.com/api">https://hapijs.com/api</a></li>
+                                        <li>lloyd.benson@gmail.com</li>
+                                        <li>#hapi in irc.freenode.net</li>
+                                        <li>submit issue / PR (<a href="https://github.com/hapijs/hapi/blob/master/docs/Style.md">Style Guide</a>)</li>
+                                        <li><a href="https://github.com/hapijs/discuss">https://github.com/hapijs/discuss</a></li>
+                                        <li>node school content <a href="https://github.com/hapijs/makemehapi">https://github.com/hapijs/makemehapi</a> being finished</li>
+                                        </ul>
+				</section>
+                                <section>
+                                        <h3>Questions/Comments</h3>
+                                        <p>
+                                                <small>Created by Lloyd Benson / lloyd.benson@gmail.com</small>
+                                                <small>with many borrowed elements from talks / documentation</small>
+                                        </p>
+					<p>
+						<a href="http://github.com/lloydbenson/presentations"><small>http://github.com/lloydbenson/presentations</small></a>
+					</p>
+                                </section>
+			</div>
+
+		</div>
+
+		<script src="/lib/js/head.min.js"></script>
+		<script src="/js/reveal.min.js"></script>
+
+		<script>
+
+			// Full list of configuration options available here:
+			// https://github.com/hakimel/reveal.js#configuration
+			Reveal.initialize({
+				controls: true,
+				progress: true,
+				history: true,
+				center: true,
+
+				theme: Reveal.getQueryHash().theme, // available themes are in /css/theme
+				transition: Reveal.getQueryHash().transition || 'default', // default/cube/page/concave/zoom/linear/fade/none
+
+				// Parallax scrolling
+				// parallaxBackgroundImage: 'https://s3.amazonaws.com/hakim-static/reveal-js/reveal-parallax-1.jpg',
+				// parallaxBackgroundSize: '2100px 900px',
+
+				// Optional libraries used to extend on reveal.js
+				dependencies: [
+					{ src: '/lib/js/classList.js', condition: function() { return !document.body.classList; } },
+					{ src: '/plugin/markdown/marked.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+					{ src: '/plugin/markdown/markdown.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+					{ src: '/plugin/highlight/highlight.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } },
+					{ src: '/plugin/zoom-js/zoom.js', async: true, condition: function() { return !!document.body.classList; } },
+					{ src: '/plugin/notes/notes.js', async: true, condition: function() { return !!document.body.classList; } }
+				]
+			});
+
+		</script>
+
+	</body>
+</html>

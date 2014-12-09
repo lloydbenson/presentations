@@ -55,21 +55,10 @@
 				<section>
 					<h3>whoami</h3>
                                         <ul>
-                                        <li>who cares?</li>
                                         <li>lloyd benson (lloyd.benson@gmail.com)</li>
                                         <li>@walmartlabs node team (primarily mobile)</li>
                                         <li>many hats (devops/architect/sysadmin/web developer/gluer of all things)</li>
                                         <li>the guy that did the black friday node release</li>
-                                        </ul>
-				</section>
-				<section>
-					<h3>goals</h3>
-                                        <ul>
-                                        <li>raise awareness</li>
-                                        <li>see if there is further interest</li>
-                                        <li>to give my first ever presentation</li>
-                                        <li>provide a boring non-coding talk to provide as many things as I can cover</li>
-                                        <li>try not to embarrass myself too badly by not being solely a developer</li>
                                         </ul>
 				</section>
 				<section>
@@ -86,20 +75,12 @@
                                         </ul>
 				</section>
 				<section>
-					<h3>alternative frameworks</h3>
-                                        <ul>
-					<li>express (koa / kraken)</li>
-					<li>director</li>
-					<li>restify</li>
-                                        <li><a href="http://nodeframework.com">http://nodeframework.com</a></li>
-                                        </ul>
-				</section>
-				<section>
 					<p>hello world</p>
 					<pre><code data-trim contenteditable>
 var Hapi = require('hapi');
 // Create a server with a host and port
-var server = Hapi.createServer('localhost', 8000);
+var server = new Hapi.Server();
+server.connection('localhost', 8000);
 // Add the route
 server.route({
     method: 'GET',
@@ -126,7 +107,7 @@ console.log(server.table());
                                          <li>The router iterates through the routing table on each incoming request and executes the first (and only the first) matching route.</li>
                                          <li>Route matching is done on the request path only (excluding the query and other URI components).</li>
                                          <li>Requests are matches in a deterministic order where the order in which routes are added does not matter.
-                                         <li>The routes are sorted from the most specific to the most generic. See <a href="https://github.com/spumko/hapi/blob/master/docs/Reference.md#path-processing">https://github.com/spumko/hapi/blob/master/docs/Reference.md#path-processing</a>
+                                         <li>The routes are sorted from the most specific to the most generic. See <a href="https://github.com/hapijs/hapi/blob/master/docs/Reference.md#path-processing">https://github.com/hapijs/hapi/blob/master/docs/Reference.md#path-processing</a>
                                         </ul>
 				</section>
 				<section>
@@ -638,7 +619,7 @@ var handler = function (request, reply) {
                                         <ul>
                                          <li>views</li>
 					 <li>cookies</li>
-					 <li>jsonp</li>
+					 <li>jsonp (anyone care?)</li>
                                         </ul>
 				</section>
 				<section>
@@ -710,101 +691,21 @@ var handler = function (request, reply) {
 					</code></pre>
 				</section>
 				<section>
-					<p>jsonp</p>
-					<pre><code data-trim contenteditable>
-server.route({
-    method: 'GET',
-    path: '/user',
-    config: {                           
-      // looks for parameter called callback and wraps
-      jsonp: 'callback',
-      handler: function (request, reply) {
-         reply({name: "lloyd" });
-      }
-    }
-});
-					</code></pre>
-For example, if the value is 'callback', a request comes in with 'callback=me', and the JSON response is '{ "a":"b" }', the payload will be: 'me({ "a":"b" });'. Does not work with stream responses.
-				</section>
-                                <section>
-                                        <p>advanced topics</p>
-                                        <ul>
-                                         <li>plugins</li>
-                                         <li>authentication</li>
-                                         <li>extensibility</li>
-                                         <li>ops</li>
-                                         <li>server.inject()</li>
-                                         <li>other plugins</li>
-                                        </ul>
-                                </section>
-                                <section>
-                                        <p>plugins</p>
-                                        <ul>
-                                         <li>manage your endpoints in smaller components</li>
-                                         <li>manage your endpoints independently of other modules</li>
-                                         <li>although plugins can be shared (like an exchange) its primary goal is to help you with your architecture</li>
-                                        </ul>
-                                </section>
-                                <section>
-                                        <p>authentication</p>
-                                        <ul>
-                                         <li>hapi-auth-basic</li>
-                                         <li>hapi-auth-cookie</li>
-                                         <li>hapi-auth-hawk</li>
-                                         <li>custom / more to come?</li>
-                                        </ul>
-                                </section>
-                                <section>
-                                        <p>extensibility</p>
-                                        <ul>
-                                         <li>You can use an optional extention in the request lifecycle</li>
-                                         <li>onRequest, onPreAuth, onPostAuth, onPreHandler, onPostHandler, onPreResponse</li>
-                                         <li>onRequest, onPreResponse only ones guaranteed because others may fail before</li>
-                                        </ul>
-                                </section>
-                                <section>
-                                        <p>ops</p>
-                                        <ul>
-                                         <li>cors</li>
-                                         <li>logging</li>
-                                         <li>load</li>
-                                         <li>payload size</li>
-                                         <li>timeout</li>
-                                        </ul>
-                                </section>
-                                <section>
-                                        <p>other cool stuff</p>
-                                        <ul>
-                                         <li>server.inject()</li>
-                                         <li>confidence</li>
-                                         <li>good</li>
-                                         <li>joi</li>
-                                        </ul>
-                                </section>
-				<section>
-					<h3>Want a better presentation of all hapi features?</h3>
-                                        <ul>
-                                        <li>Eran Hammer can explain at a deeper level</li>
-                                        <li>Much of this presentation came from this talk and covers more advanced topics and may provide better explanations</li>
-                                        <li><a href="http://vimeo.com/85799484">http://vimeo.com/85799484</a></li>
-                                        </ul>
-				</section>
-				<section>
 					<h3>Need help?</h3>
                                         <ul>
-                                        <li><a href="https://github.com/spumko/hapi/blob/master/docs/Reference.md">https://github.com/spumko/hapi/blob/master/docs/Reference.md</a></li>
+                                        <li><a href="https://hapijs.com/api">https://hapijs.com/api</a></li>
                                         <li>lloyd.benson@gmail.com</li>
                                         <li>#hapi in irc.freenode.net</li>
-                                        <li>submit issue / PR (<a href="https://github.com/spumko/hapi/blob/master/docs/Style.md">Style Guide</a>)</li>
-                                        <li><a href="https://github.com/spumko">https://github.com/spumko</a></li>
-                                        <li>node school content <a href="https://github.com/spumko/makemehapi">https://github.com/spumko/makemehapi</a> being finished</li>
+                                        <li>submit issue / PR (<a href="https://github.com/hapijs/hapi/blob/master/docs/Style.md">Style Guide</a>)</li>
+                                        <li><a href="https://github.com/hapijs/discuss">https://github.com/hapijs/discuss</a></li>
+                                        <li>node school content <a href="https://github.com/hapijs/makemehapi">https://github.com/hapijs/makemehapi</a> being finished</li>
+                                        <li>mentor <a href="https://github.com/hapijs/help">https://github.com/hapijs/help</a></li>
                                         </ul>
 				</section>
                                 <section>
                                         <h3>Questions/Comments</h3>
                                         <p>
                                                 <small>Created by Lloyd Benson / lloyd.benson@gmail.com</small>
-                                                <small>with many borrowed elements from talks / documentation</small>
                                         </p>
 					<p>
 						<a href="http://github.com/lloydbenson/presentations"><small>http://github.com/lloydbenson/presentations</small></a>

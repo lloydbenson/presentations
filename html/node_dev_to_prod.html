@@ -1,0 +1,663 @@
+<!doctype html>
+<html lang="en">
+
+	<head>
+		<meta charset="utf-8">
+
+		<title>node from dev to prod</title>
+
+		<meta name="description" content="node from dev to production environment">
+		<meta name="author" content="Lloyd Benson">
+
+		<meta name="apple-mobile-web-app-capable" content="yes" />
+		<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+		<link rel="stylesheet" href="/css/reveal.min.css">
+		<link rel="stylesheet" href="/css/theme/default.css" id="theme">
+
+		<!-- For syntax highlighting -->
+		<link rel="stylesheet" href="/lib/css/zenburn.css">
+
+                <!-- If the query includes 'print-pdf', include the PDF print sheet -->
+                <script>
+                        if( window.location.search.match( /print-pdf/gi ) ) {
+                                var link = document.createElement( 'link' );
+                                link.rel = 'stylesheet';
+                                link.type = 'text/css';
+                                link.href = '/css/print/pdf.css';
+                                document.getElementsByTagName( 'head' )[0].appendChild( link );
+                        }
+                </script>
+
+		<!--[if lt IE 9]>
+		<script src="lib/js/html5shiv.js"></script>
+		<![endif]-->
+	</head>
+
+	<body>
+
+		<div class="reveal">
+
+			<!-- Any section element inside of this container is displayed as a slide -->
+			<div class="slides">
+				<section>
+					<h2>node.js - development to production</h2>
+					<h3>getting started to production ready</h3>
+					<p>
+						<small>Created by Lloyd Benson / lloyd.benson@gmail.com</small>
+					</p>
+					<p>
+						<a href="http://github.com/lloydbenson/presentations"><small>http://github.com/lloydbenson/presentations</small></a>
+					</p>
+				</section>
+				<section>
+					<h3>whoami</h3>
+<p>
+                                        <ul>
+                                        <li>lloyd benson (lloyd.benson@gmail.com)</li>
+                                        <li>architect @walmartlabs node team</li>
+                                        <li>many hats (devops/sysadmin/developer/gluer)</li>
+                                        <li>the guy that did the black friday node release</li>
+                                        </ul>
+				</section>
+                            <section>
+                                        <h3>overview</h3>
+                                        <ol>
+                                           <li>getting started</li>
+                                           <li>npm</li>
+                                           <li>releases</li>
+                                           <li>production</li>
+                                        </ol>
+                                </section>
+				<section>
+				<section>
+					<h3>getting started - the sell</h3>
+					<ol>
+                                                <li>everything that can end up as js will end up as js</li>
+                                                <li>it is used by the largest companies already</li>
+                                                <li>extremely performant</li>
+                                                <li>leverage some FE skills (full stack developers)</li>
+                                                <li>immediate productivity (prove it!)</li>
+                                                <li>engage with community (http://hapijs.com/help)</li>
+                                                <li>skunkworks if you need</li>
+					</ol>
+				</section>
+				<section>
+					<h3>getting started - walmart</h3>
+					<ol>
+                                                <li>started out with a simple proxy</li>
+                                                <li>added analytics</li>
+                                                <li>took over endpoints</li>
+                                                <li>moved web components</li>
+                                                <li>node used throughout the organization</li>
+					</ol>
+				</section>
+				</section>
+				<section>
+				<section>
+					<h3>npm</h3>
+<ul>
+<li>package manager for node</li>
+<li>npm stands for...</li>
+</ul>
+				</section>
+				<section>
+					<h3>package.json</h3>
+					<pre><code data-trim contenteditable>
+{
+  "name": "reveal.js",
+  "version": "2.6.0",
+  "description": "The HTML Presentation Framework",
+  "homepage": "http://lab.hakim.se/reveal-js",
+  "subdomain": "revealjs",
+  "scripts": {
+    "test": "grunt test",
+    "start": ""
+  },
+  "author": {
+    "name": "Hakim El Hattab",
+    "email": "hakim.elhattab@gmail.com",
+    "url": "http://hakim.se"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/hakimel/reveal.js.git"
+  },
+  "engines": {
+    "node": "~0.8.0"
+  },
+  "dependencies": {
+    "underscore": "~1.5.1",
+    "express": "~2.5.9",
+    "mustache": "~0.7.2",
+    "socket.io": "~0.9.13"
+  },
+  "devDependencies": {
+    "grunt-contrib-qunit": "~0.2.2",
+...
+    "grunt-zip": "~0.7.0",
+    "grunt": "~0.4.0"
+  },
+...
+					</code></pre>
+					<p>Here is a basic package.json that reveal.js includes</p>
+				</section>
+				<section>
+					<h3>npm dependencies</h3>
+					<pre><code data-trim contenteditable>
+// dependencies
+  "dependencies": {
+    "underscore": "~1.5.1",
+    "express": "~2.5.9",
+    "mustache": "~0.7.2",
+    "socket.io": "~0.9.13"
+  },
+  "optionalDependencies": {
+    "pm2": "0.7.x"
+  },
+  "devDependencies": {
+    "grunt-contrib-qunit": "~0.2.2",
+    ...
+    "grunt-zip": "~0.7.0",
+    "grunt": "~0.4.0"
+  },
+...
+					</code></pre>
+				</section>
+				<section>
+					<h3>dependency options</h3>
+<ul>
+<li>"repo": "version" - just goes to npm</li>
+<li>"repo": "http(s)://github.com/org/repo.git" - go to public repo</li>
+<li>"repo": "git+ssh://git@github.com:org/repo.git" - go to private repo master</li>
+<li>"repo": "git+ssh://git@github.com:org/repo.git#tag" - specific tag</li>
+<li>"repo": "git+ssh://git@github.com:org/repo.git#githash" - specific hash</li>
+</ul>
+				</section>
+				<section>
+					<h3>npm install</h3>
+<ul>
+<li>npm install installs all dependencies</li>
+<li>if there are issues with optional (bad compile for example), it will still finish successfully</li>
+<li>this is useful for example when you dont have xcode installed but have an optional module like pm2 that requires it</li>
+</ul>
+				</section>
+				<section>
+					<h3>npm install --production</h3>
+					<p>npm install --production will install regular dependencies and optional but not devDependencies. </p>
+				</section>
+				<section>
+					<h3>npm install --no-optional</h3>
+					<pre><code data-trim contenteditable>
+  "optionalDependencies": {
+    "pm2": "0.7.x",
+    "good": "1.x.x"
+  },
+					</code></pre>
+					<p>npm install will try to install but not fail if it doesn't work.  Useful for compile errors with developer mode. </p>
+				</section>
+				<section>
+					<h3>npm test</h3>
+					<pre><code data-trim contenteditable>
+ npm test
+
+> reveal.js@2.6.0 test /home/lloyd/pres/node_modules/reveal.js
+> grunt test
+
+Running "jshint:files" (jshint) task
+>> 2 files lint free.
+
+Running "qunit:files" (qunit) task
+Testing test/test-markdown-attributes.html .......OK
+Testing test/test-markdown-element-attributes.html .......OK
+Testing test/test-markdown.html .OK
+Testing test/test.html ...............................OK
+>> 108 assertions passed (354ms)
+Done, without errors.
+					</code></pre>
+				</section>
+				<section>
+					<h3>reducing package size</h3>
+					<ul>
+                                           <li>Put shared dependencies at the top level</li>
+                                        </ul>
+				</section>
+				<section>
+					<h3>npm shrinkwrap</h3>
+					<ul>
+						<li>Generates npm-shrinkwrap.json</li>
+						<li>Lists version dependencies</li>
+						<li>Generated shrinkwrap locks versions</li>
+						<li>Describes uniqueness</li>
+					</ul>
+				</section>
+				<section>
+          <p>Generated npm-shrinkwrap.json</p>
+          <pre><code data-trim contenteditable>
+{
+  "name": "reveal.js",
+  "version": "2.6.0",
+  "from": "reveal.js@*",
+  "dependencies": {
+    "underscore": {
+      "version": "1.5.2",
+      "from": "underscore@~1.5.1"
+    },
+    "express": {
+      "version": "2.5.11",
+      "from": "express@~2.5.9",
+      "dependencies": {
+        "connect": {
+          "version": "1.9.2",
+          "from": "connect@1.x",
+          "dependencies": {
+            "formidable": {
+              "version": "1.0.14",
+              "from": "formidable@1.0.x"
+            }
+          }
+        },
+        "mime": {
+          "version": "1.2.4",
+          "from": "mime@1.2.4"
+        },
+        "qs": {
+          "version": "0.4.2",
+          "from": "qs@0.4.x"
+        },
+        "mkdirp": {
+          "version": "0.3.0",
+          "from": "mkdirp@0.3.0"
+        }
+      }
+    },
+    "mustache": {
+      "version": "0.7.3",
+      "from": "mustache@~0.7.2"
+    },
+    "socket.io": {
+      "version": "0.9.16",
+      "from": "socket.io@~0.9.13",
+      "dependencies": {
+        "socket.io-client": {
+          "version": "0.9.16",
+          "from": "socket.io-client@0.9.16",
+          "dependencies": {
+            "uglify-js": {
+              "version": "1.2.5",
+              "from": "uglify-js@1.2.5"
+            },
+            "ws": {
+              "version": "0.4.31",
+              "from": "ws@0.4.x",
+              "dependencies": {
+                "commander": {
+                  "version": "0.6.1",
+                  "from": "commander@~0.6.1"
+                },
+                "nan": {
+                  "version": "0.3.2",
+                  "from": "nan@~0.3.0"
+                },
+                "tinycolor": {
+                  "version": "0.0.1",
+                  "from": "tinycolor@0.x"
+                },
+                "options": {
+                  "version": "0.0.5",
+                  "from": "options@>=0.0.5"
+                }
+              }
+            },
+            "xmlhttprequest": {
+              "version": "1.4.2",
+              "from": "xmlhttprequest@1.4.2"
+            },
+            "active-x-obfuscator": {
+              "version": "0.0.1",
+              "from": "active-x-obfuscator@0.0.1",
+              "dependencies": {
+                "zeparser": {
+                  "version": "0.0.5",
+                  "from": "zeparser@0.0.5"
+                }
+              }
+            }
+          }
+        },
+        "policyfile": {
+          "version": "0.0.4",
+          "from": "policyfile@0.0.4"
+        },
+        "base64id": {
+          "version": "0.1.0",
+          "from": "base64id@0.1.0"
+        },
+        "redis": {
+          "version": "0.7.3",
+          "from": "redis@0.7.3"
+        }
+      }
+    }
+  }
+}
+          </code></pre>
+				</section>
+				<section>
+					<h3>npm shrinkwrap uniqueness</h3>
+					<pre><code data-trim contenteditable>
+sha1sum npm-shrinkwrap.json | awk '{print $1}' | cut -c 1-7
+f85dd19
+					</code></pre>
+					<p>Much like using github short hash, we can describe unique artifact names (tar balls) when we package it up.</p>
+				</section>
+				<section>
+					<h3>npm shrinkwrap changes</h3>
+					<pre><code data-trim contenteditable>
+diff -u2 npm-shrinkwrap.json*
+--- npm-shrinkwrap.json	2014-01-02 13:12:05.269379205 -0600
++++ npm-shrinkwrap.json.orig	2014-01-02 13:11:14.368702837 -0600
+@@ -1,5 +1,5 @@
+ {
+   "name": "reveal.js",
+-  "version": "2.6.1",
++  "version": "2.6.0",
+   "from": "reveal.js@*",
+   "dependencies": {
+					</code></pre>
+					<p>By comparing the npm-shrinkwrap.json files, using diff, we can tell whats changed between the releases.</p>
+				</section>
+				</section>
+				<section>
+				<section>
+					<h3>releases - simple plan</h3>
+					<ol>
+                                           <li>npm install; npm test</li>
+                                           <li>rm -rf node_modules</li>
+                                           <li>npm install --production</li>
+                                           <li>npm shrinkwrap</li>
+                                           <li>tar cvfz project-uniqueid.tar.gz</li>
+                                           <li>scp project-uniqueid.tar.gz user@host:app</li>
+                                           <li>ssh user@host "cd app; tar xvfz project-uniqueid.tar.gz"</li>
+                                           <li>ssh user@host "cd app; node --abort-on-uncaught-exception"</li>
+                                           <li>ssh user@host "node app.js" (with systemd/upstart/etc)</li>
+                                        </ol>
+<br/>
+<p>I felt comfortable doing a black friday release</p>
+				</section>
+				<section>
+					<h3>releases - advice</h3>
+					<ul>
+						<li>release often</li>
+						<li>build once, push artifact</li>
+						<li>separate node version upgrades</li>
+						<li>keep configuration in 1 place</li>
+					</ul>
+				</section>
+				<section>
+					<h3>releases - npm shrinkwrap</h3>
+					<ul>
+						<li>generates npm-shrinkwrap.json</li>
+						<li>lists ALL dependencies with versions</li>
+						<li>dependencies can break builds</li>
+						<li>compare shrinkwraps from previous builds</li>
+						<li>describes uniqueness</li>
+					</ul>
+				</section>
+				</section>
+				<section>
+				<section>
+					<h3>production</h3>
+					<ol>
+                                           <li>monitoring</li>
+                                           <li>keep it running</li>
+                                           <li>load balancing</li>
+                                           <li>load testing</li>
+                                           <li>ssl performance</li>
+                                           <li>issues</li>
+                                        </ol>
+				</section>
+				<section>
+					<h3>monitor</h3>
+<center>
+<table>
+<tbody>
+<tr>
+<td>
+<ul>
+<li>memory</li>
+<li>application data</li>
+<li>application tests</li>
+<li>application restarts</li>
+<li>open files</li>
+<li>os / system</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</center>
+				</section>
+				<section>
+					<h3>monitor - memory</h3>
+					<ul>
+                                           <li>rss memory - 3g upper limit</li>
+                                           <li>heap memory - 1.5g upper limit</li>
+                                           <li>aggressive gc at limits hurts performance</li>
+                                           <li>may not die quickly and become painful</li>
+                                           <li>set thresholds based on historical trends to catch leaks</li>
+					</ul>
+<img src="/images/hapijs/hapi.png" height=90 style="border:none; background:none; box-shadow:none;"/>
+<br/>
+hapi config for rss memory, heap memory, and event loop delay
+				</section>
+				<section>
+					<h3>monitor - application data</h3>
+					<ul>
+                                           <li>requests, responses, errors, ops data</li>
+                                           <li>send application data to an aggregator</li>
+                                           <li>aggregators - splunk, logstash, big data</li>
+                                           <li>find leaks and performance issues with aggregator</li>
+					</ul>
+<a href="http://github.com/hapijs/good"><img src="/images/hapijs/good.png" height=75 style="border:none; background:none; box-shadow:none;"/></a>
+<br/>
+gather hapi requests, errors, and ops data with good
+				</section>
+				<section>
+					<h3>monitor - application tests</h3>
+					<ul>
+                                           <li>strive for 100% code coverage</li>
+                                           <li>prioritize integration over unit tests</li>
+                                           <li>run prod tests continually</li>
+                                           <li>trend test results</li>
+					</ul>
+<br/>
+<br/>
+testing can be done with the <a href="http://github.com/hapijs/lab">lab</a> plugin
+				</section>
+				<section>
+					<h3>monitor - application restarts</h3>
+					<ul>
+                                           <li>avoid laziness with auto restart</li>
+                                           <li>still check for failures</li>
+					</ul>
+				</section>
+				<section>
+					<h3>monitor - open files</h3>
+					<ul>
+                                           <li>track open files on node process</li>
+                                           <li>generally boring but may be useful</li>
+                                           <li>can check infrequently</li>
+					</ul>
+				</section>
+				<section>
+					<h3>monitor - os / system</h3>
+					<ul>
+                                           <li>continue usual os / system checks</li>
+                                           <li>system wide scope</li>
+                                           <li>memory, cpu, swap, i/o, disk space, etc</li>
+                                           <li>cpu usage boring for black friday</li>
+					</ul>
+				</section>
+				<section>
+					<h3>keep it running</h3>
+					<ul>
+                                           <li>init script</li>
+                                           <li>process manager</li>
+                                        </ul>
+				</section>
+				<section>
+					<h3>init script</h3>
+					<ul>
+                                           <li>utilize process manager built-ins</li>
+                                           <li>utilize uptime/smf/init</li>
+                                        </ul>
+				</section>
+				<section>
+					<h3>load balancing</h3>
+					<ul>
+                                           <li>keep app horizontally scalable</li>
+                                           <li>node is limited by 32 bits</li>
+                                           <li>can split up into lightweight containers with 1 proc to have the same effect</li>
+					</ul>
+				</section>
+				<section>
+					<h3>load testing</h3>
+					<ul>
+                                           <li>do load testing as best as you can before hand</li>
+                                           <li>utilize your great monitoring to determine server capacity</li>
+                                           <li>leaks become more noticable when doing under large number of transactions</li>
+                                           <li>helps you optimize your code</li>
+                                           <li>doesn't catch everything so still need to be able to handle production issues</li>
+					</ul>
+<p>Note: Walmart has been affected by probably almost every serious bug in node due to the high number of transactions.</p>
+				</section>
+				<section>
+					<h3>ssl performance</h3>
+					<ul>
+                                           <li>ssl performance in node sucks</li>
+                                           <li>offload SSL 2048 bit especially to hardware load balancers</li>
+                                           <li>use nginx or apache mpm to leverage SSL and still not suck up the performance you want to gain with node</li>
+                                           <li>instead of apache/nginx for higher performance investigate stud/bud</li>
+                                           <li>play with your differing ciphers to find your best match with security needs vs performance defaults can be very expensive</li>
+                                           <li>split up http vs https traffic and bypass non-node solution for http traffic to optimize performance</li>
+					</ul>
+				</section>
+				<section>
+					<h3>production issues</h3>
+					<ul>
+                                           <li>--abort-on-uncaught-exception</li>
+                                           <li>gcore</li>
+                                           <li>dtrace on SmartOS</li>
+                                           <li>interesting read</li>
+                                        </ul>
+				</section>
+				<section>
+					<h3>--abort-on-uncaught-exception</h3>
+					<ul>
+                                           <li>catch what was in memory before the crash</li>
+                                           <li>requires 0.10.x</li>
+                                           <li>produces core file</li>
+                                        </ul>
+				</section>
+				<section>
+					<h3>gcore</h3>
+					<ul>
+                                           <li>gcore while its running</li>
+                                           <li>gcore <pid></li>
+                                           <li>useful to run through mdb</li>
+                                           <li>install gdb package on linux</li>
+                                        </ul>
+				</section>
+				<section>
+					<h3>dtrace on SmartOS</h3>
+					<ul>
+                                           <li>there are some big issues that are difficult to track without dtrace</li>
+                                           <li>dtrace for node ONLY available on SmartOS not linux</li>
+                                           <li>helpful to know c structures for debugging</li>
+                                           <li>SmartOS is a solaris variant</li>
+                                           <li>using dtrace can be cumbersome for many</li>
+                                           <li>utilize Joyent for these needs as it can be a big time commitment</li>
+                                           <li>useful canned scripts</li>
+                                        </ul>
+				</section>
+				<section>
+					<h3>Interesting read</h3>
+					<p><a href="http://www.joyent.com/blog/walmart-node-js-memory-leak">http://www.joyent.com/blog/walmart-node-js-memory-leak</a></p>
+				</section>
+				<section>
+					<h3>scale</h3>
+					<ul>
+                                           <li>load balance (multiproc vs container)</li>
+                                           <li>load test</li>
+                                           <li>auto restart</li>
+                                        </ul>
+				</section>
+				<section>
+					<h3>issues</h3>
+					<ul>
+                                           <li>first we fixed our code</li>
+                                           <li>Walmart affected by numerous bugs in node core</li>
+                                           <li><a href="http://www.joyent.com/blog/walmart-node-js-memory-leak">http://www.joyent.com/blog/walmart-node-js-memory-leak</a></li>
+                                        </ul>
+				</section>
+				<section>
+					<h3>issues - tools</h3>
+					<ul>
+                                           <li>--abort-on-uncaught-exception</li>
+                                           <li>gcore / mdb</li>
+                                           <li>dtrace</li>
+                                           <li>break down problem</li>
+                                        </ul>
+				</section>
+				<section>
+					<h3>issues - dtrace</h3>
+					<ul>
+                                           <li>some issues are difficult without dtrace</li>
+                                           <li>dtrace for node is ONLY available on SmartOS</li>
+                                           <li>dtrace can be a large time commitment for many</li>
+                                           <li>DTraceToolkit</li>
+                                        </ul>
+				</section>
+				</section>
+			</div>
+
+		</div>
+
+		<script src="/lib/js/head.min.js"></script>
+		<script src="/js/reveal.min.js"></script>
+
+		<script>
+
+			// Full list of configuration options available here:
+			// https://github.com/hakimel/reveal.js#configuration
+			Reveal.initialize({
+				controls: true,
+				progress: true,
+				history: true,
+				center: true,
+
+				theme: Reveal.getQueryHash().theme, // available themes are in /css/theme
+				transition: Reveal.getQueryHash().transition || 'default', // default/cube/page/concave/zoom/linear/fade/none
+
+				// Parallax scrolling
+				// parallaxBackgroundImage: 'https://s3.amazonaws.com/hakim-static/reveal-js/reveal-parallax-1.jpg',
+				// parallaxBackgroundSize: '2100px 900px',
+
+				// Optional libraries used to extend on reveal.js
+				dependencies: [
+					{ src: '/lib/js/classList.js', condition: function() { return !document.body.classList; } },
+					{ src: '/plugin/markdown/marked.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+					{ src: '/plugin/markdown/markdown.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+					{ src: '/plugin/highlight/highlight.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } },
+					{ src: '/plugin/zoom-js/zoom.js', async: true, condition: function() { return !!document.body.classList; } },
+					{ src: '/plugin/notes/notes.js', async: true, condition: function() { return !!document.body.classList; } }
+				]
+			});
+
+		</script>
+
+	</body>
+</html>

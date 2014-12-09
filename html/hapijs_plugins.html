@@ -1,0 +1,732 @@
+<!doctype html>
+<html lang="en">
+
+	<head>
+		<meta charset="utf-8">
+
+		<title>hapijs plugins</title>
+
+		<meta name="description" content="hapijs plugins">
+		<meta name="author" content="Lloyd Benson">
+
+		<meta name="apple-mobile-web-app-capable" content="yes" />
+		<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+		<link rel="stylesheet" href="/css/reveal.min.css">
+		<link rel="stylesheet" href="/css/theme/default.css" id="theme">
+
+		<!-- For syntax highlighting -->
+		<link rel="stylesheet" href="/lib/css/zenburn.css">
+
+                <!-- If the query includes 'print-pdf', include the PDF print sheet -->
+                <script>
+                        if( window.location.search.match( /print-pdf/gi ) ) {
+                                var link = document.createElement( 'link' );
+                                link.rel = 'stylesheet';
+                                link.type = 'text/css';
+                                link.href = '/css/print/pdf.css';
+                                document.getElementsByTagName( 'head' )[0].appendChild( link );
+                        }
+                </script>
+
+		<!--[if lt IE 9]>
+		<script src="lib/js/html5shiv.js"></script>
+		<![endif]-->
+	</head>
+
+	<body>
+
+		<div class="reveal">
+
+			<!-- Any section element inside of this container is displayed as a slide -->
+			<div class="slides">
+				<section>
+					<h2>a delightful journey into <br/>commonly used hapijs plugins</h2>
+					<p>
+						<small>Created by Lloyd Benson / lloyd.benson@gmail.com</small>
+					</p>
+				</section>
+                                <section>
+                                        <h3>whoami</h3>
+<p>
+                                        <ul>
+                                        <li>lloyd benson (lloyd.benson@gmail.com)</li>
+                                        <li>https://github.com/lloydbenson</li>
+                                        <li>architect @walmartlabs node team</li>
+                                        <li>many hats (devops/sysadmin/developer/gluer)</li>
+                                        <li>the guy that did the black friday node release</li>
+                                        </ul>
+</p>
+                                </section>
+				<section>
+					<p>hapi plugins</p>
+					<ul>
+						<li>lab</li>
+						<li>confidence</li>
+						<li>good</li>
+						<li>joi</li>
+						<li>lout</li>
+						<li>https://github.com/hapijs (core)</li>
+						<li>https://hapijs.com/plugins (community)</li>
+					</ul>
+				</section>
+				<section>
+				<section>
+					<p>lab</p>
+					<ul>
+						<li>lab is a command line utility</li>
+						<li>refactored mocha to handle most simple use cases</li>
+						<li>https://github.com/hapijs/lab</li>
+					</ul>
+				</section>
+				<section>
+					<p>code</p>
+					<ul>
+						<li>code is an assertion library</li>
+						<li>you can use chai with lab</li>
+						<li>since exists wasnt a function the test would pass but the assertion wasn't run</li>
+						<li>https://github.com/hapijs/code</li>
+					</ul>
+				</section>
+				<section>
+					<p>simple test</p>
+					<pre><code data-trim contenteditable>
+var Lab = require('lab');
+var Coder = require('code');
+
+var lab = exports.lab = Lab.script();
+var expect = Coder.expect;
+var describe = lab.describe;
+var it = lab.it;
+
+describe('math', function () {
+
+    it('returns true when 1 + 1 equals 2', function (done) {
+
+        expect(1+1).to.equal(2);
+        done();
+    });
+});
+					</code></pre>
+				</section>
+				<section>
+					<p>coder functions</p>
+					<pre><code data-trim contenteditable>
+Lab.expect(object).to.equal()
+Lab.expect(object).to.not.equal()
+Lab.expect(object).to.deep.equal()
+Lab.expect(object).to.exist()
+Lab.expect(object).to.not.exist()
+					</code></pre>
+				</section>
+				<section>
+					<p>command line</p>
+					<pre><code data-trim contenteditable>
+
+-r - reporter (default console)
+     console,html,junit,lcov,tap,json,clover
+-m - individual test timeout in milliseconds (default 2s)
+-t - minimum coverage threshold percentage (default 100%)
+-g - global leak check (default)
+-v - verbose 
+-i - individual tests (e.g. 1-2 or 1,3)
+-p - run tests in parallel
+-L - built-in hapijs linter
+-a - assert library tallies assertions
+					</code></pre>
+				</section>
+				<section>
+					<p>Makefile</p>
+					<pre><code data-trim contenteditable>
+test:
+        @node node_modules/.bin/lab
+test-cov:
+        @node node_modules/.bin/lab -a code -r html -t 100 -m 10000
+test-cov-html:
+        @node node_modules/.bin/lab -r html -o coverage.html
+
+.PHONY: test test-cov test-cov-html
+					</code></pre>
+				</section>
+				<section>
+					<p>package.json</p>
+					<pre><code data-trim contenteditable>
+  "scripts": {
+    "test": "make test-cov"
+  },
+					</code></pre>
+				</section>
+				<section>
+					<p>server.inject()</p>
+					<ul>
+						<li>uses shot module (https://github.com/hapijs/shot)</li>
+						<li>injects itself in http layer without network stack</li>
+						<li>no worrying about port conflicts</li>
+					</ul>
+<br/>
+<img src="/images/hapijs/shot.png" height=70 style="border:none; background:none; box-shadow:none;"/>
+				</section>
+				<section>
+					<p>server.inject() example</p>
+					<pre><code data-trim contenteditable>
+server.inject()
+					</code></pre>
+				</section>
+				<section>
+					<p>code coverage</p>
+					<ul>
+						<li>hapijs projects have 100% code coverage</li>
+						<li>less than 100% coverage...</li>
+					</ul>
+				</section>
+				<section>
+<img src="/images/hapijs/partialcoverage.png" style="border:none; background:none; box-shadow:none;"/>
+				</section>
+				</section>
+				<section>
+				<section>
+					<p>confidence</p>
+					<ul>
+						<li>configuration document format</li>
+						<li>api</li>
+						<li>foundation for A/B</li>
+					</ul>
+<br/>
+<img src="/images/hapijs/confidence.png" height=60 style="border:none; background:none; box-shadow:none;"/>
+				</section>
+				<section>
+					<p>document format example</p>
+					<pre><code data-trim contenteditable>
+{
+    "key1": "abc",
+    "key2": {
+        "$filter": "env",
+        "production": {
+            "deeper": {
+                "$value": "value"
+            }
+        },
+        "$default": {
+            "$filter": "platform",
+            "android": 0,
+            "ios": 1,
+            "$default": 2
+        }
+    },
+    "key3": {
+        "sub1": 123,
+        "sub2": {
+            "$filter": "xfactor",
+            "yes": 6
+        }
+    },
+    "ab": {
+        "$filter": "random.a",
+        "$range": [
+            { "limit": 10, "value": 4 },
+            { "limit": 20, "value": 5 }
+        ],
+        "$default": 6
+    },
+    "$meta": {
+        "description": "example file"
+    }
+}
+					</code></pre>
+				</section>
+				<section>
+					<p>no filter</p>
+					<pre><code data-trim contenteditable>
+{
+    "key1": "abc",
+    "key2": 2,
+    "key3": {
+        "sub1": 123
+    },
+    "ab": 6
+}
+					</code></pre>
+				</section>
+				<section>
+					<p>filter</p>
+					<pre><code data-trim contenteditable>
+{
+    "env": "production",
+    "platform": "ios",
+    "xfactor": "yes",
+    "random": {
+        "a": 15
+    }
+}
+					</code></pre>
+					<pre><code data-trim contenteditable>
+{
+    "key1": "abc",
+    "key2": {
+        "deeper": "value"
+    },
+    "key3": {
+        "sub1": 123,
+        "sub2": 6
+    },
+    "ab": 5
+}
+					</code></pre>
+				</section>
+				<section>
+					<p>ranges</p>
+					<p>Ranges provide a way to filter a value based on numerical buckets. The criteria value must be an integer and it matched against the lowest bucket limit it can fit.</p>
+					<pre><code data-trim contenteditable>
+{
+    "key1": "abc",
+    "key2": {
+        "$filter": "system.env",
+        "production": 1,
+        "$default": 2
+    },
+    "key3": {
+        "$filter": "random.a",
+        "$range": [
+            { "limit": 10, "value": 4 },
+            { "limit": 20, "value": 5 }
+        ],
+        "$default": 6
+    }
+}
+					</code></pre>
+                                        <aside class="notes">
+                                                If the criteria includes a value for random.a, that value is matched against the sorted range entries. The criterion value will match the entry with lowest limit it is still less than or equal the limit of. For example, a criterion value of 5 will return a key value for '/key3' of 4. A criterion value of 15 will return a key value for '/key3' of 5, and a criterion value of 50 will return a key value for '/key3' of 6.
+                                        </aside>
+				</section>
+				<section>
+					<p>command line</p>
+					<pre><code data-trim contenteditable>confidence -c confidence.json --filter.env=prod > app.json</code></pre>
+					<pre><code data-trim contenteditable>hapi -c confidence.json --filter.env=prod</code></pre>
+				</section>
+				<section>
+					<p>interesting read</p>
+<a href="http://www.walmartlabs.com/2013/12/06/hacking-ab-testing-with-confidence/">http://www.walmartlabs.com/2013/12/06/hacking-ab-testing-with-confidence/</a>
+				</section>
+				</section>
+				<section>
+				<section>
+					<p>good</p>
+					<ul>
+						<li>now with configurable reporters!</li>
+						<li>good-file, good-http, good-console, good-broadcast</li>
+						<li>log types of request,ops,log(general events),error</li>
+					</ul>
+<br/>
+<img src="/images/hapijs/good.png" height=75 style="border:none; background:none; box-shadow:none;"/>
+				</section>
+				<section>
+					<p>additional good options (requests)</p>
+<ul>
+<li>opsInterval (default 15s)</li>
+<li>logRequestHeaders</li>
+<li>logResponsePayload</li>
+<li>logRequestPayload</li>
+<li>increases size and may impact security</li>
+</ul>
+                                       </ul>
+				</section>
+				<section>
+					<p>logging with specific tags</p>
+					<pre><code data-trim contenteditable>
+var options = {
+    subscribers: {
+        console: { tags: ['error'], events: ['log'] }
+    }
+};
+					</code></pre>
+				</section>
+				<section>
+					<p>good-console</p>
+					<pre><code data-trim contenteditable>
+
+var options = {
+    opsInterval: 1000,
+    reporters: [{
+        reporter: require('good-console'),
+        args:[{ log: '*', request: '*' }]
+    }]
+};
+
+                                        </code></pre>
+				</section>
+				<section>
+					<p>good-file</p>
+					<pre><code data-trim contenteditable>
+var options = {
+    opsInterval: 1000,
+    reporters: [{
+        reporter: require('good-console'),
+        args:[{ log: '*', request: '*' }]
+    }, {
+        reporter: require('good-file'),
+        args: ['./test/fixtures/awesome_log', { ops: '*' }]
+    }, {
+        reporter: require('good-http'),
+        args: ['http://prod.logs:3000', { error: '*' } , {
+            threshold: 20,
+            wreck: {
+                headers: { 'x-api-key' : 12345 }
+            }
+        }]
+    }]
+};
+        'http://localhost/logs': ['log'],
+        '/tmp/logs/':            ['request', 'log'],
+        'udp://127.0.0.1:9000':  ['request']
+    }
+};
+
+server.register('good', options, function (err) {
+
+    if (!err) {
+        // Plugin loaded successfully
+    }
+});
+                                        </code></pre>
+				</section>
+				<section>
+					<p>good-http</p>
+					<pre><code data-trim contenteditable>
+var options = {
+    subscribers: {
+        'console':               ['ops', 'request', 'log', 'error'],
+        'http://localhost/logs': ['log'],
+        '/tmp/logs/':            ['request', 'log'],
+        'udp://127.0.0.1:9000':  ['request']
+    }
+};
+
+server.pack.require('good', options, function (err) {
+
+    if (!err) {
+        // Plugin loaded successfully
+    }
+});
+                                        </code></pre>
+				</section>
+				<section>
+					<p>good-broadcast example</p>
+					<pre><code data-trim contenteditable>
+{
+    "url": "http://server/analytics",
+    "log": "/log/request_services.log",
+    "interval": 1000,
+    "newOnly": true,
+    "resumePath": "/log/requestIndex.tmp",
+    "wait": 1000,
+    "attempts": 1
+}
+					</code></pre>
+					<pre><code data-trim contenteditable>
+broadcast -c broadcast.json
+                                        </code></pre>
+				</section>
+				<section>
+					<p>good-reporter</p>
+					<ul>
+						<li>make your own custom reporter at</li>
+						<li>https://github.com/hapijs/good-reporter</li>
+						<li>community and hapijs reporters at</li>
+                                                <li>https://github.com/hapijs/good</li>
+					</ul>
+				</section>
+				<section>
+					<p>logging file/directory</p>
+					<p>no trailing slash indications a file</p>
+					<pre><code data-trim contenteditable>
+var options = {
+    subscribers: {
+        '/logs/good_log': { tags: ['error'], events: ['log'] },     // Creates good_log.001 file in /logs/
+        '/logs/': { events: ['request'] }                           // Creates {timestamp}.001 file in /logs/
+    }
+};
+					</code></pre>
+				</section>
+				<section>
+					<p>send your data off</p>
+					<ul>
+						<li>stores as json for use in splunk, logstash, etc</li>
+					</ul>
+				</section>
+				</section>
+				<section>
+				<section>
+					<p>joi</p>
+					<ul>
+						<li>2 step process</li>
+                                                <li>define schema</li>
+                                                <li>then validate the schema</li>
+                                                <li>joi used useful in non-hapi projects</li>
+                                                <li>built-in helpers for hapi</li>
+                                                <li>response validation</li>
+					</ul>
+<br/>
+<img src="/images/hapijs/joi.png" height=75 style="border:none; background:none; box-shadow:none;"/>
+				</section>
+				<section>
+					<p>define schema</p>
+					<pre><code data-trim contenteditable>
+var schema = {
+    a: Joi.string()
+};
+					</code></pre>
+				</section>
+				<section>
+					<p>validate schema</p>
+					<p>If the value is valid, null is returned, otherwise an Error object.</p>
+					<pre><code data-trim contenteditable>
+var err = Joi.validate({ a: 'a string' }, schema);
+					</code></pre>
+				</section>
+				<section>
+					<p>joi example</p>
+					<pre><code data-trim contenteditable>
+var Joi = require('joi');
+
+var schema = {
+    username: Joi.string().alphanum().min(3).max(30).with('birthyear').required(),
+    password: Joi.string().regex(/[a-zA-Z0-9]{3,30}/).without('access_token'),
+    access_token: [Joi.string(), Joi.number()],
+    birthyear: Joi.number().integer().min(1900).max(2013),
+    email: Joi.string().email()
+};
+
+var err = Joi.validate({ username: 'abc', birthyear: 1994 }, schema);  // err === null -> valid
+					</code></pre>
+				</section>
+				<section>
+					<p>joi within hapi</p>
+					<pre><code data-trim contenteditable>
+server.route({
+    method: 'GET',
+    path: '/hello',
+    config: {
+          handler: handler,
+          validate: {
+             query: {
+                id: Joi.number().min(100).required().xor('username'),
+                username: Joi.string().alphanum().min(3).max(10)
+             }
+          }
+    }
+});
+					</code></pre>
+				</section>
+				<section>
+					<p>schema</p>
+					<ul>
+						<li>Keys are optional by default</li>
+                                                <li>Strings are utf-8 encoded by default</li>
+                                                <li>Rules are defined in an additive fashion and evaluated in order after whitelist and blacklist checks</li>
+					</ul>
+				</section>
+				<section>
+					<p>schema object types</p>
+The schema can be a plain JavaScript object where every key is assigned a joi type, or it can be a joi type directly:
+					<pre><code data-trim contenteditable>
+var schema = Joi.string().min(10);
+					</code></pre>
+If the schema is a joi type, the schema.validate(value) can be called directly on the type. When passing a non-type schema object, the module converts it internally to an object() type equivalent to:
+					<pre><code data-trim contenteditable>
+var schema = Joi.object({
+    a: Joi.string()
+});
+					</code></pre>
+				</section>
+				<section>
+					<p>validate</p>
+					<pre><code data-trim contenteditable>
+ validate(value, schema, options) 
+					</code></pre>
+				</section>
+				<section>
+					<p>validate options</p>
+					<ul>
+<li>abortEarly - when true, stops validation on the first error, otherwise returns all the errors found. Defaults to true.</li>
+<li>convert - when true, attempts to cast values to the required types (e.g. a string to a number). Defaults to true.</li>
+<li>modify - when true, converted values are written back to the provided value (only when value is an object). Defaults to false.</li>
+<li>allowUnknown - when true, allows object to contain unknown keys which are ignored. Defaults to false.</li>
+<li>skipFunctions - when true, ignores unknown keys with a function value. Defaults to false.</li>
+<li>stripUnknown - when true, unknown keys are deleted (only when value is an object). Defaults to false.</li>
+<li>languagePath - the location of the language file used to localize error messages. Defaults to 'languages/en-us.json'.</li>
+					</ul>
+				</section>
+				<section>
+					<p>schema functions by types</p>
+					<ul>
+                                        <li>any()</li>
+                                        <li>array()</li>
+                                        <li>boolean()</li>
+                                        <li>date()</li>
+                                        <li>func()</li>
+                                        <li>number()</li>
+                                        <li>object(schema)</li>
+                                        <li>string()</li>
+					</ul>
+				</section>
+				<section>
+					<p>schema functions any()</p>
+					<ul>
+<li>any.allow(value)</li>
+<li>any.valid(value)</li>
+<li>any.invalid(value)</li>
+<li>any.required()</li>
+<li>any.optional()</li>
+<li>any.with(peer)</li>
+<li>any.without(peer)</li>
+<li>any.xor(peer)</li>
+<li>any.or(peer)</li>
+<li>description(desc)</li>
+<li>any.notes(notes)</li>
+<li>any.tags(tags)</li>
+<li>any.options(options)</li>
+<li>any.strict()</li>
+<li>any.rename(to, [options])</li>
+					</ul>
+				</section>
+				<section>
+					<p>schema functions array()</p>
+					<ul>
+<li>array.includes(type)</li>
+<li>array.excludes(type)</li>
+<li>array.min(limit)</li>
+<li>array.max(limit)</li>
+<li>array.length(limit)</li>
+					</ul>
+				</section>
+				<section>
+					<p>schema functions boolean()</p>
+					<ul>
+ 					<li>supports the same methods as any() type</li>
+					</ul>
+					<pre><code data-trim contenteditable>
+var boolean = Joi.boolean();
+boolean.allow(null);
+
+var err = boolean.validate(true);
+					</code></pre>
+				</section>
+				<section>
+					<p>schema functions date()</p>
+					<ul>
+<li>date.min(date)</li>
+<li>date.max(date)</li>
+					</ul>
+				</section>
+				<section>
+					<p>schema functions func()</p>
+					<ul>
+ 					<li>supports the same methods as any() type</li>
+					</ul>
+					<pre><code data-trim contenteditable>
+var func = Joi.func();
+func.allow(null);
+
+var err = func.validate(function () {});
+					</code></pre>
+				</section>
+				<section>
+					<p>schema functions number()</p>
+					<ul>
+<li>number.min(limit)</li>
+<li>number.max(limit)</li>
+<li>number.integer()</li>
+					</ul>
+				</section>
+				<section>
+					<p>schema functions object(schema)</p>
+					<ul>
+ 					<li>optional object where each key is assinged a joi type object. If the schema is {} no keys allowed. Defaults to 'undefined' which allows any child key.</li>
+					</ul>
+					<pre><code data-trim contenteditable>
+var object = Joi.object({
+    a: number.min(1).max(10).integer()
+});
+
+var err = object.validate({ a: 5 });
+					</code></pre>
+				</section>
+				<section>
+					<p>schema functions string()</p>
+					<ul>
+<li>string.insensitive()</li>
+<li>string.min(limit)</li>
+<li>string.max(limit)</li>
+<li>string.length(limit)</li>
+<li>string.regex(pattern)</li>
+<li>string.alphanum()</li>
+<li>string.token()</li>
+<li>string.email()</li>
+					</ul>
+				</section>
+				</section>
+				<section>
+				<section>
+					<p>lout</p>
+					<ul>
+						<li>automate your documentation</li>
+						<li>use describe in your routes</li>
+                                                <li>register plugin</li>
+                                                <li>use describe in joi to document schema</li>
+                                                <li>http://server/docs</li>
+					</ul>
+<br/>
+<img src="/images/hapijs/lout.png" height=65 style="border:none; background:none; box-shadow:none;"/>
+				</section>
+				</section>
+                                <section>
+                                        <h3>Questions / Comments</h3>
+                                        <p>
+                                                <small>Created by Lloyd Benson / lloyd.benson@gmail.com</small>
+                                        </p>
+                                        <p>
+                                                <a href="http://github.com/lloydbenson/presentations"><small>http://github.com/lloydbenson/presentations</small></a>
+                                        </p>
+                                </section>
+
+			</div>
+
+		</div>
+
+		<script src="/lib/js/head.min.js"></script>
+		<script src="/js/reveal.min.js"></script>
+
+		<script>
+
+			// Full list of configuration options available here:
+			// https://github.com/hakimel/reveal.js#configuration
+			Reveal.initialize({
+				controls: true,
+				progress: true,
+				history: true,
+				center: true,
+
+				theme: Reveal.getQueryHash().theme, // available themes are in /css/theme
+				transition: Reveal.getQueryHash().transition || 'default', // default/cube/page/concave/zoom/linear/fade/none
+
+				// Parallax scrolling
+				// parallaxBackgroundImage: 'https://s3.amazonaws.com/hakim-static/reveal-js/reveal-parallax-1.jpg',
+				// parallaxBackgroundSize: '2100px 900px',
+
+				// Optional libraries used to extend on reveal.js
+				dependencies: [
+					{ src: '/lib/js/classList.js', condition: function() { return !document.body.classList; } },
+					{ src: '/plugin/markdown/marked.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+					{ src: '/plugin/markdown/markdown.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+					{ src: '/plugin/highlight/highlight.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } },
+					{ src: '/plugin/zoom-js/zoom.js', async: true, condition: function() { return !!document.body.classList; } },
+					{ src: '/plugin/notes/notes.js', async: true, condition: function() { return !!document.body.classList; } }
+				]
+			});
+
+		</script>
+
+	</body>
+</html>

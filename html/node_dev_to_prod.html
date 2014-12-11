@@ -44,7 +44,7 @@
 			<div class="slides">
 				<section>
 					<h2>node.js - development to production</h2>
-					<h3>getting started to production ready</h3>
+					<h3>from start to finish</h3>
 					<p>
 						<small>Created by Lloyd Benson / lloyd.benson@gmail.com</small>
 					</p>
@@ -62,7 +62,7 @@
                                         <li>the guy that did the black friday node release</li>
                                         </ul>
 				</section>
-                            <section>
+				<section>
                                         <h3>overview</h3>
                                         <ol>
                                            <li>getting started</li>
@@ -71,7 +71,6 @@
                                            <li>production</li>
                                         </ol>
                                 </section>
-				<section>
 				<section>
 					<h3>getting started - the sell</h3>
 					<ol>
@@ -85,7 +84,7 @@
 					</ol>
 				</section>
 				<section>
-					<h3>getting started - walmart</h3>
+					<h3>getting started - Walmart</h3>
 					<ol>
                                                 <li>started out with a simple proxy</li>
                                                 <li>added analytics</li>
@@ -94,17 +93,16 @@
                                                 <li>node used throughout the organization</li>
 					</ol>
 				</section>
-				</section>
-				<section>
 				<section>
 					<h3>npm</h3>
 <ul>
-<li>package manager for node</li>
+<li>node package manager</li>
 <li>npm stands for...</li>
+<li class="fragment">It is a recursive bacronymic abbreviation for "npm is not an acronym"</li>
 </ul>
 				</section>
 				<section>
-					<h3>package.json</h3>
+					<h3>npm - package.json</h3>
 					<pre><code data-trim contenteditable>
 {
   "name": "reveal.js",
@@ -145,7 +143,7 @@
 					<p>Here is a basic package.json that reveal.js includes</p>
 				</section>
 				<section>
-					<h3>npm dependencies</h3>
+					<h3>npm - dependencies</h3>
 					<pre><code data-trim contenteditable>
 // dependencies
   "dependencies": {
@@ -167,7 +165,7 @@
 					</code></pre>
 				</section>
 				<section>
-					<h3>dependency options</h3>
+					<h3>npm - dependency options</h3>
 <ul>
 <li>"repo": "version" - just goes to npm</li>
 <li>"repo": "http(s)://github.com/org/repo.git" - go to public repo</li>
@@ -177,29 +175,30 @@
 </ul>
 				</section>
 				<section>
-					<h3>npm install</h3>
-<ul>
-<li>npm install installs all dependencies</li>
-<li>if there are issues with optional (bad compile for example), it will still finish successfully</li>
-<li>this is useful for example when you dont have xcode installed but have an optional module like pm2 that requires it</li>
-</ul>
+					<h3>npm - npm install</h3>
+<p> "npm install" installs all dependencies (regular, optional, dev)</p>
 				</section>
 				<section>
-					<h3>npm install --production</h3>
-					<p>npm install --production will install regular dependencies and optional but not devDependencies. </p>
+					<h3>npm - npm install --production</h3>
+					<p>"npm install --production" will install regular dependencies and optional but not devDependencies</p>
 				</section>
 				<section>
-					<h3>npm install --no-optional</h3>
+					<h3>npm - npm install --no-optional</h3>
 					<pre><code data-trim contenteditable>
   "optionalDependencies": {
     "pm2": "0.7.x",
     "good": "1.x.x"
   },
 					</code></pre>
-					<p>npm install will try to install but not fail if it doesn't work.  Useful for compile errors with developer mode. </p>
+<br/>
+					<ul>
+					<li>"npm install --no-optional" will not install optional dependencies</li>
+					<li>"npm install" will try to install optional dependencies but won't fail if errors</li>
+                                        <li>e.g. failed compile on mac development due to no xcode (but you still can compile in your build env</li>
+					</ul>
 				</section>
 				<section>
-					<h3>npm test</h3>
+					<h3>npm - npm test</h3>
 					<pre><code data-trim contenteditable>
  npm test
 
@@ -219,13 +218,13 @@ Done, without errors.
 					</code></pre>
 				</section>
 				<section>
-					<h3>reducing package size</h3>
+					<h3>npm - reducing package size</h3>
 					<ul>
                                            <li>Put shared dependencies at the top level</li>
                                         </ul>
 				</section>
 				<section>
-					<h3>npm shrinkwrap</h3>
+					<h3>npm - npm shrinkwrap</h3>
 					<ul>
 						<li>Generates npm-shrinkwrap.json</li>
 						<li>Lists version dependencies</li>
@@ -346,7 +345,7 @@ Done, without errors.
           </code></pre>
 				</section>
 				<section>
-					<h3>npm shrinkwrap uniqueness</h3>
+					<h3>npm - npm shrinkwrap uniqueness</h3>
 					<pre><code data-trim contenteditable>
 sha1sum npm-shrinkwrap.json | awk '{print $1}' | cut -c 1-7
 f85dd19
@@ -369,8 +368,6 @@ diff -u2 npm-shrinkwrap.json*
 					</code></pre>
 					<p>By comparing the npm-shrinkwrap.json files, using diff, we can tell whats changed between the releases.</p>
 				</section>
-				</section>
-				<section>
 				<section>
 					<h3>releases - simple plan</h3>
 					<ol>
@@ -385,6 +382,7 @@ diff -u2 npm-shrinkwrap.json*
                                            <li>ssh user@host "node app.js" (with systemd/upstart/etc)</li>
                                         </ol>
 <br/>
+<br/>
 <p>I felt comfortable doing a black friday release</p>
 				</section>
 				<section>
@@ -394,30 +392,16 @@ diff -u2 npm-shrinkwrap.json*
 						<li>build once, push artifact</li>
 						<li>separate node version upgrades</li>
 						<li>keep configuration in 1 place</li>
+						<li>use a continuous integration/deploy to automate</li>
 					</ul>
 				</section>
-				<section>
-					<h3>releases - npm shrinkwrap</h3>
-					<ul>
-						<li>generates npm-shrinkwrap.json</li>
-						<li>lists ALL dependencies with versions</li>
-						<li>dependencies can break builds</li>
-						<li>compare shrinkwraps from previous builds</li>
-						<li>describes uniqueness</li>
-					</ul>
-				</section>
-				</section>
-				<section>
 				<section>
 					<h3>production</h3>
-					<ol>
-                                           <li>monitoring</li>
-                                           <li>keep it running</li>
-                                           <li>load balancing</li>
-                                           <li>load testing</li>
-                                           <li>ssl performance</li>
+					<ul>
+                                           <li>monitor</li>
+                                           <li>scale</li>
                                            <li>issues</li>
-                                        </ol>
+                                        </ul>
 				</section>
 				<section>
 					<h3>monitor</h3>
@@ -449,9 +433,6 @@ diff -u2 npm-shrinkwrap.json*
                                            <li>may not die quickly and become painful</li>
                                            <li>set thresholds based on historical trends to catch leaks</li>
 					</ul>
-<img src="/images/hapijs/hapi.png" height=90 style="border:none; background:none; box-shadow:none;"/>
-<br/>
-hapi config for rss memory, heap memory, and event loop delay
 				</section>
 				<section>
 					<h3>monitor - application data</h3>
@@ -461,9 +442,6 @@ hapi config for rss memory, heap memory, and event loop delay
                                            <li>aggregators - splunk, logstash, big data</li>
                                            <li>find leaks and performance issues with aggregator</li>
 					</ul>
-<a href="http://github.com/hapijs/good"><img src="/images/hapijs/good.png" height=75 style="border:none; background:none; box-shadow:none;"/></a>
-<br/>
-gather hapi requests, errors, and ops data with good
 				</section>
 				<section>
 					<h3>monitor - application tests</h3>
@@ -473,9 +451,6 @@ gather hapi requests, errors, and ops data with good
                                            <li>run prod tests continually</li>
                                            <li>trend test results</li>
 					</ul>
-<br/>
-<br/>
-testing can be done with the <a href="http://github.com/hapijs/lab">lab</a> plugin
 				</section>
 				<section>
 					<h3>monitor - application restarts</h3>
@@ -502,56 +477,93 @@ testing can be done with the <a href="http://github.com/hapijs/lab">lab</a> plug
 					</ul>
 				</section>
 				<section>
-					<h3>keep it running</h3>
+					<h3>scale</h3>
+					<ul>
+                                           <li>keep it running</li>
+                                           <li>load balance (multiproc vs container)</li>
+                                           <li>load test</li>
+                                           <li>ssl</li>
+                                           <li>auto restart</li>
+                                        </ul>
+				</section>
+				<section>
+					<h3>scale - keep it running</h3>
 					<ul>
                                            <li>init script</li>
-                                           <li>process manager</li>
+                                           <li>process manager (pm2/forever)</li>
+                                           <li>upstart/systemd/smf</li>
                                         </ul>
+<br/>
+<br/>
+The closer you can get to the OS layer in general the better
 				</section>
 				<section>
-					<h3>init script</h3>
+					<h3>scale - load balance</h3>
 					<ul>
-                                           <li>utilize process manager built-ins</li>
-                                           <li>utilize uptime/smf/init</li>
-                                        </ul>
-				</section>
-				<section>
-					<h3>load balancing</h3>
-					<ul>
-                                           <li>keep app horizontally scalable</li>
                                            <li>node is limited by 32 bits</li>
-                                           <li>can split up into lightweight containers with 1 proc to have the same effect</li>
+                                           <li>keep app horizontally scalable</li>
+                                           <li>lightweight os containers vs multiple processes</li>
 					</ul>
 				</section>
 				<section>
-					<h3>load testing</h3>
+					<h3>scale - load test</h3>
 					<ul>
-                                           <li>do load testing as best as you can before hand</li>
-                                           <li>utilize your great monitoring to determine server capacity</li>
+                                           <li>load test before hand</li>
+                                           <li>instrument to determine server capacity</li>
                                            <li>leaks become more noticable when doing under large number of transactions</li>
                                            <li>helps you optimize your code</li>
-                                           <li>doesn't catch everything so still need to be able to handle production issues</li>
 					</ul>
-<p>Note: Walmart has been affected by probably almost every serious bug in node due to the high number of transactions.</p>
 				</section>
 				<section>
-					<h3>ssl performance</h3>
+					<h3>scale - ssl</h3>
 					<ul>
                                            <li>ssl performance in node sucks</li>
-                                           <li>offload SSL 2048 bit especially to hardware load balancers</li>
-                                           <li>use nginx or apache mpm to leverage SSL and still not suck up the performance you want to gain with node</li>
-                                           <li>instead of apache/nginx for higher performance investigate stud/bud</li>
+                                           <li>offload to hardware load balancers</li>
+                                           <li>nginx / apache mpm proxy</li>
+                                           <li>stud/bud alternatives may achieve higher performance</li>
                                            <li>play with your differing ciphers to find your best match with security needs vs performance defaults can be very expensive</li>
-                                           <li>split up http vs https traffic and bypass non-node solution for http traffic to optimize performance</li>
+                                           <li>splitting http from https traffic may be optimal if not overly complicated</li>
 					</ul>
 				</section>
 				<section>
-					<h3>production issues</h3>
+					<h3>issues</h3>
+You prepared but still have an issue.  Now what!?
+				</section>
+				<section>
+					<h3>issues - culture of blame / denial</h3>
+<img src="/images/dev_to_prod/opsproblem.jpg">
 					<ul>
+                                           <li>must be the network/os/node</li>
+                                           <li>it can't possibly be my custom app</li>
+                                        </ul>
+				</section>
+				<section>
+					<h3>issues - getting past the blame</h3>
+					<ul>
+                                           <li>assume your code first</li>
+                                           <li>be helpful</li>
+                                           <li>don't be adversarial</li>
+                                           <li>good instrumentation / errors enables others</li>
+                                           <li>this will lead to quicker resolutions</li>
+					</ul>
+				</section>
+				<section>
+					<h3>issues - Walmart</h3>
+					<ul>
+                                           <li>first we fixed our code</li>
+                                           <li>numerous bugs in node core due to sheer size of users</li>
+                                           <li><a href="http://www.joyent.com/blog/walmart-node-js-memory-leak">http://www.joyent.com/blog/walmart-node-js-memory-leak</a></li>
+                                        </ul>
+				</section>
+				<section>
+					<h3>issues - tools</h3>
+					<ul>
+                                           <li>break down problem</li>
+                                           <li>use your captured analytics</li>
                                            <li>--abort-on-uncaught-exception</li>
-                                           <li>gcore</li>
-                                           <li>dtrace on SmartOS</li>
-                                           <li>interesting read</li>
+                                           <li>gcore / mdb</li>
+                                           <li>dtrace</li>
+                                           <li>community</li>
                                         </ul>
 				</section>
 				<section>
@@ -566,64 +578,37 @@ testing can be done with the <a href="http://github.com/hapijs/lab">lab</a> plug
 					<h3>gcore</h3>
 					<ul>
                                            <li>gcore while its running</li>
-                                           <li>gcore <pid></li>
                                            <li>useful to run through mdb</li>
                                            <li>install gdb package on linux</li>
                                         </ul>
 				</section>
 				<section>
-					<h3>dtrace on SmartOS</h3>
-					<ul>
-                                           <li>there are some big issues that are difficult to track without dtrace</li>
-                                           <li>dtrace for node ONLY available on SmartOS not linux</li>
-                                           <li>helpful to know c structures for debugging</li>
-                                           <li>SmartOS is a solaris variant</li>
-                                           <li>using dtrace can be cumbersome for many</li>
-                                           <li>utilize Joyent for these needs as it can be a big time commitment</li>
-                                           <li>useful canned scripts</li>
-                                        </ul>
-				</section>
-				<section>
-					<h3>Interesting read</h3>
-					<p><a href="http://www.joyent.com/blog/walmart-node-js-memory-leak">http://www.joyent.com/blog/walmart-node-js-memory-leak</a></p>
-				</section>
-				<section>
-					<h3>scale</h3>
-					<ul>
-                                           <li>load balance (multiproc vs container)</li>
-                                           <li>load test</li>
-                                           <li>auto restart</li>
-                                        </ul>
-				</section>
-				<section>
-					<h3>issues</h3>
-					<ul>
-                                           <li>first we fixed our code</li>
-                                           <li>Walmart affected by numerous bugs in node core</li>
-                                           <li><a href="http://www.joyent.com/blog/walmart-node-js-memory-leak">http://www.joyent.com/blog/walmart-node-js-memory-leak</a></li>
-                                        </ul>
-				</section>
-				<section>
-					<h3>issues - tools</h3>
-					<ul>
-                                           <li>--abort-on-uncaught-exception</li>
-                                           <li>gcore / mdb</li>
-                                           <li>dtrace</li>
-                                           <li>break down problem</li>
-                                        </ul>
-				</section>
-				<section>
-					<h3>issues - dtrace</h3>
+					<h3>dtrace</h3>
 					<ul>
                                            <li>some issues are difficult without dtrace</li>
-                                           <li>dtrace for node is ONLY available on SmartOS</li>
-                                           <li>dtrace can be a large time commitment for many</li>
+                                           <li>dtrace for node is not available for linux</li>
+                                           <li>large time commitment for many</li>
                                            <li>DTraceToolkit</li>
                                         </ul>
 				</section>
+				<section>
+					<h3>community</h3>
+<p>Don't be afraid to engage in the community to get help</p>
 				</section>
+				<section>
+					<h3>conclusion</h3>
+Get Started.  Learn Tools.  Be Prepared.  You Can Do It!
+				</section>
+                                <section>
+                                        <h3>Questions/Comments</h3>
+                                        <p>
+                                                <small>Created by Lloyd Benson / lloyd.benson@gmail.com</small>
+                                        </p>
+                                        <p>
+                                                <a href="http://github.com/lloydbenson/presentations"><small>http://github.com/lloydbenson/presentations</small></a>
+                                        </p>
+                                </section>
 			</div>
-
 		</div>
 
 		<script src="/lib/js/head.min.js"></script>

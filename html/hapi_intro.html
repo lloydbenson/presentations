@@ -80,7 +80,7 @@
 var Hapi = require('hapi');
 // Create a server with a host and port
 var server = new Hapi.Server();
-server.connection('localhost', 8000);
+server.connection({ host: 'localhost', port: 8000, labels: ['http']});
 // Add the route
 server.route({
     method: 'GET',
@@ -96,18 +96,12 @@ server.start();
 					</code></pre>
 				</section>
 				<section>
-					<p>Get all routes</p>
-					<pre><code data-trim contenteditable>
-console.log(server.table());
-					</code></pre>
-				</section>
-				<section>
 					<p>path processing</p>
                                         <ul>
                                          <li>The router iterates through the routing table on each incoming request and executes the first (and only the first) matching route.</li>
                                          <li>Route matching is done on the request path only (excluding the query and other URI components).</li>
                                          <li>Requests are matches in a deterministic order where the order in which routes are added does not matter.
-                                         <li>The routes are sorted from the most specific to the most generic. See <a href="https://github.com/hapijs/hapi/blob/master/docs/Reference.md#path-processing">https://github.com/hapijs/hapi/blob/master/docs/Reference.md#path-processing</a>
+                                         <li>The routes are sorted from the most specific to the most generic. See <a href="http://hapijs.com/api#path-matching-order">http://hapijs.com/api#path-matching-order</a>
                                         </ul>
 				</section>
 				<section>
@@ -693,7 +687,7 @@ var handler = function (request, reply) {
 				<section>
 					<h3>Need help?</h3>
                                         <ul>
-                                        <li><a href="https://hapijs.com/api">https://hapijs.com/api</a></li>
+                                        <li><a href="http://hapijs.com">https://hapijs.com</a></li>
                                         <li>lloyd.benson@gmail.com</li>
                                         <li>#hapi in irc.freenode.net</li>
                                         <li>submit issue / PR (<a href="https://github.com/hapijs/hapi/blob/master/docs/Style.md">Style Guide</a>)</li>

@@ -80,14 +80,14 @@
 var Hapi = require('hapi');
 // Create a server with a host and port
 var server = new Hapi.Server();
-server.connection({ host: 'localhost', port: 8000, labels: ['http']});
+server.connection({ host: 'localhost', port: 8000, labels: ['http'] });
 // Add the route
 server.route({
     method: 'GET',
     path: '/hello',
     handler: function (request, reply) {
 
-        reply('hello world');
+        return reply('hello world');
         //reply({"name": "bob"});
     }
 });
@@ -108,8 +108,8 @@ server.start();
 					<p>using var for handler</p>
 					<pre><code data-trim contenteditable>
 var handler = function (request, reply) {
-                 reply('hello world');
-              };
+    return reply('hello world');
+};
 
 server.route({
     method: 'GET',
@@ -154,29 +154,10 @@ server.route({
 });
 					</code></pre>
                                         <ul>
-                                          <li>handler can be outside or inside of config</li>
-                                          <li>config allows you to keep things in sync so its not in a difference place</li>
-                                          <li>you can reuse config via require if you want</li>
+                                          <li>handler via config</li>
+                                          <li>config together </li>
+                                          <li>reuse config via require</li>
                                         </ul>
-				</section>
-				<section>
-					<p>validation</p>
-					<pre><code data-trim contenteditable>
-server.route({
-    method: 'GET',
-    path: '/hello',
-    config: { 
-          handler: handler,
-          validate: {
-             query: {
-                id: Joi.number().min(100).required().xor('username'),
-                username: Joi.string().alphanum().min(3).max(10) 
-             }
-          }
-    }
-});
-					</code></pre>
-                                        You should always be spending time validating your data!
 				</section>
 				<section>
 					<p>additional info</p>
@@ -198,22 +179,36 @@ server.route({
                                         </ul>
 				</section>
 				<section>
+					<p>validation</p>
+					<pre><code data-trim contenteditable>
+server.route({
+    method: 'GET',
+    path: '/hello',
+    config: { 
+          handler: handler,
+          validate: {
+             query: {
+                id: Joi.number().min(100).required().xor('username'),
+                username: Joi.string().alphanum().min(3).max(10) 
+             }
+          }
+    }
+});
+					</code></pre>
+                                       <ul>
+                                       <li>always validate</li>
+                                       <li>saves on code coverage</li>
+                                       <li>can use description tags for lout as well</li>
+                                       </ul>
+				</section>
+				<section>
 					<p>path parameters</p>
 					<pre><code data-trim contenteditable>
 server.route({
     method: 'GET',
     path: '/user/{id}',
     config: { 
-          handler: function (
-          validate: {
-             path: { 
-                [ id: Joi.number().min(100),
-                      Joi.string().alphanum().min(3).max(10) ]
-             }
-          },
-          description: "obtain user info",
-          tags: [ "user", "account" ],
-          notes: "some notes here"
+          handler: handler
     }
 });
 					</code></pre>
@@ -227,7 +222,7 @@ server.route({
 					<pre><code data-trim contenteditable>
 var getAlbum = function (request, reply) {
 
-    reply('You asked for ' +
+    return reply('You asked for ' +
           (request.params.song ? request.params.song + ' from ' : '') +
           request.params.album);
 };
@@ -249,7 +244,7 @@ server.route({
 var getPerson = function (request, reply) {
 
     var nameParts = request.params.name.split('/');
-    reply({ first: nameParts[0], last: nameParts[1] });
+    return reply({ first: nameParts[0], last: nameParts[1] });
 };
 
 server.route({
@@ -277,7 +272,7 @@ server.route({
                     if (err) {
                        return reply(Boom.notFound());
                     }
-                    reply(item);
+                    return reply(item);
                  );
           }
     }
@@ -285,75 +280,12 @@ server.route({
 					</code></pre>
 				</section>
 				<section>
-					<p>server.helper</p>
-					<pre><code data-trim contenteditable>
-var user = function (id, callback) {
-   db.get('user',id, function (err,item) {
-      if (err) {
-        return callback(Boom.notFound());
-      }
-      callback(item);
-   });
-};
-
-server.helper("user", user);
-
-server.helpers.user(123, function (result) {
-   // only need result not err and result
-   // it will either return err or a valid result like standard http
-   console.log(result);
-});
-
-					</code></pre>
-                                Can use as an interface between different endpoints but primarily useful for caching
-				</section>
-				<section>
-					<p>server.helper caching</p>
-					<pre><code data-trim contenteditable>
-var user = function (id, callback) {
-   // simplified
-   db.get('user',id, function (err,item) {
-      callback(item);
-   });
-};
-
-server.helper("user", user, {
-   cache: {
-      expiresIn: 60 * 1000,
-      // at 45 try to get a new copy
-      // if you dont get it in 300ms serve up old copy
-      // and when expiresIn hits, serve it up instead
-      staleIn: 45 * 1000,
-      staleTimeout: 300
-   }
-});
-
-					</code></pre>
-                                Has an in-memory cache 100m but you can configure to use redis, mongodb, memcached (and can use multiple)
-				</section>
-				<section>
-					<p>server.helper (continued)</p>
-					<pre><code data-trim contenteditable>
-server.route({
-    method: 'GET',
-    path: '/user/{id}',
-    config: { 
-          handler: function (request, reply) {
-             server.helpers.user(request.params.id, reply);
-          }
-    }
-});
-
-					</code></pre>
-                                Now we have caching.  Hapi 3.x uses server.method now and helper has been deprecated.
-				</section>
-				<section>
 					<p>route prerequisites</p>
 					<pre><code data-trim contenteditable>
-var pre1 = function (request, reply) { reply('hello'); };
-var pre2 = function (request, reply) { reply('world'); };
+var pre1 = function (request, reply) { return reply('hello'); };
+var pre2 = function (request, reply) { return reply('world'); };
 var pre3 = function (request, reply) {
-   reply(request.pre.m1 + ' ' + request.pre.m2);
+   return reply(request.pre.m1 + ' ' + request.pre.m2);
 };
 </code></pre>
 <pre><code data-trim contenteditable>
@@ -370,7 +302,7 @@ server.route({
             { method: pre3, assign: 'm3' },
         ],
         handler: function (request, reply) {
-            reply(request.pre.m3 + '\n');
+            return reply(request.pre.m3 + '\n');
         }
     }
 });
@@ -379,12 +311,12 @@ server.route({
 				<section>
 					<p>route prerequisites (continued)</p>
                                 <ul>
-                                <li>Gather blocking items before you execute business logic (parallel and/or serial)</li>
-                                <li>Simpler than doing nested callbacks</li>
-                                <li>Can be any function (not just helper)</li>
-                                <li>Executes in order</li>
-                                <li>If failures, it will reply back with that, else save state</li>
-                                <li>Not necessarily a true prerequisite, its just a way to break out business logic when order is important
+                                <li>gather blocking items before you execute business logic (parallel and/or serial)</li>
+                                <li>easier than doing nested callbacks</li>
+                                <li>can be any function (not just helper)</li>
+                                <li>executes in order</li>
+                                <li>if failure, it will reply back with that, else save state</li>
+                                <li>not necessarily a true prerequisite, its just a way to break out business logic when order is important
                                 </ul>
 				</section>
 				<section>
@@ -396,7 +328,7 @@ server.route({
     config: {
         pre: [ 'user(params.id)', 'account(params.id)', 'pref(params.id)' ],
         handler: function (request, reply) {
-            reply({
+            return reply({
                user: user.pre.user,
                account: user.pre.account,
                pref: user.pre.pref
@@ -448,8 +380,7 @@ server.route({
 //redirect / to the html dir
 var home = {
     handler: function (request, reply) {
-        // note you need the reply() interface, rather than our usual reply for redirect
-        reply().redirect('/html');
+        return reply.redirect('/html');
     }
 };
 
@@ -476,7 +407,7 @@ server.route({
              redirects: 5,
              // you get entire payload stream but lets add our own tracking cookie
              postResponse: function(request,reply,res) {
-                reply(res).state('tracker', '1234-1234-1234').ttl(60 * 1000);
+                return reply(res).state('tracker', '1234-1234-1234').ttl(60 * 1000);
              })
           }
        }
@@ -499,17 +430,17 @@ server.route({
        },
        handler: function (request, reply) {
           // could be many things, json - object, multiform - object with keys for different fields
-          reply(request.payload);
+          return reply(request.payload);
        }
     }
 });
 					</code></pre>
-                                <ul>
-                                <li>First look at (transport encoding) zip or deflate and open it</li>
-                                <li>Next look at the content type</li>
+                                <ol>
+                                <li>(transport encoding) zip or deflate and open it</li>
+                                <li>next content type</li>
                                 <li>if supported type, parse and give back the buffer as an object</li>
                                 <li>if parse if false, you get the raw buffer</li>
-                                </ul>
+                                </ol>
 				</section>
 				<section>
 					<p>payload supported parsing types</p>
@@ -542,10 +473,10 @@ server.route({
           parse: true // default
        },
        handler: function (request, reply) {
-          reply("received: " + request.payload.avatar.length); // data
-          //reply("saved to " + request.payload.avatar.path); // file
+          return reply("received: " + request.payload.avatar.length); // data
+          //return reply("saved to " + request.payload.avatar.path); // file
           //request(request.payload.avatar.pipe(require('request').put(url)); // stream
-          //reply("ok"); // stream
+          //return reply("ok"); // stream
        }
     }
 });
@@ -566,7 +497,7 @@ server.route({
        handler: function (request, reply) {
           request(request.payload.pipe(Zlib.createGunzip())
                                  .pipe(fs.createWriteStream('./upload');
-          //reply("ok"); // stream
+          //return reply("ok"); // stream
        }
     }
 });
@@ -577,7 +508,7 @@ server.route({
 					<pre><code data-trim contenteditable>
 var Responder = function (message) { this.message = message; };
 Reponder.prototype.handler = function (request, reply) {
-   reply(this.message);
+   return reply(this.message);
 };
 var responder = new Responder('hello');
 
@@ -594,26 +525,10 @@ server.route({
 					</code></pre>
 				</section>
 				<section>
-					<p>hold</p>
-					<pre><code data-trim contenteditable>
-var handler = function (request, reply) {
-   //wont work as expected because reply immediately calls next
-   //we could move this inside, but if you have complex rules hold may be preferable
-   var response = reply('hello');
-   //var response = reply('hello').hold;  // wont work as expected because reply immediately calls next
-   id.generate(request, function (id) {
-      response('tracker', id);
-      //response('tracker', id).send; // must call send after hold
-   });
-};
-					</code></pre>
-				</section>
-				<section>
 					<p>web support</p>
                                         <ul>
                                          <li>views</li>
 					 <li>cookies</li>
-					 <li>jsonp (anyone care?)</li>
                                         </ul>
 				</section>
 				<section>
@@ -629,14 +544,14 @@ server.views({
    engines: {
       // html is the extension
       // can do multiple engines at the same time
-      html: 'handlebars',
-      jade: 'jade'
+      html: require('handlebars'),
+      jade: require('jade')
    },
-   path: './templates'
+   path: __dirname + '/templates'
 });
 
 var handler = function (request, reply) {
-  reply.view("home", {message: "hello " + request.params.name});
+  return reply.view("home", {message: "hello " + request.params.name});
 };
 					</code></pre>
 				</section>
@@ -652,9 +567,9 @@ var handler = function (request, reply) {
 server.views({
    engines: {
       // html is the extension
-      html: 'handlebars'
+      html: require('handlebars')
    },
-   path: './templates'
+   path: __dirname + '/templates'
 });
 
 var handler = function (request, reply) {
@@ -675,9 +590,9 @@ server.state('visitor', {
   autoValue: { repeat: true }
 });
 var handler = function (request, reply) {
-  //reply.view("home"); //uninteresting
-  reply.view("home");
-  //reply.view("home");
+  //return reply.view("home"); //uninteresting
+  return reply.view("home");
+  //return reply.view("home");
        //.state('visitor',  { ttl: 24 * 60 * 60 * 1000 };
        //.state('visitor');
        //.state('visitor', {autoValue: {repeat: true}});
@@ -685,14 +600,54 @@ var handler = function (request, reply) {
 					</code></pre>
 				</section>
 				<section>
+					<h3><a href="http://github.com/hapijs">hapijs</a> ecosystem</h3>
+<center>
+<table>
+<tbody>
+<tr align=center>
+<td>
+<img src="/images/hapijs/hapi.png" height=90 style="border:none; background:none; box-shadow:none;"/>
+<img src="/images/hapijs/nipple.png" height=70 style="border:none; background:none; box-shadow:none;"/>
+<img src="/images/hapijs/poop.png" height=70 style="border:none; background:none; box-shadow:none;"/>
+<img src="/images/hapijs/bassmaster.png" height=70 style="border:none; background:none; box-shadow:none;"/>
+</td>
+</tr>
+<tr align=center>
+<td>
+<img src="/images/hapijs/good.png" height=75 style="border:none; background:none; box-shadow:none;"/>
+<img src="/images/hapijs/joi.png" height=75 style="border:none; background:none; box-shadow:none;"/>
+<img src="/images/hapijs/hoek.png" height=60 style="border:none; background:none; box-shadow:none;"/>
+<img src="/images/hapijs/crumb.png" height=70 style="border:none; background:none; box-shadow:none;"/>
+</td>
+</tr>
+<tr align=center>
+<td>
+<img src="/images/hapijs/boom.png" height=65 style="border:none; background:none; box-shadow:none;"/>
+<img src="/images/hapijs/tv.png" height=80 style="border:none; background:none; box-shadow:none;"/>
+<img src="/images/hapijs/scooter.png" height=70 style="border:none; background:none; box-shadow:none;"/>
+<img src="/images/hapijs/lout.png" height=65 style="border:none; background:none; box-shadow:none;"/>
+</td>
+</tr>
+<tr align=center>
+<td>
+<img src="/images/hapijs/yar.png" height=70 style="border:none; background:none; box-shadow:none;"/>
+<img src="/images/hapijs/catbox.png" height=70 style="border:none; background:none; box-shadow:none;"/>
+<img src="/images/hapijs/shot.png" height=70 style="border:none; background:none; box-shadow:none;"/>
+<img src="/images/hapijs/confidence.png" height=60 style="border:none; background:none; box-shadow:none;"/>
+</td>
+</tr>
+</tbody>
+</table>
+				</section>
+				<section>
 					<h3>Need help?</h3>
                                         <ul>
-                                        <li><a href="http://hapijs.com">https://hapijs.com</a></li>
+                                        <li><a href="http://hapijs.com">http://hapijs.com</a></li>
                                         <li>lloyd.benson@gmail.com</li>
                                         <li>#hapi in irc.freenode.net</li>
                                         <li>submit issue / PR (<a href="https://github.com/hapijs/hapi/blob/master/docs/Style.md">Style Guide</a>)</li>
                                         <li><a href="https://github.com/hapijs/discuss">https://github.com/hapijs/discuss</a></li>
-                                        <li>node school content <a href="https://github.com/hapijs/makemehapi">https://github.com/hapijs/makemehapi</a> being finished</li>
+                                        <li><a href="https://github.com/hapijs/makemehapi">makemehapi</a> (on nodeschool)</li>
                                         <li>mentor <a href="https://github.com/hapijs/help">https://github.com/hapijs/help</a></li>
                                         </ul>
 				</section>

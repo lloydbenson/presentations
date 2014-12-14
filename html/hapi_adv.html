@@ -4,7 +4,7 @@
 	<head>
 		<meta charset="utf-8">
 
-		<title>a hapi introduction</title>
+		<title>advanced hapi</title>
 
 		<meta name="description" content="advanced hapi">
 		<meta name="author" content="Lloyd Benson">
@@ -59,9 +59,9 @@
                                         </ul>
 				</section>
 				<section>
-				<section>
 					<p>plugins</p>
                                         <ul>
+                                         <li>now part of server interface</li>
                                          <li>manage your endpoints in smaller components</li>
                                          <li>manage your endpoints independently of other modules</li>
                                          <li>although plugins can be shared (like an exchange) its primary goal is to help you with your architecture</li>
@@ -74,7 +74,8 @@ var Hapi = require('hapi');
 var User = require('./user');
 var Docs = require('./docs');
 
-var server = Hapi.createServer(8000);
+var server = new Hapi.Server();
+server.connection({ port: 8000 });
 
 server.route([
     { method: 'GET', path: '/user', handler: User.profile },
@@ -92,20 +93,30 @@ File can get large, any changes to one area, may impact other teams, etc
 					<p>register</p>
 					<pre><code data-trim contenteditable>
 var User = require('./user');
-exports.register = function (plugin, options, next) {
-plugin.route([
-    { method: 'GET', path: '/user', handler: User.profile },
-    { method: 'POST', path: '/user', handler: User.update },
-    { method: 'PUT', path: '/user', handler: User.register }
-});
+exports.register = function (server, options, next) {
+   server.route([
+       { method: 'GET', path: '/user', handler: User.profile },
+       { method: 'POST', path: '/user', handler: User.update },
+       { method: 'PUT', path: '/user', handler: User.register }
+   });
    return next();
 };
+// need attribute?
 					</code></pre>
 					<pre><code data-trim contenteditable>
 npm publish
 					</code></pre>
 					<pre><code data-trim contenteditable>
-server.pack.require('myapp',options, callback); // can be private
+server.register({
+    register: require('myapp'),
+    options: {
+        message: 'hello'
+    }
+}, function(err) {
+    if (err) {
+        console.log('Failed loading plugin');
+    }
+});
 					</code></pre>
 				</section>
 				<section>
@@ -131,36 +142,34 @@ plugin.route([
 </ul>
 				</section>
 				<section>
-					<p>pack</p>
+					<p>connection (previously pack)</p>
 					<pre><code data-trim contenteditable>
-var pack = new Hapi.Pack();
-pack.server('8000',{labels: [ "http" ] });
-pack.server('8443',{labels: [ "https" ] });
-pack.server('8099',{labels: [ "admin" ] });
+var server = new Hapi.Server();
+server.connection({ port: 8080, labels: ["http"] });
+server.connection({ port: 8443, labels: ["https"] });
+server.connection({ host: 'localhost', port: 8099, labels: ["admin"] });
 
 // in this case all servers will get all the endpoints
-server.pack.require('myapp',options, callback);
+server.register(plugin,options, callback);
 					</code></pre>
 <ul>
-<li>pack is a collection of servers</li>
-<li>createServer already does a single server instance for you</li>
 <li>for us, https is always valid but not always http</li>
 <li>allows you to manage code more effectively</li>
 </ul>
 				</section>
 				<section>
-					<p>pack.select()</p>
+					<p>server.select()</p>
 					<pre><code data-trim contenteditable>
 exports.register = function (plugin, options, next) {
 var user = new User(options);
 // defaults to all functions unless you override something more specific
-plugin.bind('user');
-plugin.select('https').route([
+server.bind('user');
+server.select('https').route([
     { method: 'GET', path: '/user', handler: user.profile },
     { method: 'POST', path: '/user', handler: user.update },
     { method: 'PUT', path: '/user', handler: user.register }
 });
-plugin.select('admin').route([
+server.select('admin').route([
     { method: 'GET', path: '/user', handler: user.perm },
 });
    return next();
@@ -171,7 +180,7 @@ plugin.select('admin').route([
 					<p>config files</p>
 					<pre><code data-trim contenteditable>
 {
-   "servers": [
+   "connections": [
       {
          "port": 8000,
          "options": { labels: ["http"] }
@@ -181,6 +190,7 @@ plugin.select('admin').route([
          "options": { labels: ["https"] }
       },
       {
+         "host": 'localhost',
          "port": 8099,
          "options": { labels: ["admin"] }
       }
@@ -192,12 +202,12 @@ plugin.select('admin').route([
 					</code></pre>
 				</section>
 				<section>
-					<p>hapi command line</p>
+					<p>glue - command line hapi</p>
 					<pre><code data-trim contenteditable>
 # ls
 package.json config.json
 # npm install
-# hapi -c config.json
+# glue -c config.json
 					</code></pre>
 <ul>
 <li>setup your package.json with all your requirements for getting software for your plugins</li>
@@ -207,31 +217,22 @@ package.json config.json
 				<section>
 					<p>other plugin features</p>
 					<pre><code data-trim contenteditable>
-exports.register = function (plugin, options, next) {
+exports.register = function (server, options, next) {
    // cache is scoped to the plugin
-   var cache = plugin.cache({ 
+   var cache = server.cache({ 
       expiresIn: 5 * 60 * 1000
    });
 
-   // need for required modules black magic!
-   // also useful if you have a plugin that requires other plugins (takes over default require behavior)
-   // this is due to require actually including the path with it
-   plugin.loader(require);
-
-   plugin.view({
+   server.view({
       // handlebars does a require, but this by itself the code doesnt know how to get the hapi module
       engines: { html: 'handlebars' },
-      path: './templates'
+      path: __dirpath + '/templates'
    });
-   // if you want other plugins to see stuff from your plugin
-   // can use as server.plugins[name][key] or plugin.plugins[name][key] externally
-   plugin.expose('key','value');
+   server.expose('key','value');
    return next();
 };
 					</code></pre>
 				</section>
-				</section>
-				<section>
 				<section>
 					<p>authentication</p>
                                         <ul>
@@ -259,10 +260,10 @@ var validate = function (username, password, callback) {
 // Handlers
 var publicHandler = function (request, reply) {
     console.log(request.route)
-    reply('Everyone can see this...');
+    return reply('Everyone can see this...');
 };
 var privateHandler = function (request, reply) {
-    reply('Welcome ' + request.auth.credentials.name);
+    return reply('Welcome ' + request.auth.credentials.name);
 };
 // Create server
 var server = new Hapi.Server();
@@ -311,10 +312,10 @@ request.auth.session.set(credentials);
 return reply('Logged In');
 };
 var publicHandler = function (request, reply) {
-reply('Everyone can see this...');
+return reply('Everyone can see this...');
 };
 var privateHandler = function (request, reply) {
-reply('Welcome ' + request.auth.credentials.name);
+return reply('Welcome ' + request.auth.credentials.name);
 };
 var loginPage = function (request, reply) {
 var htmlForm = '<form method="post">' +
@@ -324,11 +325,11 @@ var htmlForm = '<form method="post">' +
 ' </p>' +
 ' <p><input type="submit" value="login" /></p>' +
 '</form>';
-reply(htmlForm);
+return reply(htmlForm);
 };
 var logout = function (request, reply) {
 request.auth.session.clear();
-reply('Logged out');
+return reply('Logged out');
 };
 // Create server
 var server = new Hapi.Server();
@@ -401,23 +402,23 @@ var Bell = require('bell');
 var AuthCookie = require('hapi-auth-cookie');
 // Handlers
 var publicHandler = function (request, reply) {
-reply('Everyone can see this...');
+   return reply('Everyone can see this...');
 };
 var privateHandler = function (request, reply) {
-reply('Welcome ' + request.auth.credentials.name);
+   return reply('Welcome ' + request.auth.credentials.name);
 };
 var login = function (request, reply) {
 if (request.auth.isAuthenticated) {
-request.auth.session.set({
-name: request.auth.credentials.profile.displayName
-});
-return reply('Logged in...');
+   request.auth.session.set({
+      name: request.auth.credentials.profile.displayName
+   });
+   return reply('Logged in...');
 }
-reply('Not logged in...');
+return reply('Not logged in...');
 }
 var logout = function (request, reply) {
 request.auth.session.clear();
-reply('Logged out...');
+return reply('Logged out...');
 }
 // Create server
 var server = new Hapi.Server();
@@ -479,11 +480,10 @@ server.start(function () { console.log('Started...'); });
 });
 					</code></pre>
 				</section>
-				</section>
-				<section>
 				<section>
 					<p>extensibility</p>
                                         <ul>
+                                         <li><a href="#">request lifecycle</a></li>
                                          <li>You can use an optional extention in the request lifecycle</li>
                                          <li>onRequest, onPreAuth, onPostAuth, onPreHandler, onPostHandler, onPreResponse</li>
                                          <li>onRequest, onPreResponse only ones guaranteed because others may fail before</li>
@@ -519,8 +519,6 @@ server.start(function () { console.log('Started...'); });
 					<pre><code data-trim contenteditable>
 					</code></pre>
 				</section>
-				</section>
-				<section>
 				<section>
 					<p>ops</p>
                                         <ul>
@@ -536,15 +534,17 @@ server.start(function () { console.log('Started...'); });
 					<pre><code data-trim contenteditable>
 var Hapi = require('hapi');
 // Create a server with a host and port
-var server = Hapi.createServer(8000, {
+var server = new Hapi.Server();
+server.connection({
+   port: '8000', 
    // cors is false by default
-   cors: true
 });
+server.cors = true;
 					</code></pre>
                                         <ul>
+                                         <li>headers - Authorization,Content-Type,If-None-Match defaults</li>
+                                         <li>methods - GET,HEAD,POST,PUT,DELETE,OPTIONS defaults</li>
                                          <li>origin</li>
-                                         <li>headers / additionalHeaders (defaults Authorization, Content-Type, If-None-Match</li>
-                                         <li>methods (defaults GET, HEAD, POST, PUT, DELETE, OPTIONS)</li>
                                          <li>maxAge</li>
 					 <li>others</li>
                                         </ul>
@@ -552,9 +552,12 @@ var server = Hapi.createServer(8000, {
 				<section>
 					<p>logging</p>
 					<pre><code data-trim contenteditable>
-var server = Hapi.createServer(8000, {
+var Hapi = require('hapi');
+// Create a server with a host and port
+var server = new Hapi.Server();
+server.connection({
+   port: '8000', 
    // cors is false by default
-   cors: true,
    // implementation maps to internal 500 errors meaning your code is not right
    // this is default
    //debug: { request: ['implementation' ] }
@@ -574,7 +577,7 @@ var handler = function (request, reply) {
       // log that you gave a cookie
       request.log([ 'user', 'first' ], request.query.ref);
    }
-   reply('welcome');
+   return reply('welcome');
 };
 
 server.on('request', function (request, event, tags) {
@@ -589,7 +592,7 @@ server.on('request', function (request, event, tags) {
 					<p>custom general log tag</p>
 					<pre><code data-trim contenteditable>
 var handler = function (request, reply) {
-   reply('welcome');
+   return reply('welcome');
 };
 server.log(["db", "connection", "error" ]);
 
@@ -605,7 +608,7 @@ server.on('log', function (event, tags) {
 					<pre><code data-trim contenteditable>
 //hapi narrowly scopes what it does in node domains so you can catch code errors (useful for plugins)
 var handler = function (request, reply) {
-   reply(no.such.variable);
+   return reply(no.such.variable);
 };
 // recall "implementation" debugging
 server.on('internalError', function (response, err) {
@@ -617,7 +620,7 @@ server.on('internalError', function (response, err) {
 					<p>response tag</p>
 					<pre><code data-trim contenteditable>
 var handler = function (request, reply) {
-   reply('welcome');
+   return reply('welcome');
 };
 // can only have 1 response can have multiple requests
 server.on('response', function (request) {
@@ -625,6 +628,21 @@ server.on('response', function (request) {
 };
 					</code></pre>
 				</section>
+                                <section>
+                                        <p>hold</p>
+                                        <pre><code data-trim contenteditable>
+var handler = function (request, reply) {
+   //wont work as expected because reply immediately calls next
+   //we could move this inside, but if you have complex rules hold may be preferable
+   var response = reply('hello');
+   //var response = reply('hello').hold;  // wont work as expected because reply immediately calls next
+   id.generate(request, function (id) {
+      response('tracker', id);
+      //response('tracker', id).send; // must call send after hold
+   });
+};
+                                        </code></pre>
+                                </section>
 				<section>
 					<p>tail</p>
 					<pre><code data-trim contenteditable>
@@ -636,7 +654,7 @@ var handler = function (request, reply) {
    db.write("user", id, {last: Date.now() }, function (err) {
       tail();
    }
-   reply('welcome');
+   return reply('welcome');
 };
 // when you have done your last tail, it will have a tail event
 server.on('tail', function (request) {
@@ -648,20 +666,17 @@ server.on('tail', function (request) {
 					<p>load</p>
 					<p>separated to heavy module</p>
 					<pre><code data-trim contenteditable>
-var server = Hapi.createServer(8000, {
-   cors: true,
-   // helps us be stable please dont die
-   // is a performance hit (because we are checking)
-   // express may be faster as a result but for us its worth it
-   load: {
+var server = new Hapi.Server();
+server.connection({ port: 8000 });
+// helps us be stable please dont die
+// if load then return 503
+server.load({
       // 1.5g used in our prod
       maxHeapUsedBytes: 1.5 * 1024 * 1024 * 1024,
       // 3g rss semed fine for node
       maxRssBytes: 3 * 1024 * 1024 * 1024,
-      // if your events take longer than expected
-      // these can start piling up and eat your server resources 
-      // this depends on how long you expect responses back
-      // ours is high due to some long api downstream dependencies
+      // track event loop pileup
+      // prevent slow dependent api to not negatively impact performance
       maxEventLoopDelay: 30 * 1000,
       // every 5 sec tell us what the 3 values are
       sampleInterval: 5 * 1000
@@ -672,19 +687,16 @@ var server = Hapi.createServer(8000, {
 				<section>
 					<p>payload size</p>
 					<pre><code data-trim contenteditable>
-var server = Hapi.createServer(8000, {
-   cors: true,
-   // defaults to 1mb but if you need bigger file uploads..
-   // dont want an infinitely large payload just eating up resources
-   payload: { maxBytes: 1024 * 1024 }
-});
+var server = new Hapi.Server();
+server.connection({ port: 8000, payload: { maxBytes: 1024 * 1024 } });
 					</code></pre>
 				</section>
 				<section>
 					<p>timeout</p>
 					<pre><code data-trim contenteditable>
-var server = Hapi.createServer(8000, {
-   cors: true,
+var server = new Hapi.Server();
+server.connection({ port: 8000, payload: { maxBytes: 1024 * 1024 } });
+//
    timeout: {
       // send a 503 if the server is taking too long
       // default is false
@@ -693,18 +705,14 @@ var server = Hapi.createServer(8000, {
       // 10s is default
       client: 10 * 1000
    }
-});
 					</code></pre>
 				</section>
-				</section>
-				<section>
 				<section>
 					<p>server.inject()</p>
                                 <ul>
-                                <li>Injects a request into the server simulating an incoming HTTP request without making an actual socket connection</li>
-                                <li>Injection is useful for testing purposes</li>
-                                <li>invoking routing logic internally without the overhead or limitations of the network stack (dont have to worry about ports, encoding types etc)</li>
-                                <li>Utilizes shot if you want to know the magic of how it digs into node itself (it puts itself right where node gives http</li>
+                                <li>simulate request without network</li>
+                                <li>testing purposes (see lab)</li>
+                                <li>utilizes <a href="http://github.com/hapijs/shot">shot</a></li>
                                 </ul>
 				</section>
 				<section>
@@ -717,7 +725,7 @@ server.route({
    method: 'GET',
    path: '/user',
    handler: function (request, reply) {
-      reply({status: "ok"});
+      return reply({status: "ok"});
    }
 });
 
@@ -739,7 +747,7 @@ server.route({
    method: 'GET',
    path: '/user',
    handler: function (request, reply) {
-      reply({status: "ok"});
+      return reply({status: "ok"});
    }
 });
 server.inject(
@@ -752,7 +760,6 @@ server.inject(
 });
 
 					</code></pre>
-				</section>
 				</section>
 				<section>
 					<h3>Need help?</h3>

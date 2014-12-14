@@ -77,10 +77,10 @@
                                                 <li>everything that can end up as js will end up as js</li>
                                                 <li>it is used by the largest companies already</li>
                                                 <li>extremely performant</li>
-                                                <li>leverage some FE skills (full stack developers)</li>
-                                                <li>immediate productivity (prove it!)</li>
-                                                <li>engage with community (http://hapijs.com/help)</li>
-                                                <li>skunkworks if you need</li>
+                                                <li>leverage FE skills</li>
+                                                <li>prove improved productivity</li>
+                                                <li>start small</li>
+                                                <li>skunkworks</li>
 					</ol>
 				</section>
 				<section>
@@ -102,7 +102,7 @@
 </ul>
 				</section>
 				<section>
-					<h3>npm - package.json</h3>
+					<h3>package.json</h3>
 					<pre><code data-trim contenteditable>
 {
   "name": "reveal.js",
@@ -140,12 +140,10 @@
   },
 ...
 					</code></pre>
-					<p>Here is a basic package.json that reveal.js includes</p>
 				</section>
 				<section>
-					<h3>npm - dependencies</h3>
+					<h3>dependencies</h3>
 					<pre><code data-trim contenteditable>
-// dependencies
   "dependencies": {
     "underscore": "~1.5.1",
     "express": "~2.5.9",
@@ -165,7 +163,7 @@
 					</code></pre>
 				</section>
 				<section>
-					<h3>npm - dependency options</h3>
+					<h3>dependency options</h3>
 <ul>
 <li>"repo": "version" - just goes to npm</li>
 <li>"repo": "http(s)://github.com/org/repo.git" - go to public repo</li>
@@ -175,15 +173,15 @@
 </ul>
 				</section>
 				<section>
-					<h3>npm - npm install</h3>
+					<h3>npm install</h3>
 <p> "npm install" installs all dependencies (regular, optional, dev)</p>
 				</section>
 				<section>
-					<h3>npm - npm install --production</h3>
+					<h3>npm install --production</h3>
 					<p>"npm install --production" will install regular dependencies and optional but not devDependencies</p>
 				</section>
 				<section>
-					<h3>npm - npm install --no-optional</h3>
+					<h3>npm install --no-optional</h3>
 					<pre><code data-trim contenteditable>
   "optionalDependencies": {
     "pm2": "0.7.x",
@@ -198,7 +196,7 @@
 					</ul>
 				</section>
 				<section>
-					<h3>npm - npm test</h3>
+					<h3>npm test</h3>
 					<pre><code data-trim contenteditable>
  npm test
 
@@ -218,18 +216,19 @@ Done, without errors.
 					</code></pre>
 				</section>
 				<section>
-					<h3>npm - reducing package size</h3>
+					<h3>reducing package size</h3>
 					<ul>
-                                           <li>Put shared dependencies at the top level</li>
+                                           <li>put shared dependencies at the top level</li>
+                                           <li>npm dedupe</li>
                                         </ul>
 				</section>
 				<section>
-					<h3>npm - npm shrinkwrap</h3>
+					<h3>npm shrinkwrap</h3>
 					<ul>
-						<li>Generates npm-shrinkwrap.json</li>
-						<li>Lists version dependencies</li>
-						<li>Generated shrinkwrap locks versions</li>
-						<li>Describes uniqueness</li>
+						<li>generates npm-shrinkwrap.json</li>
+						<li>lists version dependencies</li>
+						<li>generated shrinkwrap locks versions</li>
+						<li>describes uniqueness</li>
 					</ul>
 				</section>
 				<section>
@@ -345,12 +344,11 @@ Done, without errors.
           </code></pre>
 				</section>
 				<section>
-					<h3>npm - npm shrinkwrap uniqueness</h3>
+					<h3>npm shrinkwrap uniqueness</h3>
 					<pre><code data-trim contenteditable>
 sha1sum npm-shrinkwrap.json | awk '{print $1}' | cut -c 1-7
 f85dd19
 					</code></pre>
-					<p>Much like using github short hash, we can describe unique artifact names (tar balls) when we package it up.</p>
 				</section>
 				<section>
 					<h3>npm shrinkwrap changes</h3>
@@ -366,7 +364,6 @@ diff -u2 npm-shrinkwrap.json*
    "from": "reveal.js@*",
    "dependencies": {
 					</code></pre>
-					<p>By comparing the npm-shrinkwrap.json files, using diff, we can tell whats changed between the releases.</p>
 				</section>
 				<section>
 					<h3>releases - simple plan</h3>
@@ -377,9 +374,8 @@ diff -u2 npm-shrinkwrap.json*
                                            <li>npm shrinkwrap</li>
                                            <li>tar cvfz project-uniqueid.tar.gz</li>
                                            <li>scp project-uniqueid.tar.gz user@host:app</li>
-                                           <li>ssh user@host "cd app; tar xvfz project-uniqueid.tar.gz"</li>
-                                           <li>ssh user@host "cd app; node --abort-on-uncaught-exception"</li>
-                                           <li>ssh user@host "node app.js" (with systemd/upstart/etc)</li>
+                                           <li>tar xvfz project-uniqueid.tar.gz</li>
+                                           <li>node --abort-on-uncaught-exception app.js</li>
                                         </ol>
 <br/>
 <br/>
@@ -415,7 +411,6 @@ diff -u2 npm-shrinkwrap.json*
 <li>application data</li>
 <li>application tests</li>
 <li>application restarts</li>
-<li>open files</li>
 <li>os / system</li>
 </ul>
 </td>
@@ -448,6 +443,7 @@ diff -u2 npm-shrinkwrap.json*
 					<ul>
                                            <li>strive for 100% code coverage</li>
                                            <li>prioritize integration over unit tests</li>
+                                           <li>test as many scenarios as feasible</li>
                                            <li>run prod tests continually</li>
                                            <li>trend test results</li>
 					</ul>
@@ -460,27 +456,20 @@ diff -u2 npm-shrinkwrap.json*
 					</ul>
 				</section>
 				<section>
-					<h3>monitor - open files</h3>
-					<ul>
-                                           <li>track open files on node process</li>
-                                           <li>generally boring but may be useful</li>
-                                           <li>can check infrequently</li>
-					</ul>
-				</section>
-				<section>
 					<h3>monitor - os / system</h3>
 					<ul>
                                            <li>continue usual os / system checks</li>
                                            <li>system wide scope</li>
                                            <li>memory, cpu, swap, i/o, disk space, etc</li>
                                            <li>cpu usage boring for black friday</li>
+                                           <li>open files may be initially useful</li>
 					</ul>
 				</section>
 				<section>
 					<h3>scale</h3>
 					<ul>
                                            <li>keep it running</li>
-                                           <li>load balance (multiproc vs container)</li>
+                                           <li>load balance</li>
                                            <li>load test</li>
                                            <li>ssl</li>
                                            <li>auto restart</li>
@@ -491,37 +480,34 @@ diff -u2 npm-shrinkwrap.json*
 					<ul>
                                            <li>init script</li>
                                            <li>process manager (pm2/forever)</li>
-                                           <li>upstart/systemd/smf</li>
+                                           <li>upstart/systemd/smf (os)</li>
+                                           <li>os layer generally better</li>
                                         </ul>
-<br/>
-<br/>
-The closer you can get to the OS layer in general the better
 				</section>
 				<section>
 					<h3>scale - load balance</h3>
 					<ul>
                                            <li>node is limited by 32 bits</li>
                                            <li>keep app horizontally scalable</li>
-                                           <li>lightweight os containers vs multiple processes</li>
+                                           <li>multiproc vs container</li>
 					</ul>
 				</section>
 				<section>
 					<h3>scale - load test</h3>
 					<ul>
-                                           <li>load test before hand</li>
                                            <li>instrument to determine server capacity</li>
-                                           <li>leaks become more noticable when doing under large number of transactions</li>
-                                           <li>helps you optimize your code</li>
+                                           <li>identify leaks</li>
+                                           <li>optimize</li>
 					</ul>
 				</section>
 				<section>
 					<h3>scale - ssl</h3>
 					<ul>
                                            <li>ssl performance in node sucks</li>
-                                           <li>offload to hardware load balancers</li>
+                                           <li>hardware offload</li>
                                            <li>nginx / apache mpm proxy</li>
-                                           <li>stud/bud alternatives may achieve higher performance</li>
-                                           <li>play with your differing ciphers to find your best match with security needs vs performance defaults can be very expensive</li>
+                                           <li>stud/bud tls</li>
+                                           <li>default ciphers</li>
                                            <li>splitting http from https traffic may be optimal if not overly complicated</li>
 					</ul>
 				</section>
@@ -532,19 +518,14 @@ You prepared but still have an issue.  Now what!?
 				<section>
 					<h3>issues - culture of blame / denial</h3>
 <img src="/images/dev_to_prod/opsproblem.jpg">
-					<ul>
-                                           <li>must be the network/os/node</li>
-                                           <li>it can't possibly be my custom app</li>
-                                        </ul>
 				</section>
 				<section>
 					<h3>issues - getting past the blame</h3>
 					<ul>
                                            <li>assume your code first</li>
-                                           <li>be helpful</li>
-                                           <li>don't be adversarial</li>
+                                           <li>be helpful not adversarial</li>
                                            <li>good instrumentation / errors enables others</li>
-                                           <li>this will lead to quicker resolutions</li>
+                                           <li>quicker resolutions</li>
 					</ul>
 				</section>
 				<section>
@@ -559,7 +540,7 @@ You prepared but still have an issue.  Now what!?
 					<h3>issues - tools</h3>
 					<ul>
                                            <li>break down problem</li>
-                                           <li>use your captured analytics</li>
+                                           <li>analytics / instrumentation</li>
                                            <li>--abort-on-uncaught-exception</li>
                                            <li>gcore / mdb</li>
                                            <li>dtrace</li>
@@ -578,8 +559,9 @@ You prepared but still have an issue.  Now what!?
 					<h3>gcore</h3>
 					<ul>
                                            <li>gcore while its running</li>
-                                           <li>useful to run through mdb</li>
-                                           <li>install gdb package on linux</li>
+                                           <li>mdb</li>
+                                           <li>gdb package for linux</li>
+                                           <li>linux native tool being developed</li>
                                         </ul>
 				</section>
 				<section>
@@ -593,11 +575,16 @@ You prepared but still have an issue.  Now what!?
 				</section>
 				<section>
 					<h3>community</h3>
-<p>Don't be afraid to engage in the community to get help</p>
+					<ul>
+                                           <li>awesome community</li>
+                                           <li>local meetups</li>
+                                           <li>open issues / discussions</li>
+                                           <li>mentor <a href="http://hapijs.com/help">http://hapijs.com/help</a></li>
+                                        </ul>
 				</section>
 				<section>
 					<h3>conclusion</h3>
-Get Started.  Learn Tools.  Be Prepared.  You Can Do It!
+Get Started.  Learn Tools.  Prepare.  Participate.  You Can Do It!
 				</section>
                                 <section>
                                         <h3>Questions/Comments</h3>

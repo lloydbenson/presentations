@@ -12,7 +12,7 @@
 		<meta name="apple-mobile-web-app-capable" content="yes" />
 		<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
 
-		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scaable=no">
 
 		<link rel="stylesheet" href="/css/reveal.min.css">
 		<link rel="stylesheet" href="/css/theme/default.css" id="theme">
@@ -72,7 +72,6 @@
 					</ul>
 				</section>
 				<section>
-				<section>
 					<p>lab</p>
 					<ul>
 						<li>lab is a command line utility</li>
@@ -90,13 +89,20 @@
 					</ul>
 				</section>
 				<section>
+					<p>whats wrong with chai?</p>
+					<ul>
+						<li>subset of functions</li>
+						<li>all functions (so no missed assertions)</li>
+					</ul>
+				</section>
+				<section>
 					<p>simple test</p>
 					<pre><code data-trim contenteditable>
 var Lab = require('lab');
 var Code = require('code');
 
 var lab = exports.lab = Lab.script();
-var expect = Coder.expect;
+var expect = Code.expect;
 var describe = lab.describe;
 var it = lab.it;
 
@@ -111,7 +117,7 @@ describe('math', function () {
 					</code></pre>
 				</section>
 				<section>
-					<p>code functions</p>
+					<p>functions</p>
 					<pre><code data-trim contenteditable>
 Lab.expect(object).to.equal();
 Lab.expect(object).to.not.equal();
@@ -183,8 +189,6 @@ server.inject()
 				<section>
 <img src="/images/hapijs/partialcoverage.png" style="border:none; background:none; box-shadow:none;"/>
 				</section>
-				</section>
-				<section>
 				<section>
 					<p>confidence</p>
 					<ul>
@@ -308,8 +312,6 @@ server.inject()
 					<p>interesting read</p>
 <a href="http://www.walmartlabs.com/2013/12/06/hacking-ab-testing-with-confidence/">http://www.walmartlabs.com/2013/12/06/hacking-ab-testing-with-confidence/</a>
 				</section>
-				</section>
-				<section>
 				<section>
 					<p>good</p>
 					<ul>
@@ -454,8 +456,6 @@ var options = {
 						<li>stores as json for use in splunk, logstash, etc</li>
 					</ul>
 				</section>
-				</section>
-				<section>
 				<section>
 					<p>joi</p>
 					<ul>
@@ -665,8 +665,6 @@ var err = object.validate({ a: 5 });
 <li>string.email()</li>
 					</ul>
 				</section>
-				</section>
-				<section>
 				<section>
 					<p>lout</p>
 					<ul>
@@ -678,7 +676,6 @@ var err = object.validate({ a: 5 });
 					</ul>
 <br/>
 <img src="/images/hapijs/lout.png" height=65 style="border:none; background:none; box-shadow:none;"/>
-				</section>
 				</section>
                                 <section>
                                         <h3>Questions / Comments</h3>

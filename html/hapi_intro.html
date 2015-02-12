@@ -345,7 +345,7 @@ server.route({
 server.route({
     method: 'GET',
     path: '/favicon.ico',
-    config: {
+    handler: {
        file: 'favicon.ico'
     }
 });

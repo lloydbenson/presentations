@@ -123,20 +123,20 @@ server.register({
 					<p>bind</p>
 					<pre><code data-trim contenteditable>
 var User = require('./user');
-exports.register = function (plugin, options, next) {
-var user = new User(options);
-// defaults to all functions unless you override something more specific
-plugin.bind('user');
-plugin.route([
+exports.register = function (require('plugin'), options, next) {
+  var user = new User(options);
+  // defaults to all functions unless you override something more specific
+  plugin.bind('user');
+  plugin.route([
     { method: 'GET', path: '/user', handler: user.profile },
     { method: 'POST', path: '/user', handler: user.update },
     { method: 'PUT', path: '/user', handler: user.register }
-});
-   return next();
+  });
+  return next();
 };
 					</code></pre>
 <ul>
-<li> Be careful about using module global area as if you have multiple instances (http and https for instance).</li>
+<li>Be careful about using module global area as if you have multiple instances (http and https for instance).</li>
 <li>Plugin is a singleton so its loading twice).</li>
 <li>Shared state should be within the bind object</li>
 </ul>
@@ -150,10 +150,10 @@ server.connection({ port: 8443, labels: ["https"] });
 server.connection({ host: 'localhost', port: 8099, labels: ["admin"] });
 
 // in this case all servers will get all the endpoints
-server.register(plugin,options, callback);
+server.register(require('plugin'), options, callback);
 					</code></pre>
 <ul>
-<li>for us, https is always valid but not always http</li>
+<li>https may always be valid but not always http</li>
 <li>allows you to manage code more effectively</li>
 </ul>
 				</section>
@@ -161,58 +161,20 @@ server.register(plugin,options, callback);
 					<p>server.select()</p>
 					<pre><code data-trim contenteditable>
 exports.register = function (plugin, options, next) {
-var user = new User(options);
-// defaults to all functions unless you override something more specific
-server.bind('user');
-server.select('https').route([
+  var user = new User(options);
+  // defaults to all functions unless you override something more specific
+  server.bind('user');
+  server.select('https').route([
     { method: 'GET', path: '/user', handler: user.profile },
     { method: 'POST', path: '/user', handler: user.update },
     { method: 'PUT', path: '/user', handler: user.register }
-});
-server.select('admin').route([
+  });
+  server.select('admin').route([
     { method: 'GET', path: '/user', handler: user.perm },
-});
-   return next();
+  });
+  return next();
 };
 					</code></pre>
-				</section>
-				<section>
-					<p>config files</p>
-					<pre><code data-trim contenteditable>
-{
-   "connections": [
-      {
-         "port": 8000,
-         "options": { labels: ["http"] }
-      },
-      {
-         "port": 8443,
-         "options": { labels: ["https"] }
-      },
-      {
-         "host": 'localhost',
-         "port": 8099,
-         "options": { labels: ["admin"] }
-      }
-   ],
-   "plugins": { 
-      "myapp": { //options// }
-   }
-}
-					</code></pre>
-				</section>
-				<section>
-					<p>rejoice - command line hapi</p>
-					<pre><code data-trim contenteditable>
-# ls
-package.json config.json
-# npm install
-# rejoice -c config.json
-					</code></pre>
-<ul>
-<li>setup your package.json with all your requirements for getting software for your plugins</li>
-<li>confidence plugin can help manage multiple environments from 1 file</li>
-</ul>
 				</section>
 				<section>
 					<p>other plugin features</p>
@@ -278,7 +240,12 @@ server.register(Basic, function (err) {
   // Configure routes after plugins are loaded
   server.route({ method: 'GET', path: '/public', handler: publicHandler });
   // Configure protected routes by setting auth
-  server.route({ method: 'GET', path: '/private', handler: privateHandler, config: { auth: 'YourSimpleAuth' } });
+  server.route({
+    method: 'GET',
+    path: '/private',
+    handler: privateHandler,
+    config: { auth: 'YourSimpleAuth' }
+  });
   // Start server
   server.start(function () { console.log('Started...'); });
 });
@@ -293,103 +260,100 @@ var AuthCookie = require('hapi-auth-cookie');
 var Joi = require('joi');
 // User database
 var users = {
-leet: {
-password: 'haxor',
-name: 'Leet Haxor'
-}
+  leet: {
+    password: 'haxor',
+    name: 'Leet Haxor'
+  }
 };
 // Handlers
 var validate = function (request, reply) {
-var username = request.payload.username;
-var password = request.payload.password;
-var user = users[username];
-var isValid = user && user.password === password;
-if (!isValid) {
-return reply().redirect('/login');
-}
-var credentials = { name: user.name } // Will be accessible in request.auth.credentials
-request.auth.session.set(credentials);
-return reply('Logged In');
+  var username = request.payload.username;
+  var password = request.payload.password;
+  var user = users[username];
+  var isValid = user && user.password === password;
+  if (!isValid) {
+    return reply().redirect('/login');
+  }
+  var credentials = { name: user.name } // Will be accessible in request.auth.credentials
+  request.auth.session.set(credentials);
+  return reply('Logged In');
 };
+
 var publicHandler = function (request, reply) {
-return reply('Everyone can see this...');
+  return reply('Everyone can see this...');
 };
+
 var privateHandler = function (request, reply) {
-return reply('Welcome ' + request.auth.credentials.name);
+  return reply('Welcome ' + request.auth.credentials.name);
 };
+
 var loginPage = function (request, reply) {
-var htmlForm = '<form method="post">' +
-' <p>' +
-' Username: <input type="text" name="username" /><br />' +
-' Password: <input type="password" name="password" />' +
-' </p>' +
-' <p><input type="submit" value="login" /></p>' +
-'</form>';
-return reply(htmlForm);
+  var htmlForm = '<form method="post">' +
+  ' <p>' +
+  ' Username: <input type="text" name="username" /><br />' +
+  ' Password: <input type="password" name="password" />' +
+  ' </p>' +
+  ' <p><input type="submit" value="login" /></p>' +
+  '</form>';
+  return reply(htmlForm);
 };
+
 var logout = function (request, reply) {
-request.auth.session.clear();
-return reply('Logged out');
+  request.auth.session.clear();
+  return reply('Logged out');
 };
 // Create server
 var server = new Hapi.Server();
-server.connection({ port: 8188 })
+server.connection({ port: 8080 })
 // Load plugins
 server.register(AuthCookie, function (err) {
-// Configure auth scheme
-var authOptions = {
-password: 'PasswordUsedToEncryptCookie',
-cookie: 'NameOfCookie',
-redirectTo: '/login',
-isSecure: false
-};
-server.auth.strategy('YourCookieAuth', 'cookie', authOptions);
-// Configure routes after plugins are loaded
-server.route({
-method: 'GET',
-path: '/public',
-handler: publicHandler
-});
-// Configure protected routes by setting auth
-server.route({
-method: 'GET',
-path: '/private',
-handler: privateHandler,
-config: {
-auth: 'YourCookieAuth'
-}
-});
-// Login page
-server.route({
-method: 'GET',
-path: '/login',
-handler: loginPage
-});
-// Logout
-server.route({
-method: 'GET',
-path: '/logout',
-handler: logout,
-config: {
-auth: 'YourCookieAuth'
-}
-});
-// Login form post
-server.route({
-method: 'POST',
-path: '/login',
-handler: validate,
-config: {
-validate: {
-payload: {
-username: Joi.string().required(),
-password: Joi.string().required()
-}
-}
-}
-});
-// Start server
-server.start(function () { console.log('Started...'); });
+  var authOptions = {
+    password: 'secret',
+    cookie: 'cookieName',
+    redirectTo: '/login',
+    isSecure: false
+  };
+  server.auth.strategy('YourCookieAuth', 'cookieName', authOptions);
+  server.route({
+    method: 'GET',
+    path: '/public',
+    handler: publicHandler
+  });
+  server.route({
+    method: 'GET',
+    path: '/private',
+    handler: privateHandler,
+      config: {
+        auth: 'YourCookieAuth'
+    }
+  });
+  server.route({
+    method: 'GET',
+    path: '/login',
+    handler: loginPage
+  });
+  server.route({
+    method: 'GET',
+    path: '/logout',
+    handler: logout,
+    config: {
+      auth: 'YourCookieAuth'
+    }
+  });
+  server.route({
+    method: 'POST',
+    path: '/login',
+    handler: validate,
+    config: {
+      validate: {
+        payload: {
+          username: Joi.string().required(),
+          password: Joi.string().required()
+        }
+      }
+    }
+  });
+  server.start(function () { console.log('Started...'); });
 });
 					</code></pre>
 				</section>
@@ -402,81 +366,71 @@ var Bell = require('bell');
 var AuthCookie = require('hapi-auth-cookie');
 // Handlers
 var publicHandler = function (request, reply) {
-   return reply('Everyone can see this...');
+  return reply('Everyone can see this...');
 };
+
 var privateHandler = function (request, reply) {
-   return reply('Welcome ' + request.auth.credentials.name);
+  return reply('Welcome ' + request.auth.credentials.name);
 };
+
 var login = function (request, reply) {
-if (request.auth.isAuthenticated) {
-   request.auth.session.set({
+  if (request.auth.isAuthenticated) {
+    request.auth.session.set({
       name: request.auth.credentials.profile.displayName
-   });
-   return reply('Logged in...');
+    });
+    return reply('Logged in...');
+  }
+  return reply('Not logged in...');
 }
-return reply('Not logged in...');
-}
+
 var logout = function (request, reply) {
-request.auth.session.clear();
-return reply('Logged out...');
+  request.auth.session.clear();
+  return reply('Logged out...');
 }
 // Create server
 var server = new Hapi.Server();
-server.connection({ port: 8189 });
+server.connection({ port: 8080 });
 // Load plugins
 server.register([AuthCookie, Bell], function (err) {
-// Configure cookie auth scheme
-var authCookieOptions = {
-password: 'PasswordUsedToEncryptCookie',
-cookie: 'NameOfCookie',
-redirectTo: '/login',
-isSecure: false
-};
-server.auth.strategy('YourCookieAuth', 'cookie', authCookieOptions);
-// Configure third party auth scheme
-var bellAuthOptions = {
-provider: 'github',
-password: 'PasswordUsedToEncryptThirdPartyAuthCookie',
-clientId: '9be920982e25e4dea143',//'YourAppId',
-clientSecret: '96fb20b27af508d15302cc485638d15d7646e614',//'YourAppSecret',
-isSecure: false
-};
-server.auth.strategy('YourThirdPartyAuth', 'bell', bellAuthOptions);
-// Configure routes after plugins are loaded
-server.route({
-method: 'GET',
-path: '/public',
-handler: publicHandler
-});
-// Configure protected routes by setting auth
-server.route({
-method: 'GET',
-path: '/private',
-handler: privateHandler,
-config: {
-auth: 'YourCookieAuth'
-}
-});
-// Login page
-server.route({
-method: 'GET',
-path: '/login',
-handler: login,
-config: {
-auth: 'YourThirdPartyAuth'
-}
-});
-// Logout
-server.route({
-method: 'GET',
-path: '/logout',
-handler: logout,
-config: {
-auth: 'YourCookieAuth'
-}
-});
-// Start server
-server.start(function () { console.log('Started...'); });
+  var authCookieOptions = {
+    password: 'secret',
+    cookie: 'cookieName',
+    redirectTo: '/login',
+    isSecure: false
+  };
+  server.auth.strategy('CookieAuth', 'cookieName', authCookieOptions);
+  var bellAuthOptions = {
+    provider: 'github',
+    password: 'secret',
+    clientId: 'clientId',
+    clientSecret: 'clientSecret',
+    isSecure: false
+  };
+  server.auth.strategy('YourThirdPartyAuth', 'bell', bellAuthOptions);
+  server.route({
+    method: 'GET',
+    path: '/public',
+    handler: publicHandler
+  });
+  server.route({
+    method: 'GET',
+    path: '/private',
+    handler: privateHandler,
+    config: { auth: 'YourCookieAuth' }
+  });
+  server.route({
+    method: 'GET',
+    path: '/login',
+    handler: login,
+    config: { auth: 'YourThirdPartyAuth' }
+  });
+  server.route({
+    method: 'GET',
+    path: '/logout',
+    handler: logout,
+    config: { auth: 'YourCookieAuth' }
+  });
+  server.start(function () { console.log('Started...'); });
 });
 					</code></pre>
 				</section>
@@ -533,7 +487,6 @@ server.start(function () { console.log('Started...'); });
 					<p>cors</p>
 					<pre><code data-trim contenteditable>
 var Hapi = require('hapi');
-// Create a server with a host and port
 var server = new Hapi.Server();
 server.connection({
    port: '8000', 
@@ -543,7 +496,7 @@ server.cors = true;
 					</code></pre>
                                         <ul>
                                          <li>headers - Authorization,Content-Type,If-None-Match defaults</li>
-                                         <li>methods - GET,HEAD,POST,PUT,DELETE,OPTIONS defaults</li>
+                                         <li>methods - GET, HEAD, POST, PUT, DELETE, OPTIONS defaults</li>
                                          <li>origin</li>
                                          <li>maxAge</li>
 					 <li>others</li>
@@ -663,8 +616,7 @@ server.on('tail', function (request) {
 					</code></pre>
 				</section>
 				<section>
-					<p>load</p>
-					<p>separated to heavy module</p>
+					<p>load - (<a href="https://github.com/hapijs/heavy">heavy</a>)</p>
 					<pre><code data-trim contenteditable>
 var server = new Hapi.Server();
 server.connection({ port: 8000 });
@@ -688,7 +640,12 @@ server.load({
 					<p>payload size</p>
 					<pre><code data-trim contenteditable>
 var server = new Hapi.Server();
-server.connection({ port: 8000, payload: { maxBytes: 1024 * 1024 } });
+server.connection({
+  port: 8000,
+  payload: {
+    maxBytes: 1024 * 1024
+  }
+});
 					</code></pre>
 				</section>
 				<section>
@@ -696,7 +653,7 @@ server.connection({ port: 8000, payload: { maxBytes: 1024 * 1024 } });
 					<pre><code data-trim contenteditable>
 var server = new Hapi.Server();
 server.connection({ port: 8000, payload: { maxBytes: 1024 * 1024 } });
-//
+// FIX
    timeout: {
       // send a 503 if the server is taking too long
       // default is false
@@ -708,75 +665,20 @@ server.connection({ port: 8000, payload: { maxBytes: 1024 * 1024 } });
 					</code></pre>
 				</section>
 				<section>
-					<p>server.inject()</p>
-                                <ul>
-                                <li>simulate request without network</li>
-                                <li>testing purposes (see lab)</li>
-                                <li>utilizes <a href="http://github.com/hapijs/shot">shot</a></li>
-                                </ul>
-				</section>
-				<section>
-					<p>server.inject() example</p>
-					<pre><code data-trim contenteditable>
-var Hapi = require('hapi');
-
-var server = Hapi.createServer();
-server.route({
-   method: 'GET',
-   path: '/user',
-   handler: function (request, reply) {
-      return reply({status: "ok"});
-   }
-});
-
-server.inject('/user', function(res) {
-   console.log(res.statusCode); // get 200 back
-   console.log(res.headers); // get headers
-   console.log(res.payload); // returns our reply (serialized buffer)
-   //if no result you get payload
-   console.log(res.result.status); // return the actual object
-});
-// note: no server.start(); !
-
-					</code></pre>
-				</section>
-				<section>
-					<p>server.inject() long</p>
-					<pre><code data-trim contenteditable>
-server.route({
-   method: 'GET',
-   path: '/user',
-   handler: function (request, reply) {
-      return reply({status: "ok"});
-   }
-});
-server.inject(
-   method: 'GET',
-   url: '/user',
-   //emits a 'close' event after payload transmission (if any). Defaults to false.
-   // dont do this in production!
-   simulate: { close: true }
-   // can also simulate no end and error
-});
-
-					</code></pre>
-				</section>
-				<section>
 					<h3>Need help?</h3>
                                         <ul>
                                         <li><a href="https://hapijs.com/api">https://hapijs.com/api</a></li>
                                         <li>lloyd.benson@gmail.com</li>
                                         <li>#hapi in irc.freenode.net</li>
-                                        <li>submit issue / PR (<a href="https://github.com/hapijs/hapi/blob/master/docs/Style.md">Style Guide</a>)</li>
+                                        <li>submit issue / PR (<a href="https://github.com/hapijs/hapi/blob/master/docs/Style.md">style guide</a>)</li>
                                         <li><a href="https://github.com/hapijs/discuss">https://github.com/hapijs/discuss</a></li>
-                                        <li>node school content <a href="https://github.com/hapijs/makemehapi">https://github.com/hapijs/makemehapi</a> being finished</li>
+                                        <li><a href="https://github.com/hapijs/makemehapi">https://github.com/hapijs/makemehapi</a> (node school)</li>
                                         </ul>
 				</section>
                                 <section>
                                         <h3>Questions/Comments</h3>
                                         <p>
                                                 <small>Created by Lloyd Benson / lloyd.benson@gmail.com</small>
-                                                <small>with many borrowed elements from talks / documentation</small>
                                         </p>
 					<p>
 						<a href="http://github.com/lloydbenson/presentations"><small>http://github.com/lloydbenson/presentations</small></a>

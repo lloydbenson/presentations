@@ -8,7 +8,7 @@
   },
   "dependencies": {
     "hapi": "8.x.x",
-    "reveal.js": "*"
+    "reveal.js": "2.x.x"
   },
   "author": "Lloyd Benson"
 }

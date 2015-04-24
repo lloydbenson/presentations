@@ -11,7 +11,7 @@
   },
   "dependencies": {
     "hapi": "8.x.x",
-    "hapi-reveal": "1.x.x"
+    "hapi-reveal": "2.x.x"
   },
   "author": "Lloyd Benson"
 }

@@ -16,3 +16,5 @@ Valid presentations are:
 1.  introduction to hapi
 2.  node at walmart (noderoad)
 3.  jenkins 
+
+Note: If you want to use this, you need to put a proper index.html and put in your specific slides you want to show there

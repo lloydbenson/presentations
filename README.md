@@ -8,7 +8,7 @@ Public Presentations
 2.  git clone this repo (git clone http://github.com/lloydbenson/presentations)
 3.  cd presentations
 4.  npm install
-5.  ./start
+5.  npm start
 6.  go to http://localhost:8080 and click on the valid html presentation
 
 Valid presentations are:

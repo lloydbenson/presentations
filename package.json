@@ -1,14 +1,17 @@
 {
   "name": "presentations",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "presentations",
   "main": "index.js",
   "engines": {
      "node": ">= 0.10.32"
   },
+  "scripts": {
+    "start": "./start.sh"
+  },
   "dependencies": {
     "hapi": "8.x.x",
-    "reveal.js": "2.x.x"
+    "hapi-reveal": "1.x.x"
   },
   "author": "Lloyd Benson"
 }

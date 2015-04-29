@@ -40,6 +40,7 @@
 					<ul>
 						<li>node (io.js but should work with 0.12 uses spawnSync)</li>
 						<li>hapijs</li>
+						<li>lots of plugins / helpers in fishin org</li>
 						<li>handlebars for templating</li>
 						<li>bootstrap / jquery simple FE</li>
 						<li>future (react, backbone?, d3 for visualizations), polymer?</li>
@@ -51,7 +52,7 @@
 						<li>scheduler to run commands</li>
 						<li>separate api for automation / split of processes</li>
 						<li>built-in pull requests</li>
-						<li>github oauth (can do local as well)</li>
+						<li>github oauth</li>
 						<li>100% code coverage (except for ui)</li>
 						<li>enforced hapi standard styling</li>
 						<li>"good" logging for ops/requests/wreck/errors</li>
@@ -61,17 +62,50 @@
 					<h3>pull requests</h3>
 					<ul>
 						<li>talks to github api</li>
-						<li>can easily retry your PR if intermittent error</li>
-						<li>can merge within the UI as we already have your oauth token</li>
+						<li>retry your PR if intermittent error</li>
+						<li>merge within the UI via oauth</li>
+					</ul>
+				</section>
+				<section>
+					<h3>users</h3>
+					<ul>
+						<li>auto generate admin</li>
+						<li>password stored via bcrypt</li>
+						<li>can add github type</li>
+						<li>mix local / oauth accounts</li>
 					</ul>
 				</section>
 				<section>
 					<h3>job</h3>
 					<ul>
+						<li>git repo / branch</li>
 						<li>scheduler (simple cron)</li>
-						<li>scheduler (simple cron)</li>
-						<li>put </li>
-						<li>can merge within the UI as we already have your oauth token</li>
+						<li>install command</li>
+						<li>test command</li>
+						<li>archive lab result</li>
+						<li>enable prs</li>
+						<li>delete workspace</li>
+						<li>run only if a new commit</li>
+					</ul>
+				</section>
+				<section>
+					<h3>lab test results</h3>
+					<ul>
+						<li>integrated test results</li>
+						<li>coverage report built-in (needs improvement)</li>
+						<li>compare commits to last run</li>
+						<li>show leaks</li>
+						<li>show total test time</li>
+					</ul>
+				</section>
+				<section>
+					<h3>run</h3>
+					<ul>
+						<li>breakdown of each command</li>
+						<li>times,stdout,stderr,return code,signal</li>
+						<li>historical test</li>
+						<li>show total test time</li>
+						<li>view test file</li>
 					</ul>
 				</section>
 				<section>
@@ -89,6 +123,7 @@
                                                 <li>report setup issues / bugs / clarifications</li>
 						<li>any outstanding bugs</li>
 						<li>code reviews</li>
+						<li>finish queue</li>
 						<li>refactor suggestions</li>
 						<li>FE advice</li>
 						<li>fishing images!?</li>

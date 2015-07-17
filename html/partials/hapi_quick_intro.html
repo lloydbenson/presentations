@@ -1,0 +1,34 @@
+<section>
+    <h3>What is hapi?</h3>
+    <p> A rich framework for building web applications and services. hapi is a simple to use configuration-centric framework with built-in support for input validation, caching, authentication, and other essential facilities. hapi enables developers to focus on writing reusable application logic instead of spending time building infrastructure. The framework supports a powerful plugin architecture for pain-free and scalable extensibility.
+    </p>
+</section>
+<section>
+    <h3>Why use hapi? Why is it different?</h3>
+        <ul>
+            <li>larger teams - can work on parts more independently</li>
+            <li>load - need to handle larger loads</li>
+            <li>prefer configuration to middleware code</li>
+        </ul>
+</section>
+<section>
+    <p>hello world</p>
+    <pre><code data-trim contenteditable>
+var Hapi = require('hapi');
+// Create a server with a host and port
+var server = new Hapi.Server();
+server.connection({ host: 'localhost', port: 8000 });
+// Add the route
+server.route({
+    method: 'GET',
+    path: '/hello',
+    handler: function (request, reply) {
+
+        return reply('hello world');
+        //reply({"name": "bob"});
+    }
+});
+// Start the server
+server.start();
+</code></pre>
+</section>

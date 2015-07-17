@@ -129,7 +129,6 @@ internals.prepareServer = function (callback) {
 					<p>server.inject() example</p>
 					<pre><code data-trim contenteditable>
 it('POST /route', function (done) {
-
   internals.prepareServer(function (server) {
     var options = {
       method: 'POST',
@@ -140,13 +139,21 @@ it('POST /route', function (done) {
       }
     };
     server.inject(options, function (response) {
-      //console.log(response);
       expect(response.statusCode).to.equal(302);
       done();
     });
   });
 });
 					</code></pre>
+				</section>
+				<section>
+					<p>linting</p>
+					<ul>
+						<li>hapijs projects enforce hapijs standards by default</li>
+						<li>eslint by default</li>
+						<li>can put in your own eslint rules</li>
+						<li>tip: lab -d -L (just checks linting rules)</li>
+					</ul>
 				</section>
 				<section>
 					<p>code coverage</p>

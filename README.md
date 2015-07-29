@@ -9,12 +9,16 @@ Public Presentations
 3.  cd presentations
 4.  npm install
 5.  npm start
-6.  go to http://localhost:8080 and click on the valid html presentation
+6.  go to http://localhost:8082 and click on the valid html presentation
 
 Valid presentations are:
 
-1.  introduction to hapi
-2.  node at walmart (noderoad)
-3.  jenkins 
+1.  ficion
+2.  a hapi introduction
+3.  the hapi ecosystem
+4.  from dev to prod with node
+5.  node at walmart (noderoad)
+6.  jenkins 
+
 
 Note: If you want to use this, you need to put a proper index.html and put in your specific slides you want to show there

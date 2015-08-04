@@ -7,14 +7,20 @@
 {{> partials/whoami }}
 {{> partials/hapi_quick_intro }}
 				<section>
-					<p>basic plugins</p>
+					<p>covered plugins</p>
 					<ul>
 						<li>lab</li>
 						<li>rejoice</li>
+						<li>glue</li>
 						<li>confidence</li>
 						<li>good</li>
 						<li>joi</li>
 						<li>lout</li>
+					</ul>
+				</section>
+				<section>
+					<p>more plugins</p>
+					<ul>
 						<li><a href="https://github.com/hapijs">https://github.com/hapijs</a> (core)</li>
 						<li><a href="http://hapijs.com/plugins">http://hapijs.com/plugins</a> (community)</li>
 					</ul>
@@ -39,8 +45,9 @@
 				<section>
 					<p>whats wrong with chai?</p>
 					<ul>
-						<li>subset of functions</li>
-						<li>all functions (so no missed assertions)</li>
+						<li>subset of functions (getting rid of browser complexity)</li>
+						<li>chai is a mixture of functions and properties (easy to forget method)</li>
+						<li>needed all functions (no missed assertions)</li>
 					</ul>
 				</section>
 				<section>
@@ -58,7 +65,7 @@ describe('math', function () {
 
     it('returns true when 1 + 1 equals 2', function (done) {
 
-        expect(1+1).to.equal(2);
+        expect(1 + 1).to.equal(2);
         done();
     });
 });
@@ -93,9 +100,19 @@ Lab.expect(object).to.not.exist();
 				<section>
 					<p>package.json</p>
 					<pre><code data-trim contenteditable>
-  "scripts": {
-    "test": "lab -a code -r html -L -t 100 -m 10000"
-  },
+"scripts": {
+  "test": "lab -a code -r html -L -t 100 -m 10000"
+},
+					</code></pre>
+				</section>
+				<section>
+					<p>multiple reporters</p>
+					<pre><code data-trim contenteditable>
+lab -a code -L -t 100 -m 10000
+-r console -o stdout
+-r console -o console.log
+-r junit -o lab.xml
+-r html -o lab.html
 					</code></pre>
 				</section>
 				<section>
@@ -197,6 +214,26 @@ it('POST /route', function (done) {
 					</code></pre>
 				</section>
 				<section>
+					<p>glue example</p>
+					<pre><code data-trim contenteditable>
+var Glue = require('glue');
+var Hapi = require('hapi');
+var internals = {
+    manifest: {
+        // json you had before in rejoice
+    }
+};
+Glue.compose(internals.manifest,
+    { relativeTo: __dirname }, function (err, server) {
+    if (err) {
+        console.log('server.register err:', err);
+    }
+    server.start();
+});
+
+					</code></pre>
+				</section>
+				<section>
 					<p>confidence</p>
 					<ul>
 						<li>configuration document format</li>
@@ -291,14 +328,27 @@ it('POST /route', function (done) {
 					<pre><code data-trim contenteditable>rejoice -c app.json</code></pre>
 				</section>
 				<section>
-					<p>good</p>
+					<p>good loggers</p>
 					<ul>
-						<li>now with configurable reporters!</li>
-						<li>good-file, good-http, good-console, good-broadcast</li>
-						<li>log types of request, ops, log(custom), error</li>
+						<li>good-file</li>
+                                                <li>good-http</li>
+                                                <li>good-console</li>
+                                                <li>good-broadcast</li>
+						<li>community and hapijs reporters at</li>
+                                                <li>https://github.com/hapijs/good</li>
 					</ul>
 <br/>
 <img src="/images/hapijs/good.png" height=75 style="border:none; background:none; box-shadow:none;"/>
+				</section>
+				<section>
+					<p>good event types</p>
+					<ul>
+						<li>response</li>
+                                                <li>ops</li>
+                                                <li>log(custom)</li>
+                                                <li>error</li>
+                                                <li>wreck</li>
+					</ul>
 				</section>
 				<section>
 					<p>additional good options</p>
@@ -395,15 +445,6 @@ broadcast -c broadcast.json
                                         </code></pre>
 				</section>
 				<section>
-					<p>custom reporter</p>
-					<ul>
-						<li>make your own custom reporter at</li>
-						<li>https://github.com/hapijs/good-reporter (UPDATE)</li>
-						<li>community and hapijs reporters at</li>
-                                                <li>https://github.com/hapijs/good</li>
-					</ul>
-				</section>
-				<section>
 					<p>joi</p>
 					<ul>
 						<li>2 step process</li>
@@ -415,6 +456,14 @@ broadcast -c broadcast.json
 					</ul>
 <br/>
 <img src="/images/hapijs/joi.png" height=75 style="border:none; background:none; box-shadow:none;"/>
+				</section>
+				<section>
+					<p>schema</p>
+					<ul>
+						<li>Keys are optional by default</li>
+                                                <li>Strings are utf-8 encoded by default</li>
+                                                <li>Rules are defined in an additive fashion and evaluated in order after whitelist and blacklist checks</li>
+					</ul>
 				</section>
 				<section>
 					<p>define schema</p>
@@ -447,7 +496,17 @@ var err = Joi.validate({ username: 'abc', birthyear: 1994 }, schema);
 					</code></pre>
 				</section>
 				<section>
-					<p>joi within hapi</p>
+					<p>schema object types</p>
+					<pre><code data-trim contenteditable>
+var schema = Joi.string().min(10);
+
+var schema = Joi.object({
+    a: Joi.string()
+});
+					</code></pre>
+				</section>
+				<section>
+					<p>hapi validation (input)</p>
 					<pre><code data-trim contenteditable>
 server.route({
   method: 'GET',
@@ -465,20 +524,22 @@ server.route({
 					</code></pre>
 				</section>
 				<section>
-					<p>schema</p>
-					<ul>
-						<li>Keys are optional by default</li>
-                                                <li>Strings are utf-8 encoded by default</li>
-                                                <li>Rules are defined in an additive fashion and evaluated in order after whitelist and blacklist checks</li>
-					</ul>
-				</section>
-				<section>
-					<p>schema object types</p>
+					<p>hapi response validation</p>
 					<pre><code data-trim contenteditable>
-var schema = Joi.string().min(10);
-
-var schema = Joi.object({
-    a: Joi.string()
+server.route({
+  method: 'GET',
+  path: '/example',
+  config: {
+    handler: handler,
+    validate: {
+      // params, query, payload, headers
+    },
+    response: {
+        schema: Joi.object().keys({
+            success: Joi.boolean().required()
+        });
+    }
+  }
 });
 					</code></pre>
 				</section>
@@ -500,99 +561,6 @@ var schema = Joi.object({
                                         <li>object(schema)</li>
                                         <li>string()</li>
 					</ul>
-				</section>
-				<section>
-					<p>schema functions any()</p>
-<center>
-<table>
-<tr>
-<td>
-<ul>
-<li>.allow(value)</li>
-<li>.valid(value)</li>
-<li>.invalid(value)</li>
-<li>.required()</li>
-<li>.optional()</li>
-<li>.with(peer)</li>
-<li>.without(peer)</li>
-<li>.description(desc)</li>
-</ul>
-</td>
-<td>
-<ul>
-<li>.xor(peer)</li>
-<li>.or(peer)</li>
-<li>.notes(notes)</li>
-<li>.tags(tags)</li>
-<li>.options(options)</li>
-<li>.strict()</li>
-<li>.rename(to, [options])</li>
-</ul>
-</td>
-</tr>
-</table>
-</center>
-				</section>
-				<section>
-					<p>schema functions array()</p>
-					<ul>
-<li>.includes(type)</li>
-<li>.excludes(type)</li>
-<li>.min(limit)</li>
-<li>.max(limit)</li>
-<li>.length(limit)</li>
-					</ul>
-				</section>
-				<section>
-					<p>schema functions boolean()</p>
-					<ul>
- 					<li>supports the same methods as any() type</li>
-					</ul>
-					<pre><code data-trim contenteditable>
-var boolean = Joi.boolean();
-boolean.allow(null);
-var err = boolean.validate(true);
-					</code></pre>
-				</section>
-				<section>
-					<p>schema functions number()</p>
-					<ul>
-<li>.min(limit)</li>
-<li>.max(limit)</li>
-<li>.integer()</li>
-					</ul>
-				</section>
-				<section>
-					<p>schema functions string()</p>
-					<ul>
-<li>.insensitive()</li>
-<li>.min(limit)</li>
-<li>.max(limit)</li>
-<li>.length(limit)</li>
-<li>.regex(pattern)</li>
-<li>.alphanum()</li>
-<li>.token()</li>
-<li>.guid()</li>
-<li>.email()</li>
-					</ul>
-				</section>
-				<section>
-					<p>schema functions date()</p>
-					<ul>
-<li>date.min(date)</li>
-<li>date.max(date)</li>
-					</ul>
-				</section>
-				<section>
-					<p>schema functions func()</p>
-					<ul>
- 					<li>supports the same methods as any() type</li>
-					</ul>
-					<pre><code data-trim contenteditable>
-var func = Joi.func();
-func.allow(null);
-var err = func.validate(function () {});
-					</code></pre>
 				</section>
 				<section>
 					<p>helpful tips</p>
@@ -619,12 +587,15 @@ any.when('key',
                                                 <li>register plugin</li>
                                                 <li>use describe in joi to document schema</li>
                                                 <li>http://server/docs</li>
+                                                <li>hapi-swagger</li>
 					</ul>
 <br/>
 <img src="/images/hapijs/lout.png" height=65 style="border:none; background:none; box-shadow:none;"/>
 				</section>
 				<section>
-					<p>lout screenshot here</p>
-<img src="/images/hapijs/lout-ss.png" style="border:none; background:none; box-shadow:none;"/>
+<img src="/images/ecosystem/lout1.png" style="border:none; background:none; box-shadow:none;"/>
+				</section>
+				<section>
+<img src="/images/ecosystem/lout2.png" style="border:none; background:none; box-shadow:none;"/>
 				</section>
 {{> partials/questions }}

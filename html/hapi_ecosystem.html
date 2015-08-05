@@ -256,81 +256,174 @@ Glue.compose(internals.manifest,
 <img src="/images/hapijs/confidence.png" height=60 style="border:none; background:none; box-shadow:none;"/>
 				</section>
 				<section>
-					<p>document format example</p>
+					<p>confidence example</p>
 					<pre><code data-trim contenteditable>
 {
-    "key1": "abc",
-    "key2": {
+    "connections": [
+        {
+            "port": 8080,
+            "labels": [ "api", "http" ]
+        }
+    ],
+    "plugins": {
         "$filter": "env",
-        "production": {
-            "deeper": {
-                "$value": "value"
+        "$base": {
+            "good": {
+                "opsInterval": 5000,
+                "requestHeaders": true
             }
         },
         "$default": {
-            "$filter": "platform",
-            "android": 0,
-            "ios": 1,
-            "$default": 2
+            "good": {
+                "reporters": [
+                {
+                    "reporter": "good-file",
+                    "events": { "error": "*" },
+                    "config": "/app/log/error.log"
+                }]
+            }
+        },
+        "dev": {
+            "good": {
+                "reporters": [
+                {
+                    "reporter": "good-console",
+                    "events": { "log": "*", "error": "*" }
+                },
+                {
+                    "reporter": "good-file",
+                    "events": { "response": "*" },
+                    "config": "./log/response.log"
+                },
+                {
+                    "reporter": "good-file",
+                    "events": { "ops": "*" },
+                    "config": "./log/ops.log"
+                },
+                {
+                    "reporter": "good-file",
+                    "events": { "wreck": "*" },
+                    "config": "./log/wreck.log"
+                },
+                {
+                    "reporter": "good-file",
+                    "events": { "error": "*" },
+                    "config": "./log/error.log"
+                }]
+            },
+            "lout": {}
+        },
+        "prod": {
+            "good": {
+                "reporters": [
+                {
+                    "reporter": "good-file",
+                    "events": { "response": "*" },
+                    "config": "/app/log/response.log"
+                },
+                {
+                    "reporter": "good-file",
+                    "events": { "ops": "*" },
+                    "config": "/app/log/ops.log"
+                },
+                {
+                    "reporter": "good-file",
+                    "events": { "error": "*" },
+                    "config": "/app/log/error.log"
+                }]
+            }
         }
-    },
-    "key3": {
-        "sub1": 123,
-        "sub2": {
-            "$filter": "xfactor",
-            "yes": 6
-        }
-    },
-    "ab": {
-        "$filter": "random.a",
-        "$range": [
-            { "limit": 10, "value": 4 },
-            { "limit": 20, "value": 5 }
-        ],
-        "$default": 6
-    },
-    "$meta": {
-        "description": "example file"
     }
 }
 					</code></pre>
 				</section>
 				<section>
 					<p>no filter</p>
+					<ul>
+						<li>confidence -c confidence.json > default.json</li>
+						<li>copy if no $env</li>
+						<li>merge $base and $default</li>
+					</ul>
+				</section>
+				<section>
 					<pre><code data-trim contenteditable>
 {
-    "key1": "abc",
-    "key2": 2,
-    "key3": {
-        "sub1": 123
-    },
-    "ab": 6
+    "connections": [
+        {
+            "port": 8080,
+            "labels": [
+                "api",
+                "http"
+            ]
+        }
+    ],
+    "plugins": {
+        "good": {
+            "opsInterval": 5000,
+            "requestHeaders": true,
+            "reporters": [
+                {
+                    "reporter": "good-file",
+                    "events": {
+                        "error": "*"
+                    },
+                    "config": "/app/log/error.log"
+                }
+            ]
+        }
+    }
 }
 					</code></pre>
 				</section>
 				<section>
-					<p>filter</p>
+					<p>filter --filter.env=prod</p>
+					<ul>
+						<li>confidence -c confidence.json --filter.env=prod > prod.json</li>
+						<li>copy if no $env</li>
+						<li>merge $base and "prod"</li>
+					</ul>
+				</section>
+				<section>
 					<pre><code data-trim contenteditable>
 {
-    "env": "production",
-    "platform": "ios",
-    "xfactor": "yes",
-    "random": {
-        "a": 15
+    "connections": [
+        {
+            "port": 8080,
+            "labels": [
+                "api",
+                "http"
+            ]
+        }
+    ],
+    "plugins": {
+        "good": {
+            "opsInterval": 5000,
+            "requestHeaders": true,
+            "reporters": [
+                {
+                    "reporter": "good-file",
+                    "events": {
+                        "response": "*"
+                    },
+                    "config": "/app/log/response.log"
+                },
+                {
+                    "reporter": "good-file",
+                    "events": {
+                        "ops": "*"
+                    },
+                    "config": "/app/log/ops.log"
+                },
+                {
+                    "reporter": "good-file",
+                    "events": {
+                        "error": "*"
+                    },
+                    "config": "/app/log/error.log"
+                }
+            ]
+        }
     }
-}
-					</code></pre>
-					<pre><code data-trim contenteditable>
-{
-    "key1": "abc",
-    "key2": {
-        "deeper": "value"
-    },
-    "key3": {
-        "sub1": 123,
-        "sub2": 6
-    },
-    "ab": 5
 }
 					</code></pre>
 				</section>
@@ -346,8 +439,8 @@ Glue.compose(internals.manifest,
                                                 <li>good-http</li>
                                                 <li>good-console</li>
                                                 <li>good-broadcast</li>
-						<li>community and hapijs reporters at</li>
-                                                <li>https://github.com/hapijs/good</li>
+						<li>community and hapijs reporters</li>
+						<li><a href="https://github.com/hapijs/good">https://github.com/hapijs/good</a></li>
 					</ul>
 <br/>
 <img src="/images/hapijs/good.png" height=75 style="border:none; background:none; box-shadow:none;"/>
@@ -385,9 +478,6 @@ var options = {
     }]
 };
 
-                                        </code></pre>
-					<pre><code data-trim contenteditable>
-example output
                                         </code></pre>
 				</section>
 				<section>
@@ -453,10 +543,10 @@ var envelope = {
 					<pre><code data-trim contenteditable>
 {
     "url": "http://server/analytics",
-    "log": "/log/request_services.log",
+    "log": "/log/response.log",
     "interval": 1000,
     "newOnly": true,
-    "resumePath": "/log/requestIndex.tmp",
+    "resumePath": "/log/responseIndex.tmp",
     "wait": 1000,
     "attempts": 1
 }
@@ -471,6 +561,7 @@ broadcast -c broadcast.json
                                                 <li>joi used useful in non-hapi projects</li>
                                                 <li>built-in helpers for hapi</li>
                                                 <li>response validation</li>
+						<li><a href="https://github.com/hapijs/joi">https://github.com/hapijs/joi</a></li>
 					</ul>
 <br/>
 <img src="/images/hapijs/joi.png" height=75 style="border:none; background:none; box-shadow:none;"/>
@@ -504,8 +595,7 @@ var schema = {
 					<p>validate schema</p>
 					<pre><code data-trim contenteditable>
 // err === null -> valid
-var err = Joi.validate({ a: 'a string' },
-          schema);
+var err = Joi.validate({ a: 'a string' }, schema);
 					</code></pre>
 				</section>
 				<section>
@@ -528,8 +618,6 @@ var err = Joi.validate(thing, schema);
 				<section>
 					<p>schema object types</p>
 					<pre><code data-trim contenteditable>
-var schema = Joi.string().min(10);
-
 var schema = Joi.object({
     a: Joi.string()
 });
@@ -574,12 +662,6 @@ server.route({
 					</code></pre>
 				</section>
 				<section>
-					<p>validate</p>
-					<pre><code data-trim contenteditable>
- validate(value, schema, options) 
-					</code></pre>
-				</section>
-				<section>
 					<p>schema functions by types</p>
 					<ul>
                                         <li>any()</li>
@@ -593,7 +675,7 @@ server.route({
 					</ul>
 				</section>
 				<section>
-					<p>helpful tips</p>
+					<p>joi helpful tips</p>
 					<pre><code data-trim contenteditable>
 // empty string
 any.allow('')
@@ -613,11 +695,11 @@ any.when('key',
 					<p>lout</p>
 					<ul>
 						<li>automate your documentation</li>
-						<li>use describe in your routes</li>
                                                 <li>register plugin</li>
                                                 <li>use describe in joi to document schema</li>
                                                 <li>http://server/docs</li>
-                                                <li>hapi-swagger</li>
+                                                <li>hapi-swagger (alternative)</li>
+						<li><a href="https://github.com/hapijs/lout">https://github.com/hapijs/lout</a></li>
 					</ul>
 <br/>
 <img src="/images/hapijs/lout.png" height=65 style="border:none; background:none; box-shadow:none;"/>

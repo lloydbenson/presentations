@@ -3,9 +3,11 @@
 					<p>
 						<small>Created by Lloyd Benson / lloyd.benson@gmail.com</small>
 					</p>
+<img src="/images/hapijs/hapi.png" height=90 style="border:none; background:none; box-shadow:none;"/>
 				</section>
 {{> partials/whoami }}
 {{> partials/hapi_quick_intro }}
+{{> partials/hapi_plugins }}
 				<section>
 					<p>covered plugins</p>
 					<ul>
@@ -205,7 +207,7 @@ it('POST /route', function (done) {
     "good": {
       "reporters": [{
         "reporter": "good-console",
-          "args": [{ "response": "*", "error": "*" }]
+        "events": { "response": "*", "error": "*" }
       }]
     },
     "lout": {}
@@ -213,6 +215,17 @@ it('POST /route', function (done) {
 }
 					</code></pre>
 				</section>
+				<section>
+					<p>glue</p>
+					<ul>
+						<li>server composer for hapi</li>
+						<li>code vs config style</li>
+						<li>takes a json manifest</li>
+						<li>few more options</li>
+						<li><a href="https://github.com/hapijs/glue">https://github.com/hapijs/glue</a></li>
+					</ul>
+				</section>
+				<section>
 				<section>
 					<p>glue example</p>
 					<pre><code data-trim contenteditable>
@@ -345,7 +358,7 @@ Glue.compose(internals.manifest,
 					<ul>
 						<li>response</li>
                                                 <li>ops</li>
-                                                <li>log(custom)</li>
+                                                <li>log (custom from server.log)</li>
                                                 <li>error</li>
                                                 <li>wreck</li>
 					</ul>
@@ -353,9 +366,8 @@ Glue.compose(internals.manifest,
 				<section>
 					<p>additional good options</p>
 <ul>
-<li>TRY OUT</li>
 <li>opsInterval (default 15s)</li>
-<li>headers</li>
+<li>requestHeaders</li>
 <li>responsePayload</li>
 <li>requestPayload</li>
 <li>increases size and may impact security</li>
@@ -370,7 +382,7 @@ var options = {
     opsInterval: 1000,
     reporters: [{
         reporter: require('good-console'),
-        args:[{ log: '*', response: '*' }]
+        events :{ log: '*', response: '*' }
     }]
 };
 
@@ -385,7 +397,8 @@ example output
 var options = {
   reporters: [{
     reporter: require('good-file'),
-    args: ['./test/fixtures/awesome_log', { ops: '*' }]
+    events: { ops: '*' },
+    config: './test/fixtures/awesome_log'
   }]
 };
 
@@ -402,12 +415,13 @@ server.register(require('good-file'), options, function (err) {
 var options = {
   reporters: [{
     reporter: require('good-http'),
-    args: ['http://prod.logs:3000', { error: '*' } , {
-      threshold: 20,
-      wreck: {
+    events: { error: '*' },
+    endpoint: 'http://prod.logs:3000',
+    // events to hold before transmission
+    threshold: 20,
+    wreck: {
         headers: { 'x-api-key' : 12345 }
-      }
-    }]
+    }
   }]
 };
 
@@ -423,9 +437,17 @@ server.register(require('good-http'), options, function (err) {
 <ul>
 <li>cli utility</li>
 <li>separates it out from your other process</li>
-<li>adds envelop (DESCRIBE MORE)</li>
+<li>adds envelope</li>
 </ul>
-                                       </ul>
+					<pre><code data-trim contenteditable>
+var envelope = {
+    schema: internals.schemaName,
+    host: internals.host,
+    appVer: internals.appVer,
+    timestamp: Date.now(),
+    events: log
+};
+					</code></pre>
 				</section>
 				<section>
 					<p>good-broadcast example</p>
@@ -447,9 +469,6 @@ broadcast -c broadcast.json
 				<section>
 					<p>joi</p>
 					<ul>
-						<li>2 step process</li>
-                                                <li>define schema</li>
-                                                <li>then validate the schema</li>
                                                 <li>joi used useful in non-hapi projects</li>
                                                 <li>built-in helpers for hapi</li>
                                                 <li>response validation</li>
@@ -458,11 +477,11 @@ broadcast -c broadcast.json
 <img src="/images/hapijs/joi.png" height=75 style="border:none; background:none; box-shadow:none;"/>
 				</section>
 				<section>
-					<p>schema</p>
+					<p>joi</p>
 					<ul>
-						<li>Keys are optional by default</li>
-                                                <li>Strings are utf-8 encoded by default</li>
-                                                <li>Rules are defined in an additive fashion and evaluated in order after whitelist and blacklist checks</li>
+						<li>2 step process</li>
+                                                <li>define schema</li>
+                                                <li>then validate the schema</li>
 					</ul>
 				</section>
 				<section>
@@ -475,24 +494,36 @@ var schema = {
 					</code></pre>
 				</section>
 				<section>
+					<p>schema</p>
+					<ul>
+						<li>Keys are optional by default</li>
+                                                <li>Strings are utf-8 encoded by default</li>
+                                                <li>Rules are defined in an additive fashion and evaluated in order after whitelist and blacklist checks</li>
+					</ul>
+				</section>
+				<section>
 					<p>validate schema</p>
-					<p>If the value is valid, null is returned, otherwise an Error object.</p>
 					<pre><code data-trim contenteditable>
-var err = Joi.validate({ a: 'a string' }, schema);
+// err === null -> valid
+var err = Joi.validate({ a: 'a string' },
+          schema);
 					</code></pre>
 				</section>
 				<section>
 					<p>joi example</p>
 					<pre><code data-trim contenteditable>
 var schema = {
-  username: Joi.string().alphanum().min(3).max(30).with('birthyear').required(),
-  password: Joi.string().regex(/[a-zA-Z0-9]{3,30}/).without('access_token'),
+  username: Joi.string().alphanum().min(3).max(30)
+               .with('birthyear').required(),
+  password: Joi.string().regex(/[a-zA-Z0-9]{3,30}/)
+               .without('access_token'),
   access_token: [Joi.string(), Joi.number()],
   birthyear: Joi.number().integer().min(1900).max(2013),
   email: Joi.string().email()
 };
+var thing = { username: 'abc', birthyear: 1994 };
 // err === null -> valid
-var err = Joi.validate({ username: 'abc', birthyear: 1994 }, schema);
+var err = Joi.validate(thing, schema);
 					</code></pre>
 				</section>
 				<section>

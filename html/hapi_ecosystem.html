@@ -346,6 +346,7 @@ Glue.compose(internals.manifest,
 					</ul>
 				</section>
 				<section>
+					<p>no filter</p>
 					<pre><code data-trim contenteditable>
 {
     "connections": [
@@ -364,9 +365,7 @@ Glue.compose(internals.manifest,
             "reporters": [
                 {
                     "reporter": "good-file",
-                    "events": {
-                        "error": "*"
-                    },
+                    "events": { "error": "*" },
                     "config": "/app/log/error.log"
                 }
             ]
@@ -384,6 +383,7 @@ Glue.compose(internals.manifest,
 					</ul>
 				</section>
 				<section>
+					<p>filter --filter.env=prod</p>
 					<pre><code data-trim contenteditable>
 {
     "connections": [
@@ -402,23 +402,17 @@ Glue.compose(internals.manifest,
             "reporters": [
                 {
                     "reporter": "good-file",
-                    "events": {
-                        "response": "*"
-                    },
+                    "events": { "response": "*" },
                     "config": "/app/log/response.log"
                 },
                 {
                     "reporter": "good-file",
-                    "events": {
-                        "ops": "*"
-                    },
+                    "events": { "ops": "*" },
                     "config": "/app/log/ops.log"
                 },
                 {
                     "reporter": "good-file",
-                    "events": {
-                        "error": "*"
-                    },
+                    "events": { "error": "*" },
                     "config": "/app/log/error.log"
                 }
             ]
@@ -433,22 +427,31 @@ Glue.compose(internals.manifest,
 					<pre><code data-trim contenteditable>rejoice -c app.json</code></pre>
 				</section>
 				<section>
-					<p>good loggers</p>
+					<p>good</p>
 					<ul>
-						<li>good-file</li>
-                                                <li>good-http</li>
-                                                <li>good-console</li>
+						<li>good is a process monitor that listens for event(s)</li>
+						<li>maps to hapi <a href="https://github.com/hapijs/hapi/blob/master/API.md#server-events">events</a></li>
+						<li>loggers</li>
                                                 <li>good-broadcast</li>
-						<li>community and hapijs reporters</li>
 						<li><a href="https://github.com/hapijs/good">https://github.com/hapijs/good</a></li>
 					</ul>
 <br/>
 <img src="/images/hapijs/good.png" height=75 style="border:none; background:none; box-shadow:none;"/>
 				</section>
 				<section>
+					<p>good loggers</p>
+					<ul>
+                                                <li>good-console</li>
+						<li>good-file</li>
+                                                <li>good-http</li>
+						<li>community and hapijs reporters</li>
+					</ul>
+				</section>
+				<section>
 					<p>good event types</p>
 					<ul>
 						<li>response</li>
+						<li>request</li>
                                                 <li>ops</li>
                                                 <li>log (custom from server.log)</li>
                                                 <li>error</li>
@@ -474,7 +477,7 @@ var options = {
     opsInterval: 1000,
     reporters: [{
         reporter: require('good-console'),
-        events :{ log: '*', response: '*' }
+        events: { log: '*', response: '*' }
     }]
 };
 
@@ -558,6 +561,8 @@ broadcast -c broadcast.json
 				<section>
 					<p>joi</p>
 					<ul>
+                                                <li>object schema description language</li>
+                                                <li>validator for javascript objects</li>
                                                 <li>joi used useful in non-hapi projects</li>
                                                 <li>built-in helpers for hapi</li>
                                                 <li>response validation</li>
@@ -584,7 +589,7 @@ var schema = {
 					</code></pre>
 				</section>
 				<section>
-					<p>schema</p>
+					<p>validating schema</p>
 					<ul>
 						<li>Keys are optional by default</li>
                                                 <li>Strings are utf-8 encoded by default</li>
@@ -592,7 +597,7 @@ var schema = {
 					</ul>
 				</section>
 				<section>
-					<p>validate schema</p>
+					<p>validate schema example</p>
 					<pre><code data-trim contenteditable>
 // err === null -> valid
 var err = Joi.validate({ a: 'a string' }, schema);
@@ -710,4 +715,5 @@ any.when('key',
 				<section>
 <img src="/images/ecosystem/lout2.png" style="border:none; background:none; box-shadow:none;"/>
 				</section>
+{{> partials/hapi_help }}
 {{> partials/questions }}

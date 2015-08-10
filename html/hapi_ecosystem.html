@@ -191,7 +191,7 @@ it('POST /route', function (done) {
 						<li>cli utility for starting up hapi via a json config file</li>
 						<li>replaces bin/hapi</li>
 						<li>rejoice -c app.json</li>
-						<li>based on composer (<a href="https://github.com/hapijs/glue">https://github.com/hapijs/glue</a>)</li>
+						<li>based on composer (<a href="https://github.com/hapijs/glue">glue</a>)</li>
 						<li><a href="https://github.com/hapijs/rejoice">https://github.com/hapijs/rejoice</a></li>
 					</ul>
 				</section>
@@ -477,7 +477,7 @@ var options = {
     opsInterval: 1000,
     reporters: [{
         reporter: require('good-console'),
-        events: { log: '*', response: '*' }
+        events: { log: '*', response: '*', ops: '*' }
     }]
 };
 
@@ -589,19 +589,19 @@ var schema = {
 					</code></pre>
 				</section>
 				<section>
+					<p>validate schema</p>
+					<pre><code data-trim contenteditable>
+// err === null -> valid
+var err = Joi.validate({ a: 'a string' }, schema);
+					</code></pre>
+				</section>
+				<section>
 					<p>validating schema</p>
 					<ul>
 						<li>Keys are optional by default</li>
                                                 <li>Strings are utf-8 encoded by default</li>
                                                 <li>Rules are defined in an additive fashion and evaluated in order after whitelist and blacklist checks</li>
 					</ul>
-				</section>
-				<section>
-					<p>validate schema example</p>
-					<pre><code data-trim contenteditable>
-// err === null -> valid
-var err = Joi.validate({ a: 'a string' }, schema);
-					</code></pre>
 				</section>
 				<section>
 					<p>joi example</p>

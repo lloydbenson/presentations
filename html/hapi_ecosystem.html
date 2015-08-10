@@ -658,6 +658,8 @@ server.route({
       // params, query, payload, headers
     },
     response: {
+        // set percent rate
+        sample: 0,
         schema: Joi.object().keys({
             success: Joi.boolean().required()
         });

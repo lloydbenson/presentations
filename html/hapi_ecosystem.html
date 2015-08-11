@@ -451,12 +451,34 @@ Glue.compose(internals.manifest,
 					<p>good event types</p>
 					<ul>
 						<li>response</li>
-						<li>request</li>
+						<li>request (request.log)</li>
                                                 <li>ops</li>
-                                                <li>log (custom from server.log)</li>
+                                                <li>log (server.log)</li>
                                                 <li>error</li>
                                                 <li>wreck</li>
 					</ul>
+				</section>
+				<section>
+console - ops
+<pre><code data-trim contenteditable>
+141225/093015.900, [ops, event.tags], memory: 10Mb, uptime (seconds): 1000, load: [ 1.650390625, 1.6162109375, 1.65234375 ]
+</code></pre>
+console - error
+<pre><code data-trim contenteditable>
+ 141225/093015.900, [error, event.tags], message: there was an error, stack: eventData.stack
+</code></pre>
+console - request
+<pre><code data-trim contenteditable>
+141225/093015.900, [request, event.tags], data: {"message":"you made a request to a resource"}
+</code></pre>
+console - log
+<pre><code data-trim contenteditable>
+141225/093015.900, [log, event.tags], data: you logged a message
+</code></pre>
+console - response
+<pre><code data-trim contenteditable>
+141223/164207.694, [response], localhost: post /data {"name":"adam"} 200 (150ms) response payload: {"foo":"bar","value":1}</li>
+</code></pre>
 				</section>
 				<section>
 					<p>additional good options</p>

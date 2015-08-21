@@ -240,7 +240,10 @@ Glue.compose(internals.manifest,
     if (err) {
         console.log('server.register err:', err);
     }
-    server.start();
+    server.start(function () {
+    
+        console.log('Server running at:', server.info.uri);
+    });
 });
 
 					</code></pre>
@@ -613,8 +616,12 @@ var schema = {
 				<section>
 					<p>validate schema</p>
 					<pre><code data-trim contenteditable>
-// err === null -> valid
-var err = Joi.validate({ a: 'a string' }, schema);
+Joi.validate({ a: 'a string' }, schema, function (err, value) {
+
+  if (!err) {
+    console.log(JSON.stringify(value) + ' validated');
+  }
+});
 					</code></pre>
 				</section>
 				<section>
@@ -622,32 +629,31 @@ var err = Joi.validate({ a: 'a string' }, schema);
 					<ul>
 						<li>Keys are optional by default</li>
                                                 <li>Strings are utf-8 encoded by default</li>
-                                                <li>Rules are defined in an additive fashion and evaluated in order after whitelist and blacklist checks</li>
+                                                <li>rules are defined in an additive fashion</li>
+                                                <li>rules are evaluated in order after whitelist and blacklist checks</li>
 					</ul>
 				</section>
 				<section>
 					<p>joi example</p>
 					<pre><code data-trim contenteditable>
-var schema = {
-  username: Joi.string().alphanum().min(3).max(30)
-               .with('birthyear').required(),
-  password: Joi.string().regex(/[a-zA-Z0-9]{3,30}/)
-               .without('access_token'),
-  access_token: [Joi.string(), Joi.number()],
-  birthyear: Joi.number().integer().min(1900).max(2013),
-  email: Joi.string().email()
-};
+var Joi = require('joi');
+
+var schema = Joi.object().keys({
+    username: Joi.string().alphanum().min(3).max(30).required(),
+    password: Joi.string().regex(/[a-zA-Z0-9]{3,30}/),
+    accessToken: [Joi.string(), Joi.number()],
+    birthyear: Joi.number().integer().min(1900).max(2013),
+    email: Joi.string().email()
+}).with('username', 'birthyear').without('password', 'accessToken');
+
 var thing = { username: 'abc', birthyear: 1994 };
-// err === null -> valid
-var err = Joi.validate(thing, schema);
-					</code></pre>
-				</section>
-				<section>
-					<p>schema object types</p>
-					<pre><code data-trim contenteditable>
-var schema = Joi.object({
-    a: Joi.string()
+Joi.validate(thing, schema, function (err, value) {
+
+    if (!err) {
+        console.log(JSON.stringify(value) + ' validated');
+    }
 });
+
 					</code></pre>
 				</section>
 				<section>
@@ -659,10 +665,10 @@ server.route({
   config: {
     handler: handler,
     validate: {
-      query: {
-        id: Joi.number().min(100).required().xor('username'),
+      query: Joi.object({
+        id: Joi.number().min(5),
         username: Joi.string().alphanum().min(3).max(10)
-      }
+      }).xor('id','username').required()
     }
   }
 });

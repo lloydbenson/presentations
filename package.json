@@ -1,6 +1,6 @@
 {
   "name": "presentations",
-  "version": "1.3.0",
+  "version": "2.0.0",
   "description": "presentations",
   "main": "lib/index.js",
   "engines": {
@@ -10,8 +10,10 @@
     "start": "node ."
   },
   "dependencies": {
-    "hapi": "8.x.x",
-    "hapi-reveal": "2.x.x"
+    "hapi": "9.x.x",
+    "hapi-reveal": "3.x.x",
+    "inert": "3.x.x",
+    "vision": "3.x.x"
   },
   "author": "Lloyd Benson"
 }

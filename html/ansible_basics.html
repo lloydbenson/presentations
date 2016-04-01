@@ -1,0 +1,56 @@
+				<section>
+					<h2>Ansible Basics</h2>
+					<h3>Things I found useful</h3>
+					<p>
+						<small>Created by Lloyd Benson / lloyd.benson@gmail.com</small>
+					</p>
+					<p>
+						<a href="http://github.com/lloydbenson/presentations"><small>http://github.com/lloydbenson/presentations</small></a>
+					</p>
+				</section>
+{{> partials/whoami }}
+				<section>
+					<h3>overview</h3>
+					<ul>
+                                           <li>getting started</li>
+                                           <li>variable precedence</li>
+                                           <li>templating</li>
+                                           <li>conditionals</li>
+                                           <li>useful plays</li>
+                                           <li>dynamic inventory</li>
+                                        </ul>
+				</section>
+				<section>
+					<h3>variable precedence (least to most)</h3>
+					<ol>
+                                           <li>role defaults</li>
+                                           <li>inventory vars</li>
+                                           <li>inventory group_vars</li>
+                                           <li>inventory host_vars</li>
+                                           <li>playbook group_vars</li>
+                                           <li>playbook host_vars</li>
+                                           <li>host facts</li>
+                                           <li>registered vars</li>
+                                        </ol>
+				</section>
+				<section>
+					<h3>variable precedence (cont)</h3>
+					<ol>
+                                           <li>set_facts</li>
+                                           <li>play vars</li>
+                                           <li>play vars_prompt</li>
+                                           <li>play vars_files</li>
+                                           <li>role and include vars</li>
+                                           <li>block vars (only for tasks in block)</li>
+                                           <li>task vars (only for the task)</li>
+                                           <li>extra vars (always win precedence)</li>
+                                        </ol>
+				</section>
+				<section>
+					<h3>resources</h3>
+					<ul>
+						<li><a href="http://docs.ansible.com">http://docs.ansible.com</a></li>
+						<li><a href="http://docs.ansible.com/ansible/playbooks_variables.html#variable-precedence-where-should-i-put-a-variable">variable precedence</a></li>
+					</ul>
+				</section>
+{{> partials/questions }}

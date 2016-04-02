@@ -13,12 +13,26 @@
 					<h3>overview</h3>
 					<ul>
                                            <li>getting started</li>
-                                           <li>variable precedence</li>
-                                           <li>templating</li>
+                                           <li>variables</li>
                                            <li>conditionals</li>
+                                           <li>templates</li>
                                            <li>useful plays</li>
                                            <li>dynamic inventory</li>
                                         </ul>
+				</section>
+				<section>
+					<h3>variables</h3>
+                                        <pre><code data-trim contenteditable>
+---
+  apps_dir: /apps
+  gateway: 192.168.0.1
+  tftp_root: /apps/tftpboot
+  reserved_addresses:
+    - { ip: '192.168.0.100', mac: 'mac1', host: 'host1' }
+    - { ip: '192.168.0.101', mac: 'mac2', host: 'host2' }
+  dhcp_range: { min: 192.168.0.150, max: 192.168.0.160 }
+  domain: domain.com
+                                        </code></pre>
 				</section>
 				<section>
 					<h3>variable precedence (least to most)</h3>
@@ -45,6 +59,64 @@
                                            <li>task vars (only for the task)</li>
                                            <li>extra vars (always win precedence)</li>
                                         </ol>
+				</section>
+				<section>
+					<h3>conditionals</h3>
+                                        <pre><code data-trim contenteditable>
+- name: dnsmasq.conf
+  template: src=dnsmasq.conf.j2
+            dest=/etc/dnsmasq.conf
+  sudo: true
+  when: inventory_hostname == 'admin1'
+                                        </code></pre>
+				</section>
+				<section>
+					<h3>templates</h3>
+                                        <pre><code data-trim contenteditable>
+domain=\{{ domain }}
+dhcp-range=\{{ dhcp_range.min }},\{{ dhcp_range.max }}
+{% for address in reserved_addresses %}
+dhcp-host=\{{ address.mac  }},\{{ address.ip }}
+{% endfor %}
+dhcp-option=3,\{{ gateway }}
+dhcp-no-override
+enable-tftp
+tftp-root=\{{ tftp_root }}
+dhcp-boot=pxelinux.0,\{{ shorthost }},\{{ ip }}
+alias=\{{ gateway }},\{{ ip }}
+                                        </code></pre>
+				</section>
+				<section>
+					<h3>get facts</h3>
+                                        <pre><code data-trim contenteditable>
+- name: Display all variables/facts known for a host
+  debug: var=hostvars[inventory_hostname] verbosity=4
+                                        </code></pre>
+				</section>
+				<section>
+					<h3>inline</h3>
+                                        <pre><code data-trim contenteditable>
+example of ssh key inlining
+                                        </code></pre>
+				</section>
+				<section>
+					<h3>reboot</h3>
+                                        <pre><code data-trim contenteditable>
+- name: reboot
+  command: /usr/sbin/shutdown -r +1 "rebooting in 1 min" 
+  async: 0
+  poll: 0
+  sudo: true
+  ignore_errors: true
+- name: wait for server to come back up
+  delegate_to: localhost
+  wait_for: host=\{{ inventory_hostname }}
+            state=started
+            port=22
+            delay=120
+            timeout=300
+            connect_timeout=15
+                                        </code></pre>
 				</section>
 				<section>
 					<h3>resources</h3>

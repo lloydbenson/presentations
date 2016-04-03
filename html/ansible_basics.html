@@ -61,6 +61,23 @@
                                         </ol>
 				</section>
 				<section>
+					<h3>nested loops</h3>
+                                        <pre><code data-trim contenteditable>
+- name: mkdir tftpboot image dirs
+  file: path=\{{ bootimg_dir }}/\ 
+        \{{ item[0] }}/\
+        \{{ item[1].name }}/\
+        \{{ item[1].version}}/\
+        \{{ item[2] }}
+  with_nested:
+    - [ 'redhat' ]
+    - [ { name: 'centos', version: '7' },
+        { name: 'fedora', version: '23'} ]
+    - [ 'x86_64', 'i386' ]
+
+                                        </code></pre>
+				</section>
+				<section>
 					<h3>conditionals</h3>
                                         <pre><code data-trim contenteditable>
 - name: dnsmasq.conf
@@ -84,6 +101,14 @@ enable-tftp
 tftp-root=\{{ tftp_root }}
 dhcp-boot=pxelinux.0,\{{ shorthost }},\{{ ip }}
 alias=\{{ gateway }},\{{ ip }}
+                                        </code></pre>
+				</section>
+				<section>
+					<h3>partial templates</h3>
+                                        <pre><code data-trim contenteditable>
+domain=\{{ domain }}
+dhcp-range=\{{ dhcp_range.min }},\{{ dhcp_range.max }}
+{% include 'roles/rolename/templates/partials/whatever.j2' %}
                                         </code></pre>
 				</section>
 				<section>

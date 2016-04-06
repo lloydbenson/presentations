@@ -61,6 +61,20 @@
                                         </ol>
 				</section>
 				<section>
+					<h3>regular loops</h3>
+                                        <pre><code data-trim contenteditable>
+- name: generate menus
+  template:
+    src=menus/\{{ item }}.j2
+    dest=\{{ pxelinuxcfg_dir }}/\{{ item }}
+  with_items:
+    - main_menu
+    - default
+    - os_menu
+    - tool_menu
+                                        </code></pre>
+				</section>
+				<section>
 					<h3>nested loops</h3>
                                         <pre><code data-trim contenteditable>
 - name: mkdir tftpboot image dirs
@@ -119,9 +133,10 @@ dhcp-range=\{{ dhcp_range.min }},\{{ dhcp_range.max }}
                                         </code></pre>
 				</section>
 				<section>
-					<h3>inline</h3>
+					<h3>lineinfile</h3>
                                         <pre><code data-trim contenteditable>
-example of ssh key inlining
+- name: make sure pub ssh key is in file
+  lineinfile: dest=/home/user/.ssh/authorized_keys line={{ pub_key }} state=present
                                         </code></pre>
 				</section>
 				<section>

@@ -129,14 +129,17 @@ dhcp-range=\{{ dhcp_range.min }},\{{ dhcp_range.max }}
 					<h3>get facts</h3>
                                         <pre><code data-trim contenteditable>
 - name: Display all variables/facts known for a host
-  debug: var=hostvars[inventory_hostname] verbosity=4
+  debug: var=hostvars[inventory_hostname]
+         verbosity=4
                                         </code></pre>
 				</section>
 				<section>
 					<h3>lineinfile</h3>
                                         <pre><code data-trim contenteditable>
 - name: make sure pub ssh key is in file
-  lineinfile: dest=/home/user/.ssh/authorized_keys line={{ pub_key }} state=present
+  lineinfile: dest=/home/user/.ssh/authorized_keys
+              line=\{{ pub_key }}
+              state=present
                                         </code></pre>
 				</section>
 				<section>
@@ -150,10 +153,10 @@ dhcp-range=\{{ dhcp_range.min }},\{{ dhcp_range.max }}
   sudo: true
 
 - name: wait for ssh port to come down
-  local_action: wait_for port=22 host={{ ansible_host }} state=stopped
+  local_action: wait_for port=22 host=\{{ ansible_host }} state=stopped
 
 - name: wait for ssh port to come back up
-  local_action: wait_for port=22 host={{ ansible_host }} state=started
+  local_action: wait_for port=22 host=\{{ ansible_host }} state=started
                                         </code></pre>
 				</section>
 				<section>

@@ -128,19 +128,17 @@ example of ssh key inlining
 					<h3>reboot</h3>
                                         <pre><code data-trim contenteditable>
 - name: reboot
-  command: /usr/sbin/shutdown -r +1 "rebooting in 1 min" 
+  command: /usr/sbin/shutdown -r +1 "get off"
+  ignore_errors: true
   async: 0
   poll: 0
   sudo: true
-  ignore_errors: true
-- name: wait for server to come back up
-  delegate_to: localhost
-  wait_for: host=\{{ inventory_hostname }}
-            state=started
-            port=22
-            delay=120
-            timeout=300
-            connect_timeout=15
+
+- name: wait for ssh port to come down
+  local_action: wait_for port=22 host={{ ansible_host }} state=stopped
+
+- name: wait for ssh port to come back up
+  local_action: wait_for port=22 host={{ ansible_host }} state=started
                                         </code></pre>
 				</section>
 				<section>

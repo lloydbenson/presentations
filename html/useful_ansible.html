@@ -119,6 +119,26 @@ If you want to execute a command securely and predictably, it may be better to u
                                         </code></pre>
 				</section>
 				<section>
+					<h3>copy files</h3>
+                                        <pre><code data-trim contenteditable>
+- name: copy httpd.conf
+  copy: src=\{{ item }}
+        dest=/\{{ item }}
+  with_items:
+    - etc/httpd/conf/httpd.conf
+    - etc/samba/samba.conf
+  sudo: true
+                                        </code></pre>
+				</section>
+				<section>
+					<h3>synchronize (faster!)</h3>
+                                        <pre><code data-trim contenteditable>
+- name: sync files
+  synchronize: src=some/relative/path
+               dest=/some/absolute/path
+                                        </code></pre>
+				</section>
+				<section>
 					<h3>synchronize a file from same host</h3>
                                         <pre><code data-trim contenteditable>
 - name: copy syslinux images

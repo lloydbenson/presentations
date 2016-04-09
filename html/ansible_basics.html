@@ -59,6 +59,65 @@ ansible-playbook -v playbook.yml -i hosts --limit=$1
                                         </code></pre>
 				</section>
 				<section>
+					<h3>simple play</h3>
+                                        <pre><code data-trim contenteditable>
+- name: ensure httpd is running and enabled
+  service: name=httpd
+           state=started
+           enabled=yes
+                                        </code></pre>
+				</section>
+				<section>
+					<h3>command vs shell</h3>
+                                        <blockquote>
+If you want to execute a command securely and predictably, it may be better to use the command module instead. Best practices when writing playbooks will follow the trend of using command unless shell is explicitly required. When running ad-hoc commands, use your best judgement.
+                                        </blockquote>
+				</section>
+				<section>
+					<h3>create directory</h3>
+                                        <pre><code data-trim contenteditable>
+- name: mkdir /somedir
+  file: path=/somedir
+        state=directory
+        owner=lloyd
+        group=lloyd
+        mode=0755
+                                        </code></pre>
+				</section>
+				<section>
+					<h3>remove a dir</h3>
+                                        <pre><code data-trim contenteditable>
+- name: rm -rf /somedir
+  file: path=/somedir
+        state=absent
+                                        </code></pre>
+				</section>
+				<section>
+					<h3>copy a file</h3>
+                                        <pre><code data-trim contenteditable>
+- name: copy httpd.conf
+  copy: src=httpd.conf
+        dest=/etc/httpd/conf/http.conf
+        owner=root
+        group=root
+        mode=0644
+  sudo: true
+                                        </code></pre>
+				</section>
+				<section>
+					<h3>synchronize a file from same host</h3>
+                                        <pre><code data-trim contenteditable>
+- name: copy syslinux images
+  synchronize: mode=pull
+               src=/usr/share/syslinux/\{{ item }}
+               dest=\{{ tftpboot_dir }}/\{{ item }}
+  delegate_to: "\{{ inventory_hostname }}"
+  with_items:
+    - pxelinux.0
+    - menu.c32
+                                        </code></pre>
+				</section>
+				<section>
 					<h3>variables</h3>
                                         <pre><code data-trim contenteditable>
 ---
@@ -133,7 +192,7 @@ ansible-playbook -v playbook.yml -i hosts --limit=$1
     - main_menu
     - default
     - os_menu
-    - tool_menu
+    - tools_menu
                                         </code></pre>
 				</section>
 				<section>
@@ -164,19 +223,50 @@ ansible-playbook -v playbook.yml -i hosts --limit=$1
                                         </code></pre>
 				</section>
 				<section>
-					<h3>conditionals</h3>
+					<h3>conditionals (rc/changed_when)</h3>
                                         <pre><code data-trim contenteditable>
-slide with rc code
+- name: get latest gparted version
+  shell: curl -s -L "\{{ gparted_url }}" | grep iso | grep href \
+         | awk -F'"' '{print $4}' | awk -F/ '{print $3}'
+  register: gparted_version
+  changed_when: "gparted_version.rc != 0"
                                         </code></pre>
 				</section>
 				<section>
-					<h3>conditionals</h3>
+					<h3>conditionals (changed)</h3>
                                         <pre><code data-trim contenteditable>
-slide with changed
+- name: generate httpd.conf
+  template:
+    src=httpd.conf.j2
+    dest=/etc/httpd/conf/httpd.conf
+  register: http_template
+  sudo: true
+
+- name: restart httpd
+  service: name=httpd enabled=yes state=restarted
+  sudo: true
+  when: http_template.changed
                                         </code></pre>
 				</section>
 				<section>
-					<h3>templates</h3>
+					<h3>conditionals (handlers)</h3>
+                                        <pre><code data-trim contenteditable>
+- name: generate httpd.conf
+  template:
+    src=httpd.conf.j2
+    dest=/etc/httpd/conf/httpd.conf
+  notify:
+    - restart httpd
+  sudo: true
+
+handlers:
+  - name: restart httpd
+    service: name=httpd enabled=yes state=restarted
+    sudo: true
+                                        </code></pre>
+				</section>
+				<section>
+					<h3>templates (jinja2)</h3>
                                         <pre><code data-trim contenteditable>
 domain=\{{ domain }}
 dhcp-range=\{{ dhcp_range.min }},\{{ dhcp_range.max }}
@@ -196,7 +286,7 @@ alias=\{{ gateway }},\{{ ip }}
                                         <pre><code data-trim contenteditable>
 domain=\{{ domain }}
 dhcp-range=\{{ dhcp_range.min }},\{{ dhcp_range.max }}
-{% include 'roles/rolename/templates/partials/whatever.j2' %}
+{% include 'roles/role/templates/partials/' + some_var + '.j2' %}
                                         </code></pre>
 				</section>
 				<section>
@@ -231,13 +321,60 @@ dhcp-range=\{{ dhcp_range.min }},\{{ dhcp_range.max }}
 				</section>
 				<section>
 					<h3>dynamic inventory</h3>
-add slide here
+					<ul>
+                                           <li>ec2</li>
+                                           <li>cobbler</li>
+                                           <li>openshift</li>
+                                           <li>ovirt</li>
+                                           <li>spacewalk</li>
+                                           <li>zabbix</li>
+                                           <li>digital ocean</li>
+                                           <li>more...</li>
+                                        </ul>
+				</section>
+				<section>
+					<h3>custom dynamic inventory</h3>
+                                        <pre><code data-trim contenteditable>
+ansible-playbook -v playbook.yml -i ./hosts.sh
+                                        </code></pre>
+				</section>
+				<section>
+					<h3>output convention</h3>
+                                        <pre><code data-trim contenteditable>
+{
+  "databases": {
+    "hosts": [ "host1.example.com", "host2.example.com" ],
+    "vars": { "a" : true }
+  },
+  "webservers": [ "host2.example.com", "host3.example.com" ],
+  "atlanta": {
+    "hosts": [ "host1.example.com", "host4.example.com" ],
+    "vars": { "b" : false },
+    "children": [ "marietta", "5points" ]
+  }
+}
+                                        </code></pre>
+				</section>
+				<section>
+					<h3>custom dynamic inventory (tuning)</h3>
+                                        <pre><code data-trim contenteditable>
+{
+    # results of inventory script as above go here
+    "_meta" : {
+       "hostvars" : {
+          "moocow.example.com"     : { "asdf" : 1234 },
+          "llama.example.com"      : { "asdf" : 5678 }
+       }
+    }
+}
+                                        </code></pre>
 				</section>
 				<section>
 					<h3>resources</h3>
 					<ul>
 						<li><a href="http://docs.ansible.com">http://docs.ansible.com</a></li>
 						<li><a href="http://docs.ansible.com/ansible/playbooks_variables.html#variable-precedence-where-should-i-put-a-variable">variable precedence</a></li>
+						<li><a href="http://docs.ansible.com/ansible/developing_inventory.html">dynamic inventory</a></li>
 					</ul>
 				</section>
 {{> partials/questions }}

@@ -21,6 +21,44 @@
                                         </ul>
 				</section>
 				<section>
+					<h3>structure</h3>
+                                        <pre><code data-trim contenteditable>
+ansible.cfg
+playbook.yml
+hosts
+host_vars
+group_vars
+roles/
+   rolename/
+     files/
+     templates/
+     tasks/main.yml
+     handlers/main.yml
+     vars/main.yml
+     defaults/
+     meta/main.yml
+                                        </code></pre>
+				</section>
+				<section>
+					<h3>the playbook</h3>
+                                        <pre><code data-trim contenteditable>
+---
+- hosts: admin
+  vars:
+    admins:
+      - lloyd
+  roles:
+    - server
+    - pxe
+                                        </code></pre>
+				</section>
+				<section>
+					<h3>calling the playbook</h3>
+                                        <pre><code data-trim contenteditable>
+ansible-playbook -v playbook.yml -i hosts --limit=$1
+                                        </code></pre>
+				</section>
+				<section>
 					<h3>variables</h3>
                                         <pre><code data-trim contenteditable>
 ---
@@ -32,6 +70,8 @@
     - { ip: '192.168.0.101', mac: 'mac2', host: 'host2' }
   dhcp_range: { min: 192.168.0.150, max: 192.168.0.160 }
   domain: domain.com
+  platforms: [ 'x86_64', 'i386' ]
+
                                         </code></pre>
 				</section>
 				<section>
@@ -59,6 +99,28 @@
                                            <li>task vars (only for the task)</li>
                                            <li>extra vars (always win precedence)</li>
                                         </ol>
+				</section>
+				<section>
+					<h3>get all facts</h3>
+                                        <pre><code data-trim contenteditable>
+- name: Display all variables/facts known for a host
+  debug: var=hostvars[inventory_hostname]
+         verbosity=4
+                                        </code></pre>
+				</section>
+				<section>
+					<h3>show variable</h3>
+                                        <pre><code data-trim contenteditable>
+- name: show contents
+  debug: var=clonezilla_version
+         verbosity=2
+                                        </code></pre>
+				</section>
+				<section>
+					<h3>concat variable</h3>
+                                        <pre><code data-trim contenteditable>
+- users: "\{{ admins }} + \{{ devs }}"
+                                        </code></pre>
 				</section>
 				<section>
 					<h3>regular loops</h3>
@@ -102,6 +164,18 @@
                                         </code></pre>
 				</section>
 				<section>
+					<h3>conditionals</h3>
+                                        <pre><code data-trim contenteditable>
+slide with rc code
+                                        </code></pre>
+				</section>
+				<section>
+					<h3>conditionals</h3>
+                                        <pre><code data-trim contenteditable>
+slide with changed
+                                        </code></pre>
+				</section>
+				<section>
 					<h3>templates</h3>
                                         <pre><code data-trim contenteditable>
 domain=\{{ domain }}
@@ -126,14 +200,6 @@ dhcp-range=\{{ dhcp_range.min }},\{{ dhcp_range.max }}
                                         </code></pre>
 				</section>
 				<section>
-					<h3>get facts</h3>
-                                        <pre><code data-trim contenteditable>
-- name: Display all variables/facts known for a host
-  debug: var=hostvars[inventory_hostname]
-         verbosity=4
-                                        </code></pre>
-				</section>
-				<section>
 					<h3>lineinfile</h3>
                                         <pre><code data-trim contenteditable>
 - name: make sure pub ssh key is in file
@@ -151,13 +217,21 @@ dhcp-range=\{{ dhcp_range.min }},\{{ dhcp_range.max }}
   async: 0
   poll: 0
   sudo: true
-
 - name: wait for ssh port to come down
-  local_action: wait_for port=22 host=\{{ ansible_host }} state=stopped
-
+  local_action: wait_for
+                port=22
+                host=\{{ ansible_host }}
+                state=stopped
 - name: wait for ssh port to come back up
-  local_action: wait_for port=22 host=\{{ ansible_host }} state=started
+  local_action: wait_for
+                port=22
+                host=\{{ ansible_host }}
+                state=started
                                         </code></pre>
+				</section>
+				<section>
+					<h3>dynamic inventory</h3>
+add slide here
 				</section>
 				<section>
 					<h3>resources</h3>

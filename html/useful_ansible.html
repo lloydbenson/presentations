@@ -1,6 +1,5 @@
 				<section>
-					<h2>Ansible Basics</h2>
-					<h3>Things I found useful</h3>
+					<h2>Useful Ansible</h2>
 					<p>
 						<small>Created by Lloyd Benson / lloyd.benson@gmail.com</small>
 					</p>
@@ -59,13 +58,28 @@ ansible-playbook -v playbook.yml -i hosts --limit=$1
                                         </code></pre>
 				</section>
 				<section>
+					<h3>dry run</h3>
+                                        <pre><code data-trim contenteditable>
+ansible-playbook -v playbook.yml -i hosts \
+                 --check --diff --limit=$1
+                                        </code></pre>
+				</section>
+				<section>
 					<h3>simple play</h3>
                                         <pre><code data-trim contenteditable>
-- name: ensure httpd is running and enabled
-  service: name=httpd
-           state=started
-           enabled=yes
+- name: update to latest
+  yum: name=*
+       state=latest
+  sudo: true
+- name: reboot
+  command: /usr/sbin/shutdown -r now
                                         </code></pre>
+				</section>
+				<section>
+					<h3>command vs shell</h3>
+                                        <blockquote>
+If you want to execute a command securely and predictably, it may be better to use the command module instead. Best practices when writing playbooks will follow the trend of using command unless shell is explicitly required. When running ad-hoc commands, use your best judgement.
+                                        </blockquote>
 				</section>
 				<section>
 					<h3>command vs shell</h3>
@@ -179,6 +193,17 @@ If you want to execute a command securely and predictably, it may be better to u
 					<h3>concat variable</h3>
                                         <pre><code data-trim contenteditable>
 - users: "\{{ admins }} + \{{ devs }}"
+                                        </code></pre>
+				</section>
+				<section>
+					<h3>includes</h3>
+                                        <pre><code data-trim contenteditable>
+---
+  - include: prereq.yml
+  - include: menus.yml
+  - include: tools.yml
+  - include: kickstart.yml
+  - include: httpd.yml
                                         </code></pre>
 				</section>
 				<section>
@@ -296,6 +321,24 @@ dhcp-range=\{{ dhcp_range.min }},\{{ dhcp_range.max }}
   lineinfile: dest=/home/user/.ssh/authorized_keys
               line=\{{ pub_key }}
               state=present
+                                        </code></pre>
+				</section>
+				<section>
+					<h3>async</h3>
+                                        <pre><code data-trim contenteditable>
+---
+# Requires ansible 1.8+
+- name: 'YUM - fire and forget task'
+  yum: name=docker-io state=installed
+  async: 1000
+  poll: 0
+  register: yum_sleeper
+
+- name: 'YUM - check on fire and forget task'
+  async_status: jid=\{{ yum_sleeper.ansible_job_id }}
+  register: job_result
+  until: job_result.finished
+  retries: 30
                                         </code></pre>
 				</section>
 				<section>

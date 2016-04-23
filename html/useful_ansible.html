@@ -70,7 +70,7 @@ ansible-playbook -v playbook.yml -i hosts \
 - name: update to latest
   yum: name=*
        state=latest
-  sudo: true
+  become: true
 - name: reboot
   command: /usr/sbin/shutdown -r now
                                         </code></pre>
@@ -109,7 +109,7 @@ If you want to execute a command securely and predictably, it may be better to u
         owner=root
         group=root
         mode=0644
-  sudo: true
+  become: true
                                         </code></pre>
 				</section>
 				<section>
@@ -121,7 +121,7 @@ If you want to execute a command securely and predictably, it may be better to u
   with_items:
     - etc/httpd/conf/httpd.conf
     - etc/samba/samba.conf
-  sudo: true
+  become: true
                                         </code></pre>
 				</section>
 				<section>
@@ -134,12 +134,25 @@ If you want to execute a command securely and predictably, it may be better to u
 				</section>
 				<section>
 					<h3>synchronize a file from same host</h3>
+					<h4>* broke in 2.x (rsync hangs)</h4>
                                         <pre><code data-trim contenteditable>
 - name: copy syslinux images
   synchronize: mode=pull
                src=/usr/share/syslinux/\{{ item }}
                dest=\{{ tftpboot_dir }}/\{{ item }}
   delegate_to: "\{{ inventory_hostname }}"
+  with_items:
+    - pxelinux.0
+    - menu.c32
+                                        </code></pre>
+				</section>
+				<section>
+					<h3>copy a file from same host</h3>
+                                        <pre><code data-trim contenteditable>
+- name: copy syslinux images
+  copy: remote_src=true
+        src=/usr/share/syslinux/\{{ item }}
+        dest=\{{ tftpboot_dir }}/\{{ item }}
   with_items:
     - pxelinux.0
     - menu.c32
@@ -192,7 +205,6 @@ If you want to execute a command securely and predictably, it may be better to u
                                         <pre><code data-trim contenteditable>
 - name: Display all variables/facts known for a host
   debug: var=hostvars[inventory_hostname]
-         verbosity=4
                                         </code></pre>
 				</section>
 				<section>
@@ -200,7 +212,6 @@ If you want to execute a command securely and predictably, it may be better to u
                                         <pre><code data-trim contenteditable>
 - name: show contents
   debug: var=clonezilla_version
-         verbosity=2
                                         </code></pre>
 				</section>
 				<section>
@@ -257,7 +268,7 @@ If you want to execute a command securely and predictably, it may be better to u
 - name: dnsmasq.conf
   template: src=dnsmasq.conf.j2
             dest=/etc/dnsmasq.conf
-  sudo: true
+  become: true
   when: inventory_hostname == 'admin1'
                                         </code></pre>
 				</section>
@@ -279,11 +290,11 @@ If you want to execute a command securely and predictably, it may be better to u
     src=httpd.conf.j2
     dest=/etc/httpd/conf/httpd.conf
   register: http_template
-  sudo: true
+  become: true
 
 - name: restart httpd
   service: name=httpd enabled=yes state=restarted
-  sudo: true
+  become: true
   when: http_template.changed
                                         </code></pre>
 				</section>
@@ -296,13 +307,16 @@ If you want to execute a command securely and predictably, it may be better to u
     dest=/etc/httpd/conf/httpd.conf
   notify:
     - restart httpd
-  sudo: true
+  become: true
 
 handlers:
   - name: restart httpd
     service: name=httpd enabled=yes state=restarted
-    sudo: true
+    become: true
                                         </code></pre>
+				</section>
+				<section>
+include when?
 				</section>
 				<section>
 					<h3>templates (jinja2)</h3>
@@ -338,6 +352,21 @@ dhcp-range=\{{ dhcp_range.min }},\{{ dhcp_range.max }}
                                         </code></pre>
 				</section>
 				<section>
+					<h3>authorized_keys</h3>
+                                        <pre><code data-trim contenteditable>
+- name: make sure pub ssh key is in file
+  authorized_key:
+
+fix slide
+                                        </code></pre>
+				</section>
+				<section>
+talk about tags?
+				</section>
+				<section>
+ansible.cfg tweaks include pipeline maybe -p (parallel) as well for the play?
+				</section>
+				<section>
 					<h3>async</h3>
                                         <pre><code data-trim contenteditable>
 ---
@@ -363,7 +392,7 @@ dhcp-range=\{{ dhcp_range.min }},\{{ dhcp_range.max }}
   ignore_errors: true
   async: 0
   poll: 0
-  sudo: true
+  become: true
 - name: wait for ssh port to come down
   local_action: wait_for
                 port=22
@@ -425,6 +454,9 @@ ansible-playbook -v playbook.yml -i ./hosts.sh
     }
 }
                                         </code></pre>
+				</section>
+				<section>
+ansible vault? maybe simple gitignore slide too?
 				</section>
 				<section>
 					<h3>resources</h3>

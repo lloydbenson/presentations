@@ -1,0 +1,244 @@
+				<section>
+					<h2>Home PXE Network</h2>
+					<h3><small>Using apache, dnsmasq, fedora, kickstart</small></h3>
+					<p>
+						<small>Created by Lloyd Benson / lloyd.benson@gmail.com</small>
+					</p>
+					<p>
+						<a href="http://github.com/lloydbenson/presentations"><small>http://github.com/lloydbenson/presentations</small></a>
+					</p>
+				</section>
+{{> partials/whoami }}
+				<section>
+					<h3>overview</h3>
+					<ul>
+                                           <li>getting started</li>
+                                        </ul>
+				</section>
+				<section>
+					<h3>dnsmasq</h3>
+					<ul>
+                                           <li>dhcp</li>
+                                           <li>tftp</li>
+                                           <li>dns</li>
+                                        </ul>
+				</section>
+				<section>
+					<h3>tftp</h3>
+                                        <pre><code data-trim contenteditable>
+                                        </code></pre>
+				</section>
+				<section>
+					<h3>dnsmasq config</h3>
+                                        <pre><code data-trim contenteditable>
+domain=\{{ domain }}
+dhcp-range=\{{ dhcp_range.min }},\{{ dhcp_range.max }}
+{% for address in reserved_addresses %}
+dhcp-host=\{{ address.mac  }},\{{ address.ip }}
+{% endfor %}
+dhcp-option=3,\{{ gateway }}
+dhcp-no-override
+enable-tftp
+tftp-root=\{{ tftp_root }}
+dhcp-boot=pxelinux.0,\{{ shorthost }},\{{ ip }}
+alias=\{{ gateway }},\{{ ip }}
+                                        </code></pre>
+				</section>
+				<section>
+					<h3>pxelinux.cfg</h3>
+                                        <pre><code data-trim contenteditable>
+                                        </code></pre>
+				</section>
+				<section>
+					<h3>http</h3>
+                                        <pre><code data-trim contenteditable>
+for the squashfs.img
+                                        </code></pre>
+				</section>
+				<section>
+					<h3>menus</h3>
+					<ul>
+                                           <li>default</li>
+                                           <li>main menu</li>
+                                           <li>operating systems</li>
+                                           <li>tools</li>
+                                           <li>hosts</li>
+                                        </ul>
+				</section>
+				<section>
+					<h3>default</h3>
+                                        <pre><code data-trim contenteditable>
+timeout 600
+ONTIMEOUT localboot
+\{{ main_menu }}
+                                        </code></pre>
+				</section>
+				<section>
+					<h3>main menu</h3>
+                                        <pre><code data-trim contenteditable>
+default menu.c32
+prompt 0
+menu title Main Menu
+label localboot
+  menu label Local Boot
+  localboot 1
+{% for menu in menus %}
+label \{{ menu.name }}
+   menu label \{{ menu.label }}
+   kernel menu.c32
+   append pxelinux.cfg/\{{ menu.name }}
+{% endfor %}
+                                        </code></pre>
+				</section>
+				<section>
+					<h3>os menu</h3>
+                                        <pre><code data-trim contenteditable>
+menu title Operating Systems
+label Main Menu
+  menu label Main Menu
+  kernel menu.c32
+  append pxelinux.cfg/main_menu
+label redhat-fedora-23-x86_64
+  menu label redhat-fedora-23-x86_64
+  kernel bootimg/redhat/fedora/23/x86_64/vmlinuz
+  append initrd=bootimg/redhat/fedora/23/x86_64/initrd.img \
+  stage2=http://mirror.../23/Server/x86_64/os \
+  repo=http://mirror.../23/Everything/x86_64/os \
+  ramdisk_size=8192 \
+  ip=dhcp
+...
+                                        </code></pre>
+				</section>
+				<section>
+					<h3>hosts menu</h3>
+                                        <pre><code data-trim contenteditable>
+menu title Hosts
+label Main Menu
+  menu label Main Menu
+  kernel menu.c32
+  append pxelinux.cfg/main_menu
+label \{{ host.hostname }}
+  menu label \{{ host.hostname }}
+  kernel bootimg/redhat/fedora/23/x86_64/vmlinuz
+  append initrd=bootimg/redhat/fedora/23/x86_64/initrd.img \
+  inst.stage2=http://mirror.../23/Server/x86_64/os \
+  inst.repo=http://mirror.../23/Everything/x86_64/os \
+  inst.ip=dhcp \
+  inst.ks=http://\{{ip}}/ks/\{{ host.hostname }}.ks
+                                        </code></pre>
+				</section>
+				<section>
+					<h3>tools menu</h3>
+                                        <pre><code data-trim contenteditable>
+menu title Tools
+label Main Menu
+  menu label Main Menu
+  kernel menu.c32
+  append pxelinux.cfg/main_menu
+label memtest
+  menu label memtest
+  kernel bootimg/memtest/memtest
+## loop through gparted clonezilla and arch
+label \{{ tool.name }}-\{{ arch }}
+  menu label \{{ tool.name }}-\{{ arch }}
+  kernel bootimg/\{{ tool.name }}/\{{ arch }}/live/vmlinuz
+  append initrd=bootimg/{{ tool.name}}/\{{ arch }}/live/initrd.img \
+  \{{ tool.args }} \
+  fetch=tftp://\{{ ip }}/bootimg/\{{ tool.name }}/\
+  \{{ arch }}/live/filesystem.squashfs
+                                        </code></pre>
+				</section>
+				<section>
+					<h3>kickstart (top)</h3>
+                                        <pre><code data-trim contenteditable>
+#version=DEVEL
+# System authorization information
+auth --enableshadow --passalgo=sha512
+# Use network installation
+url --url="http://mirrors.kernel.org/fedora/\
+releases/23/Everything/x86_64/os"
+# Use graphical install
+graphical
+# Run the Setup Agent on first boot
+firstboot --enable
+ignoredisk --only-use=sda
+# Keyboard layouts
+keyboard --vckeymap=us --xlayouts='us'
+# System language
+lang en_US.UTF-8
+                                        </code></pre>
+				</section>
+				<section>
+					<h3>kickstart (middle)</h3>
+                                        <pre><code data-trim contenteditable>
+# Root password
+rootpw --iscrypted \{{ encrypted_hash }}
+# System timezone
+timezone America/Chicago --isUtc
+user --groups=wheel --name=lloyd \
+--password=\{{ encrypted_hash }} --iscrypted
+# X Window System configuration information
+xconfig  --startxonboot
+# System bootloader configuration
+bootloader --location=mbr --boot-drive=sda
+                                        </code></pre>
+				</section>
+				<section>
+					<h3>kickstart (network)</h3>
+                                        <pre><code data-trim contenteditable>
+# Network information
+network  --bootproto=dhcp --device=enp0s25 --ipv6=auto --activate
+network  --hostname=localhost.localdomain
+                                        </code></pre>
+				</section>
+				<section>
+					<h3>kickstart (disk)</h3>
+                                        <pre><code data-trim contenteditable>
+# Partition clearing information
+clearpart --none --initlabel
+# Disk partitioning information
+part pv.19 --fstype="lvmpv" --noformat --onpart=sda2
+part /boot --fstype="ext4" --onpart=sda1
+volgroup fedora --noformat --useexisting
+logvol /  --fstype="ext4" --useexisting \
+--name=root --vgname=fedora
+logvol swap --fstype="swap" --useexisting \
+--name=swap --vgname=fedora
+                                        </code></pre>
+				</section>
+				<section>
+					<h3>kickstart (packages)</h3>
+                                        <pre><code data-trim contenteditable>
+%packages
+@^cinnamon-desktop-environment
+
+%end
+                                        </code></pre>
+				</section>
+				<section>
+					<h3>kickstart (kdump)</h3>
+                                        <pre><code data-trim contenteditable>
+%addon com_redhat_kdump --disable --reserve-mb='128'
+
+%end
+                                        </code></pre>
+				</section>
+				<section>
+					<h3>tools</h3>
+					<ul>
+                                           <li>memtest</li>
+                                           <li>gparted</li>
+                                           <li>clonezilla</li>
+                                        </ul>
+				</section>
+				<section>
+					<h3>automate with ansible</h3>
+					<a href="http://github.com/lloydbenson/presentations">presentations</a>
+				</section>
+				<section>
+					<h3>resources</h3>
+					<ul>
+						<li><a href="http://docs.ansible.com">http://docs.ansible.com</a></li>
+					</ul>
+				</section>
+{{> partials/questions }}

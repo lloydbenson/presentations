@@ -126,6 +126,7 @@ If you want to execute a command securely and predictably, it may be better to u
 				</section>
 				<section>
 					<h3>synchronize (faster!)</h3>
+					<h4>*rsync required on both machines</h4>
                                         <pre><code data-trim contenteditable>
 - name: sync files
   synchronize: src=some/relative/path
@@ -356,15 +357,27 @@ dhcp-range=\{{ dhcp_range.min }},\{{ dhcp_range.max }}
                                         <pre><code data-trim contenteditable>
 - name: make sure pub ssh key is in file
   authorized_key:
-
-fix slide
+    user: user
+    key: \{{ pub_key }}
+#    key: "\{{ lookup('file', '/home/user/.ssh/id_rsa.pub') }}"
                                         </code></pre>
 				</section>
 				<section>
 talk about tags?
 				</section>
 				<section>
-ansible.cfg tweaks include pipeline maybe -p (parallel) as well for the play?
+					<h3>ansible.cfg tweaks</h3>
+                                        <pre><code data-trim contenteditable>
+[defaults]
+remote_user = lloyd
+## for home stuff
+ask_sudo_pass = true
+ask_pass = true
+## helps with ssh tunnels
+host_key_checking = false
+[ssh_connections]
+pipelining = true
+                                        </code></pre>
 				</section>
 				<section>
 					<h3>async</h3>
@@ -456,7 +469,16 @@ ansible-playbook -v playbook.yml -i ./hosts.sh
                                         </code></pre>
 				</section>
 				<section>
-ansible vault? maybe simple gitignore slide too?
+					<h3>.gitignore</h3>
+					<h4>quick way to keep secrets</h4>
+                                        <pre><code data-trim contenteditable>
+host_vars/*/main.yml
+                                        </code></pre>
+				</section>
+				<section>
+					<h3>ansible vault</h3>
+                                        <pre><code data-trim contenteditable>
+                                        </code></pre>
 				</section>
 				<section>
 					<h3>resources</h3>

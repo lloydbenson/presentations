@@ -207,6 +207,10 @@ If you want to execute a command securely and predictably, it may be better to u
 - name: Display all variables/facts known for a host
   debug: var=hostvars[inventory_hostname]
                                         </code></pre>
+                                        <pre><code data-trim contenteditable>
+## only gets machine facts not vars relative to play
+ansible -i hosts admin1 -m setup
+                                        </code></pre>
 				</section>
 				<section>
 					<h3>show variable</h3>
@@ -264,6 +268,11 @@ If you want to execute a command securely and predictably, it may be better to u
                                         </code></pre>
 				</section>
 				<section>
+					<h3>more loops</h3>
+<a href="http://docs.ansible.com/ansible/playbooks_loops.html">ansible loops</a>
+                                        </code></pre>
+				</section>
+				<section>
 					<h3>conditionals</h3>
                                         <pre><code data-trim contenteditable>
 - name: dnsmasq.conf
@@ -271,6 +280,17 @@ If you want to execute a command securely and predictably, it may be better to u
             dest=/etc/dnsmasq.conf
   become: true
   when: inventory_hostname == 'admin1'
+                                        </code></pre>
+				</section>
+				<section>
+					<h3>include conditional</h3>
+                                          <pre><code data-trim contenteditable>
+- name: get node version
+  shell: node -v
+  register: nodejs
+
+- include: nodejs.yml
+  when: nodejs != 'v4.4.3'
                                         </code></pre>
 				</section>
 				<section>
@@ -317,7 +337,46 @@ handlers:
                                         </code></pre>
 				</section>
 				<section>
-include when?
+					<h3>flush handlers</h3>
+                                          <pre><code data-trim contenteditable>
+## will kick off handlers right away
+- name: flush handlers
+  meta: flush_handlers
+                                        </code></pre>
+				</section>
+				<section>
+					<h3>blocks (group conditionals)</h3>
+                                          <pre><code data-trim contenteditable>
+tasks:
+   - block:
+       - yum: name=\{{ item }} state=installed
+         with_items:
+           - httpd
+           - memcached
+       - template: src=templates/src.j2 dest=/etc/foo.conf
+       - service: name=bar state=started enabled=true
+
+     when: ansible_distribution == 'CentOS'
+     become: true
+     become_user: root
+                                        </code></pre>
+				</section>
+				<section>
+					<h3>rescue (from blocks)</h3>
+                                          <pre><code data-trim contenteditable>
+tasks:
+   - block:
+       - shell: ./deploy.sh
+
+     when: ansible_distribution == 'CentOS'
+     become: true
+     become_user: ec2-user
+
+    rescue:
+      - debug: msg='I caught an error'
+      - command: /bin/false
+      - debug: msg='I also never execute :-('
+                                        </code></pre>
 				</section>
 				<section>
 					<h3>templates (jinja2)</h3>

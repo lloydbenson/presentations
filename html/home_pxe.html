@@ -110,17 +110,17 @@ alias=\{{ gateway }},\{{ ip }}
 					<h3>http</h3>
 					<h4>kickstart / squashfs</h4>
                                         <pre><code data-trim contenteditable>
-<VirtualHost _default_:80>
+&lt;VirtualHost _default_:80&gt;
     ServerAdmin webmaster@\{{ domain }}
     DocumentRoot \{{ build_dir }}
-    <Directory "\{{ build_dir }}">
+    &lt;Directory "\{{ build_dir }}"&gt;
        Options Indexes
        Require all granted
-    </Directory>
+    &lt;/Directory&gt;
     ServerName \{{ kickstart_hostname }}
     ErrorLog logs/\{{ kickstart_hostname }}-error_log
     CustomLog logs/\{{ kickstart_hostname }}-access_log common
-</VirtualHost>
+&lt;/VirtualHost&gt;
                                         </code></pre>
 				</section>
 				<section>

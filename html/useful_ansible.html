@@ -439,6 +439,18 @@ pipelining = true
                                         </code></pre>
 				</section>
 				<section>
+					<h3>fact caching</h3>
+                                        <pre><code data-trim contenteditable>
+[defaults]
+gathering = smart
+## can use redis as well
+fact_caching = jsonfile
+fact_caching_connection = /tmp
+fact_caching_timeout = 86400
+# seconds
+                                        </code></pre>
+				</section>
+				<section>
 					<h3>async</h3>
                                         <pre><code data-trim contenteditable>
 ---

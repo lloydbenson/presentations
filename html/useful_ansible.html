@@ -261,8 +261,10 @@ ansible -i hosts admin1 -m setup
         \{{ item[2] }}
   with_nested:
     - [ 'redhat' ]
+    ## hash 
     - [ { name: 'centos', version: '7' },
         { name: 'fedora', version: '23'} ]
+    ## array
     - [ 'x86_64', 'i386' ]
 
                                         </code></pre>
@@ -400,6 +402,19 @@ alias=\{{ gateway }},\{{ ip }}
 domain=\{{ domain }}
 dhcp-range=\{{ dhcp_range.min }},\{{ dhcp_range.max }}
 {% include 'roles/role/templates/partials/' + some_var + '.j2' %}
+                                        </code></pre>
+				</section>
+				<section>
+					<h3>filters</h3>
+                                          <pre><code data-trim contenteditable>
+\{{ 59 |random}} * * * * root /script/from/cron
+\{{ myvar | ipv4 }}
+\{{ myvar | ipv6 }}
+\{{ some_variable \| default(5) }}
+\{{ list1 | unique }}
+\{{ list1 | union(list2) }}
+# get a comma-separated list of the mount points
+\{{ ansible_mounts|map(attribute='mount')|join(',') }}
                                         </code></pre>
 				</section>
 				<section>
@@ -557,6 +572,7 @@ host_vars/*/main.yml
 						<li><a href="http://docs.ansible.com">http://docs.ansible.com</a></li>
 						<li><a href="http://docs.ansible.com/ansible/playbooks_variables.html#variable-precedence-where-should-i-put-a-variable">variable precedence</a></li>
 						<li><a href="http://docs.ansible.com/ansible/developing_inventory.html">dynamic inventory</a></li>
+						<li><a href="http://docs.ansible.com/ansible/playbooks_filters.html"}>filters</a></li>
 					</ul>
 				</section>
 {{> partials/questions }}

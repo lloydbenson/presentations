@@ -270,8 +270,15 @@ ansible -i hosts admin1 -m setup
                                         </code></pre>
 				</section>
 				<section>
-					<h3>more loops</h3>
-<a href="http://docs.ansible.com/ansible/playbooks_loops.html">ansible loops</a>
+					<h3>fileglob loop</h3>
+                                        <pre><code data-trim contenteditable>
+- name: copy all files in a dir
+  copy:
+    src=\{{ item }}
+    dest=/etc/dest
+    owner=root
+    mode=600
+  with_fileglob: srcdir/* 
                                         </code></pre>
 				</section>
 				<section>
@@ -437,7 +444,54 @@ dhcp-range=\{{ dhcp_range.min }},\{{ dhcp_range.max }}
                                         </code></pre>
 				</section>
 				<section>
-talk about tags?
+					<h3>tags</h3>
+                                        <pre><code data-trim contenteditable>
+- name: update to latest
+  yum: name=*
+       state=latest
+  become: true
+  tags:
+    - patch
+- name: reboot
+  command: /usr/sbin/shutdown -r now
+  tags:
+    - patch
+    - reboot
+                                        </code></pre>
+				</section>
+				<section>
+					<h3>tags example</h3>
+                                        <pre><code data-trim contenteditable>
+ansible-playbook hosts.yml --tags "patch,reboot"
+ansible-playbook hosts.yml --skip-tags "reboot"
+                                        </code></pre>
+				</section>
+				<section>
+					<h3>tags (advanced)</h3>
+                                        <pre><code data-trim contenteditable>
+roles:
+  - { role: server, tags: [ 'server' ] }
+                                        </code></pre>
+                                        <pre><code data-trim contenteditable>
+- include: httpd.yml
+  tags: [httpd]
+                                        </code></pre>
+				</section>
+				<section>
+					<h3>special tags</h3>
+                                        <pre><code data-trim contenteditable>
+- name: update to latest
+  yum: name=*
+       state=latest
+  become: true
+  ## special tag will always run unless --skip-tags always
+  tags:
+    - always
+                                        </code></pre>
+                                        <pre><code data-trim contenteditable>
+## by default ansible-playbook runs --tags all
+## can also run --tags tagged or --tags untagged
+                                        </code></pre>
 				</section>
 				<section>
 					<h3>ansible.cfg tweaks</h3>
@@ -461,8 +515,8 @@ gathering = smart
 ## can use redis as well
 fact_caching = jsonfile
 fact_caching_connection = /tmp
+# timeout in seconds
 fact_caching_timeout = 86400
-# seconds
                                         </code></pre>
 				</section>
 				<section>
@@ -473,9 +527,11 @@ fact_caching_timeout = 86400
 - name: 'YUM - fire and forget task'
   yum: name=docker-io state=installed
   async: 1000
+  ## poll of 0 returns immediately
   poll: 0
   register: yum_sleeper
 
+## yum locks so in case you need to do another yum task
 - name: 'YUM - check on fire and forget task'
   async_status: jid=\{{ yum_sleeper.ansible_job_id }}
   register: job_result
@@ -564,6 +620,16 @@ host_vars/*/main.yml
 				<section>
 					<h3>ansible vault</h3>
                                         <pre><code data-trim contenteditable>
+ansible-vault create secrets.yml
+ansible-vault edit secrets.yml
+ansible-vault rekey secrets.yml
+ansible-vault encrypt secrets.yml
+ansible-vault decrypt secrets.yml
+ansible-vault view secrets.yml
+                                        </code></pre>
+                                        <pre><code data-trim contenteditable>
+ansible-playbook hosts.yml --vault-password-file ~/.vault_pass.txt
+ansible-playbook hosts.yml --ask-vault-pass
                                         </code></pre>
 				</section>
 				<section>
@@ -573,6 +639,8 @@ host_vars/*/main.yml
 						<li><a href="http://docs.ansible.com/ansible/playbooks_variables.html#variable-precedence-where-should-i-put-a-variable">variable precedence</a></li>
 						<li><a href="http://docs.ansible.com/ansible/developing_inventory.html">dynamic inventory</a></li>
 						<li><a href="http://docs.ansible.com/ansible/playbooks_filters.html"}>filters</a></li>
+						<li><a href="http://docs.ansible.com/ansible/playbooks_vault.html"}>vault</a></li>
+						<li><a href="http://docs.ansible.com/ansible/playbooks_loops.html">loops</a></li>
 					</ul>
 				</section>
 {{> partials/questions }}

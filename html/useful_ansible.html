@@ -359,8 +359,7 @@ handlers:
 					<h3>flush handlers</h3>
                                           <pre><code data-trim contenteditable>
 ## will kick off handlers right away
-- name: flush handlers
-  meta: flush_handlers
+- meta: flush_handlers
                                         </code></pre>
 				</section>
 				<section>
@@ -390,12 +389,15 @@ tasks:
      when: ansible_distribution == 'CentOS'
      become: true
      become_user: ec2-user
+     always
 
     rescue:
         ## no name in blocks but can use debug
       - debug: msg='I caught an error'
       - command: /bin/false
       - debug: msg='I also never execute :-('
+    always:
+      - debug: msg="this always executes"
                                         </code></pre>
 				</section>
 				<section>

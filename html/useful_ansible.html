@@ -11,12 +11,22 @@
 				<section>
 					<h3>overview</h3>
 					<ul>
-                                           <li>getting started</li>
+                                           <li>basics</li>
                                            <li>variables</li>
+                                           <li>debugging</li>
+                                           <li>loops</li>
                                            <li>conditionals</li>
+                                           <li>blocks</li>
+                                        </ul>
+				</section>
+				<section>
+					<h3>overview (continued)</h3>
+					<ul>
                                            <li>templates</li>
-                                           <li>useful plays</li>
+                                           <li>filters</li>
+                                           <li>tags</li>
                                            <li>dynamic inventory</li>
+                                           <li>secrets</li>
                                         </ul>
 				</section>
 				<section>
@@ -65,7 +75,7 @@ ansible-playbook -v playbook.yml -i hosts \
                                         </code></pre>
 				</section>
 				<section>
-					<h3>simple play</h3>
+					<h3>simple example</h3>
                                         <pre><code data-trim contenteditable>
 - name: update to latest
   yum: name=*
@@ -160,6 +170,17 @@ If you want to execute a command securely and predictably, it may be better to u
                                         </code></pre>
 				</section>
 				<section>
+					<h3>includes</h3>
+                                        <pre><code data-trim contenteditable>
+---
+  - include: prereq.yml
+  - include: menus.yml
+  - include: tools.yml
+  - include: kickstart.yml
+  - include: httpd.yml
+                                        </code></pre>
+				</section>
+				<section>
 					<h3>variables</h3>
                                         <pre><code data-trim contenteditable>
 ---
@@ -223,17 +244,6 @@ ansible -i hosts admin1 -m setup
 					<h3>concat variable</h3>
                                         <pre><code data-trim contenteditable>
 - users: "\{{ admins }} + \{{ devs }}"
-                                        </code></pre>
-				</section>
-				<section>
-					<h3>includes</h3>
-                                        <pre><code data-trim contenteditable>
----
-  - include: prereq.yml
-  - include: menus.yml
-  - include: tools.yml
-  - include: kickstart.yml
-  - include: httpd.yml
                                         </code></pre>
 				</section>
 				<section>
@@ -382,6 +392,7 @@ tasks:
      become_user: ec2-user
 
     rescue:
+        ## no name in blocks but can use debug
       - debug: msg='I caught an error'
       - command: /bin/false
       - debug: msg='I also never execute :-('
@@ -414,14 +425,14 @@ dhcp-range=\{{ dhcp_range.min }},\{{ dhcp_range.max }}
 				<section>
 					<h3>filters</h3>
                                           <pre><code data-trim contenteditable>
-\{{ 59 |random}} * * * * root /script/from/cron
+\{{ 59 | random }} * * * * root /script/from/cron
 \{{ myvar | ipv4 }}
 \{{ myvar | ipv6 }}
-\{{ some_variable \| default(5) }}
+\{{ some_variable | default(5) }}
 \{{ list1 | unique }}
 \{{ list1 | union(list2) }}
 # get a comma-separated list of the mount points
-\{{ ansible_mounts|map(attribute='mount')|join(',') }}
+\{{ ansible_mounts | map(attribute='mount') | join(',') }}
                                         </code></pre>
 				</section>
 				<section>
@@ -523,7 +534,6 @@ fact_caching_timeout = 86400
 					<h3>async</h3>
                                         <pre><code data-trim contenteditable>
 ---
-# Requires ansible 1.8+
 - name: 'YUM - fire and forget task'
   yum: name=docker-io state=installed
   async: 1000

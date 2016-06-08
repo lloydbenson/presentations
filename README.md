@@ -11,6 +11,11 @@ Public Presentations
 5.  npm start
 6.  go to http://localhost:8082 and click on the valid html presentation
 
+Docker:
+1.  docker pull lloydbenson/presentations
+2.  docker run -it -p 8082:8082 lloydbenson/presentations
+3.  go to http://localhost:8082 and click on the valid html presentation
+
 Valid presentations are:
 
 1.  ficion
@@ -22,3 +27,5 @@ Valid presentations are:
 
 
 Note: If you want to use this, you need to put a proper index.html and put in your specific slides you want to show there
+
+

@@ -12,18 +12,27 @@ Public Presentations
 6.  go to http://localhost:8082 and click on the valid html presentation
 
 Docker:
+
 1.  docker pull lloydbenson/presentations
-2.  docker run -it -rm -p 8082:8082 lloydbenson/presentations
+2.  docker run -it --rm -p 8082:8082 lloydbenson/presentations
 3.  go to http://localhost:8082 and click on the valid html presentation
+
+Want to use the presentation layer but have your own slides?
+
+```bash
+docker run -it --rm -p 8082:8082 -v /path/to/your/html:/apps/presentations/html lloydbenson/presentations
+```
 
 Valid presentations are:
 
-1.  ficion
-2.  a hapi introduction
-3.  the hapi ecosystem
-4.  from dev to prod with node
-5.  node at walmart (noderoad)
-6.  jenkins 
+1.  useful ansible
+2.  home pxe network
+3.  ficion
+4.  a hapi introduction
+5.  the hapi ecosystem
+6.  from dev to prod with node
+7.  walmart node road
+8.  jenkins (version 2 being worked on) 
 
 
 Note: If you want to use this, you need to put a proper index.html and put in your specific slides you want to show there

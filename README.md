@@ -13,7 +13,7 @@ Public Presentations
 
 Docker:
 1.  docker pull lloydbenson/presentations
-2.  docker run -it -p 8082:8082 lloydbenson/presentations
+2.  docker run -it -rm -p 8082:8082 lloydbenson/presentations
 3.  go to http://localhost:8082 and click on the valid html presentation
 
 Valid presentations are:

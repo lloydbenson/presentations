@@ -4,7 +4,9 @@ presentations
 Public Presentations
 
 ## to view the presentations
+
 Node:
+
 1.  install node (latest v4) and npm (if you know nothing about node https://github.com/creationix/nvm may be a good place to start installation)
 2.  git clone this repo (git clone http://github.com/lloydbenson/presentations)
 3.  cd presentations

@@ -70,8 +70,8 @@ A software methodology in which you can do small sets of changes that are automa
 					<h3>what is jenkins?</h3>
 <ul>
 <li>jenkins is open source continuous integration tool written in java</li>
-<li>a tool with a GUI that monitors executions of repeated jobs, such as building a software project or jobs run by cron.</li>
-<li>See <a href="https://jenkins-ci.org">https://jenkins-ci.org</a> for more details.</li>
+<li>a tool with a GUI that monitors executions of repeated jobs, such as building a software project or jobs run by cron (scheduler).</li>
+<li>See <a href="https://jenkins.io">https://jenkins.io</a> for more details.</li>
 </ul>
 <br/>
 <img src="/images/jenkins/jenkins_logo.png" style="border:none; background:none; box-shadow:none;">
@@ -180,6 +180,7 @@ A software methodology in which you can do small sets of changes that are automa
 <li>submit a PR to the original repo (lloyddemo user)</li>
 <li>merge in PR if green (lloydbenson user)</li>
 <li>automatically test, build, and deploy your app (jenkins using lloyddemo user for PR and lloydbenson user for credentials for everything else)</li>
+<li>git tag for release and auto deploy to qa</li>
 </ul>
 				</section>
 				<section>
@@ -188,17 +189,18 @@ A software methodology in which you can do small sets of changes that are automa
 <li>enough lecture already!</li>
 <li>hate watching demos and want to see what it does?
 <a href="http://github.com/lloydbenson/demo-jenkins">http://github.com/lloydbenson/demo-jenkins</a></li>
-<li>prepare, start, configure oh myyy</li>
+<li>deploy.sh</li>
 <li>test that when successful, jenkins automatically builds and deploys</li>
 <li>show pull request integration with github that uses the github api to show status</li>
 <li>with automation, there is more time for boring lecture!</li>
+<li>reset.sh to return to normal</li>
 </ul>
 				</section>
 				<section>
 					<h3>how did the demo work?</h3>
 <ul>
 <li>lloyddemo user has pull/push privs on repo where PR is done.  With this access, the ghprb plugin utilizes the github API via a key in order to use change status to pending and then finally pass or fail.  It will also use the jenkins URL you defined in your configuration for the link.</li>
-<li>demo.test and demo.pr do a poll every 1 min (do not recommend doing that but useful for demo and only temporary).
+<li>jobs do a poll every 1 min (do not recommend doing that but useful for demo and only temporary).
 </ul>
 				</section>
 				<section>
@@ -236,8 +238,8 @@ You can decide what is best for you or your organization.
 				<section>
 					<h3>security</h3>
 <ul>
-<li>always secure jenkins (it is not by default).</li>
-<li>AD / LDAP / local users (I had issues with the latest active directory plugin)</li>
+<li>always secure jenkins (2.0 now comes with admin).</li>
+<li>AD / LDAP / OAuth / local users</li>
 <li>by default anyone (anonymous) can do anything which means they will do anything!</li>
 <li>you may have sensitive data like apikeys</li>
 <li>audit trail plugin is useful for tracking jenkins changes</li>
@@ -402,12 +404,12 @@ You can decide what is best for you or your organization.
                                         <h3>automation</h3>
 <ul>
 <li>look at the demo-jenkins project to see automated installation</li>
-<li>bin/prepare.sh for installation and bin/configure.sh for the plugin and job installation</li>
+<li>roles/jenkins/tasks/main.yml (place to start)</li>
 <li>utilized the cli</li>
 <li>could use the api to check status of kicked off jobs</li>
 <li>automation with authentication is a bit more tricky</li>
 <li>suggest install plugins, then copy in a global config, restart, then from there use authentication to install jobs</li>
-<li>preserve the identity based files that are located in jenkins home directory</li>
+<li>preserve the identity based files that are located in jenkins home directory for credentials</li>
 </ul>
 				</section>
 				<section>
@@ -417,7 +419,8 @@ You can decide what is best for you or your organization.
                                         <li>ghprb (github pull request builder)</li>
                                         <li>greenballs (seriously blue balls?)</li>
                                         <li>postbuild (useful for doing custom blocks based on results)</li>
-                                        <li>dashboard view (show dashboard stats but can use walls if you prefer)</li>
+                                        <li>dashboard view</li>
+                                        <li>build monitor</li>
                                         <li>email-ext (highly customizable email reporter default is plain)</li>
                                         <li>html publisher (attach any old html generated page)</li>
                                         <li>these are all installed in the demo along with dependencies</li>

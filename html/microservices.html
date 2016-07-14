@@ -282,9 +282,41 @@ curl -X POST --header "Content-Type:application/json"
 					<h3>solution 8</h3>
 					<ul>
                                            <li>install docker-compose</li>
-                                           <li>cd final/fuge</li>
+                                           <li>cd challenge9/fuge</li>
                                            <li>docker-compose up</li>
                                            <li>http://localhost:10001 to verify everything</li>
+                                        </ul>
+				</section>
+				<section>
+					<h3>challenge 9</h3>
+					<ul>
+                                           <li>utilize an environment file for docker-compose</li>
+                                        </ul>
+				</section>
+				<section>
+					<h3>solution 9</h3>
+					<ul>
+                                           <li>cd challenge10/fuge</li>
+                                           <li>use env_file directive</li>
+                                           <li>docker-compose up</li>
+                                           <li>http://localhost:10001 to verify everything</li>
+                                           <li>you can use multiple env_files</li>
+                                        </ul>
+				</section>
+				<section>
+					<h3>challenge 10</h3>
+					<ul>
+                                           <li>make database persistent using volumes</li>
+                                        </ul>
+				</section>
+				<section>
+					<h3>solution 10</h3>
+					<ul>
+                                           <li>cd final/fuge</li>
+                                           <li>use volumes directive</li>
+                                           <li>docker-compose up</li>
+                                           <li>http://localhost:10001 to verify everything</li>
+                                           <li>full path or ./ for relative to compose file</li>
                                         </ul>
 				</section>
 				<section>

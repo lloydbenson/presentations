@@ -35,7 +35,7 @@
 </ul>
 				</section>
 				<section>
-					<h3>what continuous integration means to me</h3>
+					<h3>continuous integration for me</h3>
 A software methodology in which you can do small sets of changes that are automatically tracked, tested, and potentially deployed if successful from a commit.  If unsuccessful, it provides feedback in order to immediately revert or fix the problem quickly.  It should keep historical trending of failures so you can start making better decisions about general software management.
 				</section>
 				<section>
@@ -173,13 +173,14 @@ A software methodology in which you can do small sets of changes that are automa
 <p>jenkins can be extended via 3rd party plugins. You can write your own plugins though you DO need to know java for this.</p>
 				</section>
 				<section>
-					<h3>development flow (pre-demo)</h3>
+					<h3>a typical development flow</h3>
 <ul>
-<li>fork project (lloyddemo user)</li>
-<li>do a change and commit it to your own repo (lloyddemo user)</li>
-<li>submit a PR to the original repo (lloyddemo user)</li>
-<li>merge in PR if green (lloydbenson user)</li>
-<li>automatically test, build, and deploy your app (jenkins using lloyddemo user for PR and lloydbenson user for credentials for everything else)</li>
+<li>fork project</li>
+<li>git add README.md</li>
+<li>git commit -m "this is an awesome change"</li>
+<li>submit a PR</li>
+<li>owner merges in PR</li>
+<li>automatically test, build, and deploy your app</li>
 <li>git tag for release and auto deploy to qa</li>
 </ul>
 				</section>
@@ -189,7 +190,7 @@ A software methodology in which you can do small sets of changes that are automa
 <li>enough lecture already!</li>
 <li>hate watching demos and want to see what it does?
 <a href="http://github.com/lloydbenson/demo-jenkins">http://github.com/lloydbenson/demo-jenkins</a></li>
-<li>deploy.sh</li>
+<li>deploy.sh (ansible goodness)</li>
 <li>test that when successful, jenkins automatically builds and deploys</li>
 <li>show pull request integration with github that uses the github api to show status</li>
 <li>with automation, there is more time for boring lecture!</li>
@@ -197,11 +198,7 @@ A software methodology in which you can do small sets of changes that are automa
 </ul>
 				</section>
 				<section>
-					<h3>how did the demo work?</h3>
-<ul>
-<li>lloyddemo user has pull/push privs on repo where PR is done.  With this access, the ghprb plugin utilizes the github API via a key in order to use change status to pending and then finally pass or fail.  It will also use the jenkins URL you defined in your configuration for the link.</li>
-<li>jobs do a poll every 1 min (do not recommend doing that but useful for demo and only temporary).
-</ul>
+					<h3>questions on how demo works?</h3>
 				</section>
 				<section>
 					<h3>navigating jenkins</h3>
@@ -413,16 +410,25 @@ You can decide what is best for you or your organization.
 </ul>
 				</section>
 				<section>
-                                        <h3>core plugins I use</h3>
+                                        <h3>useful plugins</h3>
                                         <ul>
                                         <li>git github github-api (should be default)</li>
-                                        <li>ghprb (github pull request builder)</li>
-                                        <li>greenballs (seriously blue balls?)</li>
-                                        <li>postbuild (useful for doing custom blocks based on results)</li>
+                                        <li>ghprb / antisamy-markup-formatter</li>
+                                        <li>ansicolor</li>
+                                        <li>envinject</li>
+                                        <li>simple theme</li>
+                                        <li>matrix-auth</li>
+                                        <li>ssh-slaves</li>
+                                        </ul>
+				</section>
+				<section>
+                                        <h3>useful plugins (cont)</h3>
+                                        <ul>
+                                        <li>postbuildscript</li>
                                         <li>dashboard view</li>
                                         <li>build monitor</li>
-                                        <li>email-ext (highly customizable email reporter default is plain)</li>
-                                        <li>html publisher (attach any old html generated page)</li>
+                                        <li>email-ext</li>
+                                        <li>html publisher</li>
                                         <li>these are all installed in the demo along with dependencies</li>
                                         </ul>
 				</section>

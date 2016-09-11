@@ -27,6 +27,7 @@
                                            <li>tags</li>
                                            <li>dynamic inventory</li>
                                            <li>secrets</li>
+                                           <li>microservices</li>
                                         </ul>
 				</section>
 				<section>
@@ -78,8 +79,9 @@ ansible-playbook -v playbook.yml -i hosts \
 					<h3>simple example</h3>
                                         <pre><code data-trim contenteditable>
 - name: update to latest
-  yum: name=*
-       state=latest
+  yum: name=* state=latest
+  ## or if you are into ubuntu
+  #apt: upgrade=yes update_cache=yes
   become: true
 - name: reboot
   command: /usr/sbin/shutdown -r now
@@ -309,7 +311,7 @@ ansible -i hosts admin1 -m setup
   register: nodejs
 
 - include: nodejs.yml
-  when: nodejs != 'v4.4.3'
+  when: nodejs != 'v4.5.0'
                                         </code></pre>
 				</section>
 				<section>
@@ -645,6 +647,95 @@ ansible-playbook hosts.yml --ask-vault-pass
                                         </code></pre>
 				</section>
 				<section>
+					<h3>docker-compose</h3>
+                                        <pre><code data-trim contenteditable>
+- name: get docker-compose
+  get_url:
+    url=\{{ docker_url }}/\{{ docker_compose_version }}/\
+        docker-compose-Linux-x86_64
+    dest=/usr/local/bin/docker-compose
+  become: true
+                                        </code></pre>
+				</section>
+				<section>
+					<h3>generate docker-compose</h3>
+                                        <pre><code data-trim contenteditable>
+- name: generate docker-compose
+  template:
+    src=docker-compose.yml.j2
+    dest=\{{ compose_file }}
+                                        </code></pre>
+				</section>
+				<section>
+					<h3>generate docker-compose</h3>
+                                        <pre><code data-trim contenteditable>
+## services has the format
+## - { name: 'name', image: '', volumes: [], links: [] }
+{% for service in services %}
+\{{ service.name }}:
+  image: \{{ service.image }}
+{% if service.volumes %}
+  volumes:
+  {% for volume in service.volumes %}
+    - \{{ volume }}
+  {% endfor %}
+{% endif %}
+{% endfor %}
+                                        </code></pre>
+				</section>
+				<section>
+					<h3>docker tasks</h3>
+                                        <pre><code data-trim contenteditable>
+- name: docker-compose stop
+  shell: docker-compose -f \{{ compose_file }} stop
+
+- name: docker-compose cleanup
+  shell: docker-compose -f \{{ compose_file }} rm -v
+
+- name: docker-compose start
+  shell: docker-compose -f \{{ compose_file }} up -d
+                                        </code></pre>
+				</section>
+				<section>
+					<h3>ansible docker</h3>
+                                        <pre><code data-trim contenteditable>
+- name: application container
+  docker:
+    name: myapplication
+    image: someuser/appimage
+    state: reloaded
+    pull: always
+    ports:
+    - "8080:9000"
+    - "127.0.0.1:8081:9001/udp"
+    env:
+        SECRET_KEY: ssssh
+                                        </code></pre>
+				</section>
+				<section>
+					<h3>docker cleanup</h3>
+                                        <pre><code data-trim contenteditable>
+- name: obsolete container
+  docker:
+    image: someuser/oldandbusted
+    state: stopped
+    #state: absent
+                                        </code></pre>
+				</section>
+				<section>
+					<h3>ansible-container</h3>
+                                        <pre><code data-trim contenteditable>
+- name: install pip
+  yum: name=python-pip state=present
+
+- name: install ansible-container
+  pip: name=ansible-container state=present
+  with_items:
+    - virtualenv
+    - ansible-container
+                                        </code></pre>
+				</section>
+				<section>
 					<h3>resources</h3>
 					<ul>
 						<li><a href="http://docs.ansible.com">http://docs.ansible.com</a></li>
@@ -654,6 +745,7 @@ ansible-playbook hosts.yml --ask-vault-pass
 						<li><a href="http://docs.ansible.com/ansible/playbooks_filters.html"}>filters</a></li>
 						<li><a href="http://docs.ansible.com/ansible/playbooks_vault.html"}>vault</a></li>
 						<li><a href="http://docs.ansible.com/ansible/playbooks_loops.html">loops</a></li>
+						<li><a href="http://docs.ansible.com/ansible-container/">ansible-container</a></li>
 					</ul>
 				</section>
 {{> partials/questions }}

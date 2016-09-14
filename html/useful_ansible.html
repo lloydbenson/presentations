@@ -697,42 +697,82 @@ ansible-playbook hosts.yml --ask-vault-pass
                                         </code></pre>
 				</section>
 				<section>
-					<h3>ansible docker</h3>
+					<h3>ansible docker module</h3>
+					<ul>
+						<li>deprecated in 2.2 in favor of docker_image and docker_container</li>
+					</ul>
+				</section>
+				<section>
+					<h3>docker_image</h3>
                                         <pre><code data-trim contenteditable>
-- name: application container
-  docker:
-    name: myapplication
-    image: someuser/appimage
-    state: reloaded
-    pull: always
-    ports:
-    - "8080:9000"
-    - "127.0.0.1:8081:9001/udp"
-    env:
-        SECRET_KEY: ssssh
+- name: install pip
+  yum: name=python-pip state=present
+  become: true
+
+- name: install docker-py
+  pip: name=docker-py state=present
+  become: true
+
+## even if this is newer this may fail except for master ansible
+## bug where not doing docker-py version comparison right
+- name: Build an image and push it to a private repo
+  docker_image:
+    path: ./sinatra
+    name: registry.ansible.com/chouseknecht/sinatra
+    tag: v1
+                                        </code></pre>
+				</section>
+				<section>
+					<h3>docker_container</h3>
+                                        <pre><code data-trim contenteditable>
+- name: create a data container
+  docker_container:
+    name: mydata
+    image: busybox
+    volumes:
+      - /data
+                                        </code></pre>
+				</section>
+				<section>
+					<h3>docker_container</h3>
+                                        <pre><code data-trim contenteditable>
+- name: recreate a redis container
+  docker_container:
+    name: myredis
+    image: redis
+    command: redis-server --appendonly yes
+    state: present
+    recreate: yes
+    exposed_ports:
+      - 6379
+    volumes_from:
+      - mydata
                                         </code></pre>
 				</section>
 				<section>
 					<h3>docker cleanup</h3>
                                         <pre><code data-trim contenteditable>
-- name: obsolete container
-  docker:
-    image: someuser/oldandbusted
-    state: stopped
-    #state: absent
+- name: remove container
+  docker_container:
+    name: ohno
+    state: absent
                                         </code></pre>
 				</section>
 				<section>
 					<h3>ansible-container</h3>
                                         <pre><code data-trim contenteditable>
+## ansible-container is a tool to build docker images
+## and orchestrate containers using only ansible playbooks
 - name: install pip
   yum: name=python-pip state=present
+  become: true
 
 - name: install ansible-container
   pip: name=ansible-container state=present
   with_items:
     - virtualenv
     - ansible-container
+  become: true
                                         </code></pre>
 				</section>
 				<section>

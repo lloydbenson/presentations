@@ -1,0 +1,282 @@
+				<section>
+					<h2>GraphQL</h2>
+					<h3>(an intro with hapi)</h3>
+					<p>
+						<small>Created by Lloyd Benson / lloyd.benson@gmail.com</small>
+					</p>
+					<p>
+						<a href="http://github.com/lloydbenson/presentations"><small>http://github.com/lloydbenson/presentations</small></a>
+					</p>
+				</section>
+{{> partials/whoami }}
+				<section>
+					<h3>intro</h3>
+                                        <blockquote>
+GraphQL is a query language for your APIs and a runtime for fulfilling those queries with your existing data.
+                                        </blockquote>
+				</section>
+				<section>
+					<h3>overview</h3>
+					<ul>
+                                           <li>type system for describing data and API</li>
+                                           <li>query language for interacting with APIs</li>
+                                           <li>alternative to REST</li>
+                                           <li>can be used with any backend framework or language</li>
+                                        </ul>
+				</section>
+				<section>
+					<h3>benefits (why?)</h3>
+					<ul>
+                                           <li>batched requests</li>
+                                           <li>request/response validation</li>
+                                           <li>usage tracking</li>
+                                           <li>responses only contain data client requests</li>
+                                           <li>optimize FE by reduced calls</li>
+                                           <li>easy to make change</li>
+                                        </ul>
+				</section>
+				<section>
+					<h3>history</h3>
+					<ul>
+                                           <li>Facebook (2012-)</li>
+                                           <li>open spec, free to use, no copyright</li>
+                                           <li>GraphQL JS library for execution engine</li>
+                                           <li>https://github.com/facebook/graphql</li>
+                                        </ul>
+				</section>
+				<section>
+					<h3>key concepts</h3>
+					<ul>
+                                           <li>Schema</li>
+                                           <li>Type system</li>
+                                        </ul>
+				</section>
+				<section>
+					<h3>Types</h3>
+					<ul>
+                                           <li>Query</li>
+                                           <li>Mutation (optional)</li>
+                                        </ul>
+				</section>
+				<section>
+					<h3>schema</h3>
+                                        <pre><code data-trim contenteditable>
+type User {
+  id: ID! // ! = required
+  email: String!
+  firstname: String
+  lastname: String
+}
+
+type Query {
+  getUser(email: String!): User
+}
+                                        </code></pre>
+				</section>
+				<section>
+					<h3>query</h3>
+                                        <pre><code data-trim contenteditable>
+query {
+  getUser(email: "lloyd.benson@gmail.com") {
+    firstname
+    lastname
+  }
+}
+                                        </code></pre>
+				</section>
+				<section>
+					<h3>Server Responsibilities</h3>
+					<ul>
+                                           <li>load and processing of schema</li>
+                                           <li>execute queries</li>
+                                        </ul>
+				</section>
+				<section>
+					<h3>Implementation</h3>
+					<ul>
+                                           <li>hapi - node.js framework</li>
+                                           <li>graphi - GraphQL plugin for hapi</li>
+                                        </ul>
+				</section>
+				<section>
+					<h3>simple example</h3>
+                                        <pre><code data-trim contenteditable>
+npm run simple
+simple.sh
+                                        </code></pre>
+				</section>
+				<section>
+					<h3>schema enum</h3>
+                                        <pre><code data-trim contenteditable>
+type Address {
+  lineone: String!
+  linetwo: String
+  city: String!
+  state: StateCode
+  zipcode: String
+}
+
+enum StateCode {
+  MN
+  KS
+}
+                                        </code></pre>
+				</section>
+				<section>
+					<h3>sub query</h3>
+                                        <pre><code data-trim contenteditable>
+query {
+  getUser(email: "lloyd.benson@gmail.com") {
+    email
+    firstname
+    lastname
+    address { lineone }
+  }
+}
+                                        </code></pre>
+				</section>
+				<section>
+					<h3>batch query</h3>
+                                        <pre><code data-trim contenteditable>
+query {
+  user1: getUser(email: "lloyd.benson@gmail.com") {
+    address {
+      lineone
+    }
+  }
+  user2: getUser(email: "wpreul@gmail.com") {
+    address {
+      lineone
+    }
+  }
+}
+                                        </code></pre>
+				</section>
+				<section>
+					<h3>variables</h3>
+                                        <pre><code data-trim contenteditable>
+query getUser($email1: String!, $email2: String!) {
+  user1: getUser(email: $email1) {
+    email
+    firstname
+    lastname
+  }
+  user2: getUser(email: $email2) {
+    email
+    firstname
+    lastname
+  }
+}
+                                        </code></pre>
+				</section>
+				<section>
+					<h3>handlers as resolvers</h3>
+					<ul>
+                                           <li>migrate from REST</li>
+                                           <li>access full request object</li>
+                                           <li>utilize hapi auth at a per handler/resolver</li>
+                                        </ul>
+				</section>
+				<section>
+					<h3>batch query example</h3>
+                                        <pre><code data-trim contenteditable>
+npm run batch
+batch.sh
+                                        </code></pre>
+				</section>
+				<section>
+					<h3>mutations</h3>
+					<ul>
+                                           <li>same as query from a client perspective</li>
+                                           <li>specified as a different type:</li>
+                                           <li>begin to use `Input` type</li>
+                                        </ul>
+				</section>
+				<section>
+					<h3>mutation schema</h3>
+                                        <pre><code data-trim contenteditable>
+input UserInput {
+  email: String!
+  firstname: String!
+  lastname: String!
+}
+
+type Mutation {
+  createUser(user: UserInput!): User
+}
+                                        </code></pre>
+				</section>
+				<section>
+					<h3>mutation request</h3>
+                                        <pre><code data-trim contenteditable>
+mutation{
+  createUser(user: {
+    email: "lloyd.benson@gmail.com"
+    firstname: "Lloyd"
+    lastname: "Benson"
+  }) {
+    id
+  }
+}
+                                        </code></pre>
+				</section>
+				<section>
+					<h3>mutation example</h3>
+                                        <pre><code data-trim contenteditable>
+npm run mutation
+mutation.sh
+                                        </code></pre>
+				</section>
+				<section>
+					<h3>client requests</h3>
+					<ul>
+                                           <li>no extra libraries required</li>
+                                           <li>only get data that is needed</li>
+                                           <li>client/store example</li>
+                                        </ul>
+				</section>
+				<section>
+					<h3>client example</h3>
+                                        <pre><code data-trim contenteditable>
+npm run client
+cd client && npm run dev
+                                        </code></pre>
+				</section>
+				<section>
+					<h3>testing</h3>
+					<ul>
+                                           <li>test handlers like in REST</li>
+                                           <li>validate schemas with graphql parse</li>
+                                           <li>test queries with easygraphql-tester</li>
+                                           <li>test/</li>
+                                        </ul>
+				</section>
+				<section>
+					<h3>testing example</h3>
+                                        <pre><code data-trim contenteditable>
+npm test
+                                        </code></pre>
+				</section>
+				<section>
+					<h3>resources</h3>
+					<ul>
+						<li><a href="https://graphql.org">https://graphql.org</a></li>
+						<li><a href="https://www.joyent.com/blog/graphql-on-the-server">https://www.joyent.com/blog/graphql-on-the-server</a></li>
+					</ul>
+				</section>
+				<section>
+					<h3>final thoughts</h3>
+					<ul>
+						<li>GraphQL is a powerful</li>
+						<li>Supplement or replace REST</li>
+						<li>Useful for multiple client teams with varying constraints</li>
+					</ul>
+				</section>
+				<section>
+					<h3>special thanks</h3>
+					<ul>
+						<li>Wyatt Preul <a href="https://github.com/geek">https://github.com/geek</a></li>
+						<li>Joyent</li>
+					</ul>
+				</section>
+{{> partials/questions }}

@@ -21,6 +21,10 @@
                                         </ul>
 				</section>
 				<section>
+					<h3>simplified flow diagram</h3>
+<img src="/images/pxe/pxeflow.png">
+				</section>
+				<section>
 					<h3>how it works</h3>
 					<ul>
                                            <li>boot from network</li>
@@ -55,7 +59,7 @@
 tftpboot/menu.c32
 tftpboot/bootimg
 tftpboot/bootimg/clonezilla/x86_64/live/initrd.img
-tftpboot/bootimg/redhat/fedora/23/x86_64/initrd.img
+tftpboot/bootimg/fedora/29/x86_64/initrd.img
 tftpboot/pxelinux.0
 tftpboot/pxelinux.cfg
 tftpboot/pxelinux.cfg/default
@@ -82,9 +86,11 @@ pxelinux.cfg/default
 				<section>
 					<h3>dhcp options</h3>
 <ol>
+<li>3 => 'gateway'</li>
 <li>6 => 'domain-name-servers'</li>
 <li>15 => 'domain-name'</li>
 <li>54 => 'next-server'</li>
+<li>44 => 'WINS server'</li>
 <li>209 => 'config-file'</li>
 <li>210 => 'path-prefix'</li>
 <li>211 => 'reboottime'</li>
@@ -93,17 +99,15 @@ pxelinux.cfg/default
 				<section>
 					<h3>dnsmasq config</h3>
                                         <pre><code data-trim contenteditable>
-domain=\{{ domain }}
-dhcp-range=\{{ dhcp_range.min }},\{{ dhcp_range.max }}
-{% for address in reserved_addresses %}
-dhcp-host=\{{ address.mac  }},\{{ address.ip }}
-{% endfor %}
-dhcp-option=3,\{{ gateway }}
+domain=site.org
+dhcp-range=192.168.1.150,192.168.1.170
+dhcp-option=3,192.168.1.1
 dhcp-no-override
+dhcp-option=44,192.168.1.1
 enable-tftp
-tftp-root=\{{ tftp_root }}
-dhcp-boot=pxelinux.0,\{{ shorthost }},\{{ ip }}
-alias=\{{ gateway }},\{{ ip }}
+tftp-root=/opt/tftpboot
+#dhcp-boot=pxelinux.0,server,192.168.1.2
+dhcp-boot=undionly.kpxe,server,192.168.1.2
                                         </code></pre>
 				</section>
 				<section>
@@ -136,6 +140,7 @@ alias=\{{ gateway }},\{{ ip }}
 				<section>
 					<h3>default</h3>
                                         <pre><code data-trim contenteditable>
+
 timeout 600
 ONTIMEOUT localboot
 \{{ main_menu }}
@@ -144,18 +149,24 @@ ONTIMEOUT localboot
 				<section>
 					<h3>main menu</h3>
                                         <pre><code data-trim contenteditable>
-default menu.c32
+default vesamenu.c32
 prompt 0
 menu title Main Menu
 label localboot
   menu label Local Boot
   localboot 1
-{% for menu in menus %}
-label \{{ menu.name }}
-   menu label \{{ menu.label }}
-   kernel menu.c32
-   append pxelinux.cfg/\{{ menu.name }}
-{% endfor %}
+label tools_menu
+   menu label Tools
+   kernel vesamenu.c32
+   append pxelinux.cfg/tools_menu
+label os_menu
+   menu label Operating Systems
+   kernel vesamenu.c32
+   append pxelinux.cfg/os_menu
+label hosts_menu
+   menu label Hosts
+   kernel vesamenu.c32
+   append pxelinux.cfg/hosts_menu
                                         </code></pre>
 				</section>
 				<section>
@@ -164,17 +175,23 @@ label \{{ menu.name }}
 menu title Operating Systems
 label Main Menu
   menu label Main Menu
-  kernel menu.c32
+  kernel vesamenu.c32
   append pxelinux.cfg/main_menu
-label redhat-fedora-23-x86_64
-  menu label redhat-fedora-23-x86_64
-  kernel bootimg/redhat/fedora/23/x86_64/vmlinuz
-  append initrd=bootimg/redhat/fedora/23/x86_64/initrd.img \
-  stage2=http://mirror.../23/Server/x86_64/os \
-  repo=http://mirror.../23/Everything/x86_64/os \
-  ramdisk_size=8192 \
-  ip=dhcp
-...
+label centos-7-x86_64
+  menu label centos-7-x86_64
+  kernel bootimg/centos/7/x86_64/vmlinuz
+  append initrd=bootimg/centos/7/x86_64/initrd.img method=http://mirrors.usinter
+net.com/centos/7/os/x86_64 ramdisk_size=8192 ip=dhcp
+label fedora-29-x86_64
+  menu label fedora-29-x86_64
+  kernel bootimg/fedora/29/x86_64/vmlinuz
+  append initrd=bootimg/fedora/29/x86_64/initrd.img stage2=http://mirrors.kernel
+.org/fedora/releases/29/Server/x86_64/os repo=http://mirrors.kernel.org/fedora/r
+eleases/29/Everything/x86_64/os ramdisk_size=8192 ip=dhcp
+label ubuntu-18.04-x86_64
+  menu label ubuntu-18.04-x86_64
+  kernel bootimg/ubuntu/18.04/x86_64/linux
+  append initrd=bootimg/ubuntu/18.04/x86_64/initrd.gz ramdisk_size=8192 ip=dhcp
                                         </code></pre>
 				</section>
 				<section>
@@ -183,16 +200,23 @@ label redhat-fedora-23-x86_64
 menu title Hosts
 label Main Menu
   menu label Main Menu
-  kernel menu.c32
+  kernel vesamenu.c32
   append pxelinux.cfg/main_menu
-label \{{ host.hostname }}
-  menu label \{{ host.hostname }}
-  kernel bootimg/redhat/fedora/23/x86_64/vmlinuz
-  append initrd=bootimg/redhat/fedora/23/x86_64/initrd.img \
-  inst.stage2=http://mirror.../23/Server/x86_64/os \
-  inst.repo=http://mirror.../23/Everything/x86_64/os \
-  inst.ip=dhcp \
-  inst.ks=http://\{{ip}}/ks/\{{ host.hostname }}.ks
+label example1.site.org
+  menu label example1.site.org
+  kernel bootimg/7/x86_64/vmlinuz
+  append initrd=bootimg/centos/7/x86_64/initrd.img method=http://mirrors.usinter
+net.com/centos/7/os/x86_64 ip=dhcp ks=http://192.168.1.2/ks/example1.site.org.ks
+label example2.site.org
+  menu label example2.site.org
+  kernel bootimg/fedora/29/x86_64/vmlinuz
+  append initrd=bootimg/fedora/29/x86_64/initrd.img inst.stage2=http://mirrors.k
+ernel.org/fedora/releases/29/Server/x86_64/os inst.repo=http://mirrors.kernel.or
+g/fedora/releases/29/Everything/x86_64/os inst.ip=dhcp inst.ks=http://192.168.1.
+label example3.site.org
+  menu label example3.site.org
+  kernel bootimg/ubuntu/16.04/x86_64/vmlinuz
+  append initrd=bootimg/ubuntu/initrd.img ksdevice=eth0 DEBCONF_DEBUG=5 locale=en_US.UTF-8 console-setup/layoutcode=us domain=example.com hostname=hostname url=http://192.168.1.2/preseed/example3.site.org.preseed
                                         </code></pre>
 				</section>
 				<section>
@@ -301,13 +325,14 @@ logvol swap --fstype="swap" --useexisting \
 				</section>
 				<section>
 					<h3>automate with ansible</h3>
-					<a href="http://github.com/lloydbenson/presentations">presentations</a>
+					<a href="http://github.com/lloydbenson/pxe-demo">http://github.com/lloydbenson/pxe-demo</a>
 				</section>
 				<section>
 					<h3>resources</h3>
 					<ul>
 						<li><a href="http://docs.ansible.com">http://docs.ansible.com</a></li>
 						<li><a href="http://www.syslinux.org/wiki/index.php?title=PXELINUX">pxelinux</a></li>
+                                                <li><a href="http://github.com/lloydbenson/presentations">presentations</a></li>
 					</ul>
 				</section>
 {{> partials/questions }}

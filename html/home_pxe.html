@@ -46,6 +46,20 @@
                                         </ul>
 				</section>
 				<section>
+					<h3>dnsmasq config</h3>
+                                        <pre><code data-trim contenteditable>
+domain=site.org
+dhcp-range=192.168.1.150,192.168.1.170
+dhcp-option=3,192.168.1.1
+dhcp-no-override
+dhcp-option=44,192.168.1.1
+enable-tftp
+tftp-root=/opt/tftpboot
+dhcp-boot=pxelinux.0,server,192.168.1.2
+#dhcp-boot=undionly.kpxe,server,192.168.1.2
+                                        </code></pre>
+				</section>
+				<section>
 					<h3>tftp</h3>
 					<ul>
                                            <li>put</li>
@@ -56,7 +70,7 @@
 				<section>
 					<h3>tftpboot</h3>
                                         <pre><code data-trim contenteditable>
-tftpboot/menu.c32
+tftpboot/vesamenu.c32
 tftpboot/bootimg
 tftpboot/bootimg/clonezilla/x86_64/live/initrd.img
 tftpboot/bootimg/fedora/29/x86_64/initrd.img
@@ -65,22 +79,6 @@ tftpboot/pxelinux.cfg
 tftpboot/pxelinux.cfg/default
 tftpboot/pxelinux.cfg/main_menu
 tftpboot/pxelinux.cfg/os_menu
-                                        </code></pre>
-				</section>
-				<section>
-					<h3>pxelinux.cfg</h3>
-                                        <pre><code data-trim contenteditable>
-pxelinux.cfg/b8945908-d6a6-41a9-611d-74a6ab80b83d (uuid)
-pxelinux.cfg/01-88-99-aa-bb-cc-dd (mac)
-pxelinux.cfg/C0A8025B (192.168.2.91 in hex)
-pxelinux.cfg/C0A8025
-pxelinux.cfg/C0A802
-pxelinux.cfg/C0A80
-pxelinux.cfg/C0A8
-pxelinux.cfg/C0A
-pxelinux.cfg/C0
-pxelinux.cfg/C
-pxelinux.cfg/default
                                         </code></pre>
 				</section>
 				<section>
@@ -97,34 +95,20 @@ pxelinux.cfg/default
 </ol>
 				</section>
 				<section>
-					<h3>dnsmasq config</h3>
+					<h3>pxelinux.cfg</h3>
                                         <pre><code data-trim contenteditable>
-domain=site.org
-dhcp-range=192.168.1.150,192.168.1.170
-dhcp-option=3,192.168.1.1
-dhcp-no-override
-dhcp-option=44,192.168.1.1
-enable-tftp
-tftp-root=/opt/tftpboot
-dhcp-boot=pxelinux.0,server,192.168.1.2
-#dhcp-boot=undionly.kpxe,server,192.168.1.2
-                                        </code></pre>
-				</section>
-				<section>
-					<h3>http</h3>
-					<h4>kickstart / squashfs</h4>
-                                        <pre><code data-trim contenteditable>
-&lt;VirtualHost _default_:80&gt;
-    ServerAdmin webmaster@\{{ domain }}
-    DocumentRoot \{{ build_dir }}
-    &lt;Directory "\{{ build_dir }}"&gt;
-       Options Indexes
-       Require all granted
-    &lt;/Directory&gt;
-    ServerName \{{ kickstart_hostname }}
-    ErrorLog logs/\{{ kickstart_hostname }}-error_log
-    CustomLog logs/\{{ kickstart_hostname }}-access_log common
-&lt;/VirtualHost&gt;
+pxelinux.cfg/b8945908-d6a6-41a9-611d-74a6ab80b83d (uuid)
+pxelinux.cfg/01-88-99-aa-bb-cc-dd (mac)
+pxelinux.cfg/C0A8025B (192.168.2.91 in hex)
+pxelinux.cfg/C0A8025
+pxelinux.cfg/C0A802
+pxelinux.cfg/C0A80
+pxelinux.cfg/C0A8
+pxelinux.cfg/C0A
+pxelinux.cfg/C0
+pxelinux.cfg/C
+pxelinux.cfg/default
+pxelinux.cfg/main_menu
                                         </code></pre>
 				</section>
 				<section>
@@ -246,6 +230,23 @@ label \{{ tool.name }}-\{{ arch }}
   \{{ tool.args }} \
   fetch=tftp://\{{ ip }}/bootimg/\{{ tool.name }}/\
   \{{ arch }}/live/filesystem.squashfs
+                                        </code></pre>
+				</section>
+				<section>
+					<h3>http</h3>
+					<h4>kickstart / squashfs</h4>
+                                        <pre><code data-trim contenteditable>
+&lt;VirtualHost _default_:80&gt;
+    ServerAdmin webmaster@\{{ domain }}
+    DocumentRoot \{{ build_dir }}
+    &lt;Directory "\{{ build_dir }}"&gt;
+       Options Indexes
+       Require all granted
+    &lt;/Directory&gt;
+    ServerName \{{ kickstart_hostname }}
+    ErrorLog logs/\{{ kickstart_hostname }}-error_log
+    CustomLog logs/\{{ kickstart_hostname }}-access_log common
+&lt;/VirtualHost&gt;
                                         </code></pre>
 				</section>
 				<section>

@@ -1,4 +1,4 @@
-FROM lloydbenson/docker-centos-7-node
+FROM node:14-alpine
 MAINTAINER Lloyd Benson <lloyd.benson@gmail.com>
 RUN mkdir -p /apps/presentations
 ADD . /apps/presentations

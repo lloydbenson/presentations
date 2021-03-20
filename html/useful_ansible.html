@@ -79,156 +79,211 @@ ansible-playbook -v playbook.yml -i hosts \
 					<h3>simple example</h3>
                                         <pre><code data-trim contenteditable>
 - name: update to latest
-  yum: name=* state=latest
-  ## or if you are into ubuntu
-  #apt: upgrade=yes update_cache=yes
+  dnf: // use apt instead for ubuntu
+    name: "*"
+    state: latest
+  //update_cache: true for ubuntu
   become: true
 - name: reboot
-  command: /usr/sbin/shutdown -r now
+  reboot:
+  become: true
                                         </code></pre>
+Documentation: <a href="https://docs.ansible.com/ansible/latest/collections/ansible/builtin/dnf_module.html">dnf</a> <a href="https://docs.ansible.com/ansible/latest/collections/ansible/builtin/reboot_module.html">reboot</a> <a href="https://docs.ansible.com/ansible/latest/collections/ansible/builtin/apt_module.html">apt</a>
+				</section>
+				<section>
+					<h3>shell</h3>
+                                        <pre><code data-trim contenteditable>
+- name: can always fallback to shell
+  shell: cat < *.txt
+  // use quote filter to protect from injection
+  // shell: cat \{{ myfile | quote }}
+  args:
+    chdir: /tmp
+  environment:
+    SOME_VAR: value
+                                        </code></pre>
+Documentation: <a href="https://docs.ansible.com/ansible/latest/collections/ansible/builtin/shell_module.html">shell</a>
+				</section>
+				<section>
+					<h3>command</h3>
+                                        <pre><code data-trim contenteditable>
+- name: simple command
+  command: cat /etc/hosts
+  args:
+    chdir: /tmp
+    creates: /tmp/hosts.out
+                                        </code></pre>
+Documentation: <a href="https://docs.ansible.com/ansible/latest/collections/ansible/builtin/command_module.html">command</a>
 				</section>
 				<section>
 					<h3>command vs shell</h3>
                                         <blockquote>
-If you want to execute a command securely and predictably, it may be better to use the command module instead. Best practices when writing playbooks will follow the trend of using command unless shell is explicitly required. When running ad-hoc commands, use your best judgement.
+The command(s) will not be processed through the shell, so variables like $HOME and operations like "<", ">", "|", ";" and "&" will not work. Use the shell module if you need these features. The command module is safer for possible injection, but the "quote" filter is still recommended for either case.
                                         </blockquote>
 				</section>
 				<section>
 					<h3>create directory</h3>
                                         <pre><code data-trim contenteditable>
 - name: mkdir /somedir
-  file: path=/somedir
-        state=directory
-        owner=lloyd
-        group=lloyd
-        mode=0755
+  file:
+    path: /somedir
+    state: directory
+    owner: lloyd
+    group: lloyd
+    mode: '0755'
                                         </code></pre>
+Documentation: <a href="https://docs.ansible.com/ansible/latest/collections/ansible/builtin/file_module.html">file</a>
 				</section>
 				<section>
 					<h3>remove a dir</h3>
                                         <pre><code data-trim contenteditable>
 - name: rm -rf /somedir
-  file: path=/somedir
-        state=absent
+  file:
+    path: /somedir
+    state: absent
                                         </code></pre>
+Documentation: <a href="https://docs.ansible.com/ansible/latest/collections/ansible/builtin/file_module.html">file</a>
 				</section>
 				<section>
 					<h3>copy a file</h3>
                                         <pre><code data-trim contenteditable>
 - name: copy httpd.conf
-  copy: src=httpd.conf
-        dest=/etc/httpd/conf/http.conf
-        owner=root
-        group=root
-        mode=0644
+  copy:
+    src: httpd.conf
+    dest: /etc/httpd/conf/http.conf
+    owner: root
+    group: root
+    mode: '0644'
   become: true
                                         </code></pre>
+Documentation: <a href="https://docs.ansible.com/ansible/latest/collections/ansible/builtin/copy_module.html">copy</a>
 				</section>
 				<section>
 					<h3>copy files</h3>
                                         <pre><code data-trim contenteditable>
-- name: copy httpd.conf
-  copy: src=\{{ item }}
-        dest=/\{{ item }}
+- name: copy files
+  copy:
+    src: "\{{ item }}"
+    dest: "/\{{ item }}"
   with_items:
     - etc/httpd/conf/httpd.conf
     - etc/samba/samba.conf
   become: true
                                         </code></pre>
+Documentation: <a href="https://docs.ansible.com/ansible/latest/collections/ansible/builtin/copy_module.html">copy</a>
 				</section>
 				<section>
 					<h3>synchronize (faster!)</h3>
 					<h4>*rsync required on both machines</h4>
                                         <pre><code data-trim contenteditable>
+// "ansible-galaxy collection install ansible.posix"
 - name: sync files
-  synchronize: src=some/relative/path
-               dest=/some/absolute/path
+  ansible.posix.synchronize:
+    src: some/relative/path
+    dest: /some/absolute/path
                                         </code></pre>
+Documentation: <a href="https://docs.ansible.com/ansible/latest/collections/ansible/posix/synchronize_module.html">synchronize</a>
 				</section>
 				<section>
-					<h3>synchronize a file from same host</h3>
-					<h4>* broke in 2.x (rsync hangs)</h4>
+					<h3>synchronize a file on delegate host (pull)</h3>
                                         <pre><code data-trim contenteditable>
 - name: copy syslinux images
-  synchronize: mode=pull
-               src=/usr/share/syslinux/\{{ item }}
-               dest=\{{ tftpboot_dir }}/\{{ item }}
-  delegate_to: "\{{ inventory_hostname }}"
+  ansible.posix.synchronize:
+    mode: pull
+    src: /usr/share/syslinux/\{{ item }}
+    dest: \{{ tftpboot_dir }}/\{{ item }}
+  delegate_to: delegate.host
   with_items:
     - pxelinux.0
     - menu.c32
                                         </code></pre>
+Documentation: <a href="https://docs.ansible.com/ansible/latest/collections/ansible/posix/synchronize_module.html">synchronize</a>
 				</section>
 				<section>
 					<h3>copy a file from same host</h3>
                                         <pre><code data-trim contenteditable>
 - name: copy syslinux images
-  copy: remote_src=true
-        src=/usr/share/syslinux/\{{ item }}
-        dest=\{{ tftpboot_dir }}/\{{ item }}
+  copy:
+    remote_src: true
+    src: /usr/share/syslinux/\{{ item }}
+    dest: \{{ tftpboot_dir }}/\{{ item }}
   with_items:
     - pxelinux.0
     - menu.c32
                                         </code></pre>
+Documentation: <a href="https://docs.ansible.com/ansible/latest/collections/ansible/builtin/copy_module.html">copy</a>
 				</section>
 				<section>
 					<h3>includes</h3>
                                         <pre><code data-trim contenteditable>
 ---
-  - include: prereq.yml
-  - include: menus.yml
-  - include: tools.yml
-  - include: kickstart.yml
-  - include: httpd.yml
+- include: prereq.yml
+- include: menus.yml
+- include: tools.yml
+- include: kickstart.yml
+- include: httpd.yml
                                         </code></pre>
 				</section>
 				<section>
 					<h3>variables</h3>
                                         <pre><code data-trim contenteditable>
 ---
-  apps_dir: /apps
-  gateway: 192.168.0.1
-  tftp_root: /apps/tftpboot
-  reserved_addresses:
-    - { ip: '192.168.0.100', mac: 'mac1', host: 'host1' }
-    - { ip: '192.168.0.101', mac: 'mac2', host: 'host2' }
-  dhcp_range: { min: 192.168.0.150, max: 192.168.0.160 }
-  domain: domain.com
-  platforms: [ 'x86_64', 'i386' ]
+apps_dir: /apps
+gateway: 192.168.0.1
+tftp_root: /apps/tftpboot
+reserved_addresses:
+  - { ip: '192.168.0.100', mac: 'mac1', host: 'host1' }
+  - { ip: '192.168.0.101', mac: 'mac2', host: 'host2' }
+dhcp_range: { min: 192.168.0.150, max: 192.168.0.160 }
+domain: domain.com
+platforms: [ 'x86_64', 'i386' ]
 
                                         </code></pre>
 				</section>
 				<section>
-					<h3>variable precedence (least to most)</h3>
-					<ol>
-                                           <li>role defaults</li>
-                                           <li>inventory vars</li>
-                                           <li>inventory group_vars</li>
-                                           <li>inventory host_vars</li>
-                                           <li>playbook group_vars</li>
-                                           <li>playbook host_vars</li>
-                                           <li>host facts</li>
-                                           <li>registered vars</li>
-                                        </ol>
+					<h3>variable precedence</h3>
+					<h4>(least to most)</h4>
+					<ul>
+                                           <li>command line values (-u my_user), these are not variables</li>
+                                           <li>role defaults (role/default/main.yml)</li>
+                                           <li>inventory vars or script group vars</li>
+                                           <li>inventory group_vars/all</li>
+                                           <li>playbook group_vars/all</li>
+                                           <li>inventory group_vars/*</li>
+                                           <li>playbook group_vars/*</li>
+					</ul>
 				</section>
 				<section>
 					<h3>variable precedence (cont)</h3>
-					<ol>
-                                           <li>set_facts</li>
+					<ul>
+                                           <li>inventory file or script host vars</li>
+                                           <li>inventory host_vars/*</li>
+                                           <li>playbook host_vars/*</li>
+                                           <li>host facts / cached set_facts</li>
                                            <li>play vars</li>
                                            <li>play vars_prompt</li>
                                            <li>play vars_files</li>
-                                           <li>role and include vars</li>
+                                        </ul>
+				</section>
+				<section>
+					<h3>variable precedence (cont)</h3>
+					<ul>
+                                           <li>role vars (role/vars/main.yml)</li>
                                            <li>block vars (only for tasks in block)</li>
                                            <li>task vars (only for the task)</li>
-                                           <li>extra vars (always win precedence)</li>
-                                        </ol>
+                                           <li>include_vars</li>
+                                           <li>set_facts / registered vars</li>
+                                           <li>role (and include role) params</li>
+                                           <li>include params</li>
+                                           <li>extra vars (-e "user=myuser")(always win precedence)</li>
+                                        </ul>
 				</section>
 				<section>
 					<h3>get all facts</h3>
                                         <pre><code data-trim contenteditable>
 - name: Display all variables/facts known for a host
-  debug: var=hostvars[inventory_hostname]
+  debug:
+    var: hostvars[inventory_hostname]
                                         </code></pre>
                                         <pre><code data-trim contenteditable>
 ## only gets machine facts not vars relative to play
@@ -239,11 +294,12 @@ ansible -i hosts admin1 -m setup
 					<h3>show variable</h3>
                                         <pre><code data-trim contenteditable>
 - name: show contents
-  debug: var=clonezilla_version
+  debug:
+    var: clonezilla_version
                                         </code></pre>
 				</section>
 				<section>
-					<h3>concat variable</h3>
+					<h3>concat lists</h3>
                                         <pre><code data-trim contenteditable>
 - users: "\{{ admins }} + \{{ devs }}"
                                         </code></pre>
@@ -253,8 +309,8 @@ ansible -i hosts admin1 -m setup
                                         <pre><code data-trim contenteditable>
 - name: generate menus
   template:
-    src=menus/\{{ item }}.j2
-    dest=\{{ pxelinuxcfg_dir }}/\{{ item }}
+    src: menus/\{{ item }}.j2
+    dest: "\{{ pxelinuxcfg_dir }}/\{{ item }}"
   with_items:
     - main_menu
     - default
@@ -266,16 +322,17 @@ ansible -i hosts admin1 -m setup
 					<h3>nested loops</h3>
                                         <pre><code data-trim contenteditable>
 - name: mkdir tftpboot image dirs
-  file: path=\{{ bootimg_dir }}/\ 
-        \{{ item[0] }}/\
-        \{{ item[1].name }}/\
-        \{{ item[1].version}}/\
-        \{{ item[2] }}
+  file:
+    path: \{{ bootimg_dir }}/\ 
+          \{{ item[0] }}/\
+          \{{ item[1].name }}/\
+          \{{ item[1].version}}/\
+          \{{ item[2] }}
   with_nested:
     - [ 'redhat' ]
     ## hash 
     - [ { name: 'centos', version: '7' },
-        { name: 'fedora', version: '23'} ]
+        { name: 'fedora', version: '33'} ]
     ## array
     - [ 'x86_64', 'i386' ]
 
@@ -286,19 +343,21 @@ ansible -i hosts admin1 -m setup
                                         <pre><code data-trim contenteditable>
 - name: copy all files in a dir
   copy:
-    src=\{{ item }}
-    dest=/etc/dest
-    owner=root
-    mode=600
-  with_fileglob: srcdir/* 
+    src: "\{{ item }}"
+    dest: /etc/dest
+    owner: root
+    mode: '600'
+  with_fileglob:
+    - "srcdir/*"
                                         </code></pre>
 				</section>
 				<section>
 					<h3>conditionals</h3>
                                         <pre><code data-trim contenteditable>
 - name: dnsmasq.conf
-  template: src=dnsmasq.conf.j2
-            dest=/etc/dnsmasq.conf
+  template:
+    src: dnsmasq.conf.j2
+    dest: /etc/dnsmasq.conf
   become: true
   when: inventory_hostname == 'admin1'
                                         </code></pre>
@@ -311,14 +370,15 @@ ansible -i hosts admin1 -m setup
   register: nodejs
 
 - include: nodejs.yml
-  when: nodejs != 'v4.5.0'
+  when: nodejs.stdout != 'v14.0.0'
                                         </code></pre>
 				</section>
 				<section>
 					<h3>conditionals (rc/changed_when)</h3>
                                         <pre><code data-trim contenteditable>
 - name: get latest gparted version
-  shell: curl -s -L "\{{ gparted_url }}" | grep iso | grep href \
+  shell: curl -s -L "\{{ gparted_url }}" | grep iso \
+         | grep href \
          | awk -F'"' '{print $4}' | awk -F/ '{print $3}'
   register: gparted_version
   changed_when: "gparted_version.rc != 0"
@@ -329,13 +389,16 @@ ansible -i hosts admin1 -m setup
                                         <pre><code data-trim contenteditable>
 - name: generate httpd.conf
   template:
-    src=httpd.conf.j2
-    dest=/etc/httpd/conf/httpd.conf
+    src: httpd.conf.j2
+    dest: /etc/httpd/conf/httpd.conf
   register: http_template
   become: true
 
 - name: restart httpd
-  service: name=httpd enabled=yes state=restarted
+  service:
+    name:httpd
+    enabled: true
+    state: restarted
   become: true
   when: http_template.changed
                                         </code></pre>
@@ -345,15 +408,18 @@ ansible -i hosts admin1 -m setup
                                         <pre><code data-trim contenteditable>
 - name: generate httpd.conf
   template:
-    src=httpd.conf.j2
-    dest=/etc/httpd/conf/httpd.conf
+    src: httpd.conf.j2
+    dest: /etc/httpd/conf/httpd.conf
   notify:
     - restart httpd
   become: true
 
 handlers:
   - name: restart httpd
-    service: name=httpd enabled=yes state=restarted
+    service:
+      name: httpd
+      enabled: true
+      state: restarted
     become: true
                                         </code></pre>
 				</section>
@@ -365,20 +431,32 @@ handlers:
                                         </code></pre>
 				</section>
 				<section>
+					<h3>end play</h3>
+                                          <pre><code data-trim contenteditable>
+- meta: end_play
+## nothing will continue
+                                        </code></pre>
+				</section>
+				<section>
 					<h3>blocks (group conditionals)</h3>
                                           <pre><code data-trim contenteditable>
 tasks:
    - block:
-       - yum: name=\{{ item }} state=installed
+       - yum:
+           name: "\{{ item }}"
+           state: installed
          with_items:
            - httpd
            - memcached
-       - template: src=templates/src.j2 dest=/etc/foo.conf
-       - service: name=bar state=started enabled=true
-
+       - template:
+           src: templates/src.j2
+           dest: /etc/foo.conf
+       - service:
+           name: bar
+           state: started
+           enabled: true
      when: ansible_distribution == 'CentOS'
      become: true
-     become_user: root
                                         </code></pre>
 				</section>
 				<section>
@@ -443,32 +521,36 @@ dhcp-range=\{{ dhcp_range.min }},\{{ dhcp_range.max }}
 					<h3>lineinfile</h3>
                                         <pre><code data-trim contenteditable>
 - name: make sure pub ssh key is in file
-  lineinfile: dest=/home/user/.ssh/authorized_keys
-              line=\{{ pub_key }}
-              state=present
+  lineinfile:
+    dest: /home/user/.ssh/authorized_keys
+    line: "\{{ pub_key }}"
+    state: present
                                         </code></pre>
 				</section>
 				<section>
-					<h3>authorized_keys</h3>
+					<h3>authorized_key</h3>
                                         <pre><code data-trim contenteditable>
+// ansible-galaxy collection install ansible.posix
 - name: make sure pub ssh key is in file
-  authorized_key:
+  ansible.posix.authorized_key:
     user: user
-    key: \{{ pub_key }}
+    key: "\{{ pub_key }}"
 #    key: "\{{ lookup('file', '/home/user/.ssh/id_rsa.pub') }}"
+#    key: https://github.com/lloydbenson.keys
                                         </code></pre>
 				</section>
 				<section>
 					<h3>tags</h3>
                                         <pre><code data-trim contenteditable>
 - name: update to latest
-  yum: name=*
-       state=latest
+  yum:
+    name: "*"
+    state: latest
   become: true
   tags:
     - patch
 - name: reboot
-  command: /usr/sbin/shutdown -r now
+  reboot:
   tags:
     - patch
     - reboot
@@ -496,8 +578,9 @@ roles:
 					<h3>special tags</h3>
                                         <pre><code data-trim contenteditable>
 - name: update to latest
-  yum: name=*
-       state=latest
+  yum:
+    name: "*"
+    state: latest
   become: true
   ## special tag will always run unless --skip-tags always
   tags:
@@ -518,6 +601,7 @@ ask_sudo_pass = true
 ask_pass = true
 ## helps with ssh tunnels
 host_key_checking = false
+vault_password_file = vault.txt
 [ssh_connections]
 pipelining = true
                                         </code></pre>
@@ -538,41 +622,42 @@ fact_caching_timeout = 86400
 					<h3>async</h3>
                                         <pre><code data-trim contenteditable>
 ---
-- name: 'YUM - fire and forget task'
-  yum: name=docker-io state=installed
+- name: 'yum - fire and forget task'
+  yum:
+    name: docker
+    state: installed
   async: 1000
   ## poll of 0 returns immediately
   poll: 0
   register: yum_sleeper
 
 ## yum locks so in case you need to do another yum task
-- name: 'YUM - check on fire and forget task'
-  async_status: jid=\{{ yum_sleeper.ansible_job_id }}
+- name: 'yum - check on fire and forget task'
+  async_status:
+    jid: "\{{ yum_sleeper.ansible_job_id }}"
   register: job_result
   until: job_result.finished
   retries: 30
                                         </code></pre>
 				</section>
 				<section>
-					<h3>reboot</h3>
+					<h3>wait_for</h3>
                                         <pre><code data-trim contenteditable>
-- name: reboot
-  command: /usr/sbin/shutdown -r +1 "logout please"
-  ignore_errors: true
-  async: 0
-  poll: 0
+- name: restart samba
+  service:
+    name: "\{{ item }}"
+    state: restarted
+    enable: true
   become: true
-- name: wait for ssh port to come down
-  local_action: wait_for
-                port=22
-                host=\{{ ansible_host }}
-                state=stopped
-- name: wait for ssh port to come back up
-  local_action: wait_for
-                port=22
-                host=\{{ ansible_host }}
-                state=started
+  with_items:
+    - nmb
+    - smb
+
+- name: ensure samba is listening
+  wait_for:
+    port: 139
                                         </code></pre>
+Documentation <a href="https://docs.ansible.com/ansible/latest/collections/ansible/builtin/wait_for_module.html">wait_for</a>
 				</section>
 				<section>
 					<h3>dynamic inventory</h3>
@@ -628,7 +713,7 @@ ansible-playbook -v playbook.yml -i ./hosts.sh
 					<h3>.gitignore</h3>
 					<h4>quick way to keep secrets</h4>
                                         <pre><code data-trim contenteditable>
-host_vars/*/main.yml
+host_vars/*/secret.yml
                                         </code></pre>
 				</section>
 				<section>
@@ -638,12 +723,23 @@ ansible-vault create secrets.yml
 ansible-vault edit secrets.yml
 ansible-vault rekey secrets.yml
 ansible-vault encrypt secrets.yml
+ansible-vault encrypt_string "somestring"
 ansible-vault decrypt secrets.yml
 ansible-vault view secrets.yml
                                         </code></pre>
                                         <pre><code data-trim contenteditable>
-ansible-playbook hosts.yml --vault-password-file ~/.vault_pass.txt
+ansible-playbook hosts.yml --vault-password-file ~/.vault.txt
 ansible-playbook hosts.yml --ask-vault-pass
+                                        </code></pre>
+				</section>
+				<section>
+					<h3>decrypt string</h3>
+                                        <pre><code data-trim contenteditable>
+#!/bin/bash
+FILE=$1
+ANSIBLE_VAR=$2
+
+ansible localhost -m debug -a "var=${ANSIBLE_VAR}" -e @${FILE}
                                         </code></pre>
 				</section>
 				<section>
@@ -651,19 +747,20 @@ ansible-playbook hosts.yml --ask-vault-pass
                                         <pre><code data-trim contenteditable>
 - name: get docker-compose
   get_url:
-    url=\{{ docker_url }}/\{{ docker_compose_version }}/\
-        docker-compose-Linux-x86_64
-    dest=/usr/local/bin/docker-compose
+    url: "\{{ docker_url }}/\{{ docker_compose_version }}/\
+        docker-compose-Linux-x86_64"
+    dest: /usr/local/bin/docker-compose
   become: true
                                         </code></pre>
+Documentation: <a href="https://docs.ansible.com/ansible/latest/collections/ansible/builtin/get_url_module.html">get_url</a>
 				</section>
 				<section>
 					<h3>generate docker-compose</h3>
                                         <pre><code data-trim contenteditable>
 - name: generate docker-compose
   template:
-    src=docker-compose.yml.j2
-    dest=\{{ compose_file }}
+    src: docker-compose.yml.j2
+    dest: "\{{ compose_file }}"
                                         </code></pre>
 				</section>
 				<section>
@@ -783,7 +880,7 @@ ansible-playbook hosts.yml --ask-vault-pass
 						<li><a href="http://docs.ansible.com/ansible/playbooks_variables.html#variable-precedence-where-should-i-put-a-variable">variable precedence</a></li>
 						<li><a href="http://docs.ansible.com/ansible/developing_inventory.html">dynamic inventory</a></li>
 						<li><a href="http://docs.ansible.com/ansible/playbooks_filters.html"}>filters</a></li>
-						<li><a href="http://docs.ansible.com/ansible/playbooks_vault.html"}>vault</a></li>
+						<li><a href="https://docs.ansible.com/ansible/latest/user_guide/vault.html"}>vault</a></li>
 						<li><a href="http://docs.ansible.com/ansible/playbooks_loops.html">loops</a></li>
 						<li><a href="http://docs.ansible.com/ansible-container/">ansible-container</a></li>
 					</ul>

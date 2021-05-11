@@ -24,6 +24,7 @@
 					<h3>overview (continued)</h3>
 					<ul>
                                            <li>filters</li>
+                                           <li>lookup plugins</li>
                                            <li>tags</li>
                                            <li>dynamic inventory</li>
                                            <li>secrets</li>
@@ -36,17 +37,17 @@
 ansible.cfg
 playbook.yml
 hosts
-host_vars
-group_vars
-roles/
-   rolename/
-     files/
-     templates/
-     tasks/main.yml
-     handlers/main.yml
-     vars/main.yml
-     defaults/
-     meta/main.yml
+host_vars/hostname/all.yml
+group_vars/groupname/all.yml
+roles/rolename/
+  files/.ssh/id_rsa.pub
+  templates/dnsmasq.conf.j2
+  tasks/main.yml
+  handlers/main.yml
+  vars/main.yml
+  defaults/
+    main.yml
+    meta/main.yml
                                         </code></pre>
 				</section>
 				<section>
@@ -77,16 +78,16 @@ ansible-playbook playbook.yml -i hosts --check --diff
 					<h3>simple example</h3>
                                         <pre><code data-trim contenteditable>
 - name: update to latest
-  dnf: # use apt instead for ubuntu
+  dnf: # use apt instead for ubuntu or just use the package module
     name: "*"
     state: latest
   # update_cache: true for ubuntu
-  become: true
+  become: true # this is like sudo run as the root user
 - name: reboot
   reboot:
   become: true
                                         </code></pre>
-Documentation: <a href="https://docs.ansible.com/ansible/latest/collections/ansible/builtin/dnf_module.html">dnf</a> <a href="https://docs.ansible.com/ansible/latest/collections/ansible/builtin/reboot_module.html">reboot</a> <a href="https://docs.ansible.com/ansible/latest/collections/ansible/builtin/apt_module.html">apt</a>
+Documentation: <a href="https://docs.ansible.com/ansible/latest/collections/ansible/builtin/dnf_module.html">dnf</a> <a href="https://docs.ansible.com/ansible/latest/collections/ansible/builtin/reboot_module.html">reboot</a> <a href="https://docs.ansible.com/ansible/latest/collections/ansible/builtin/apt_module.html">apt</a> or ansible-doc apt
 				</section>
 				<section>
 					<h3>shell</h3>
@@ -99,6 +100,24 @@ Documentation: <a href="https://docs.ansible.com/ansible/latest/collections/ansi
     chdir: /tmp
   environment:
     SOME_VAR: value
+                                        </code></pre>
+Documentation: <a href="https://docs.ansible.com/ansible/latest/collections/ansible/builtin/shell_module.html">shell</a>
+				</section>
+				<section>
+					<h3>shell multiline</h3>
+                                        <pre><code data-trim contenteditable>
+# join multiple lines by a space
+- name: multiline folding block operator
+  shell: >
+    cat <
+    some.txt
+    other.txt
+# would include the carriage returns
+- name: multiline literal block operator
+  shell: | # >- might be better as it doesn't join split lines
+    cat < *.txt
+    dosomethingelse
+    morestuff
                                         </code></pre>
 Documentation: <a href="https://docs.ansible.com/ansible/latest/collections/ansible/builtin/shell_module.html">shell</a>
 				</section>
@@ -128,7 +147,7 @@ The command(s) will not be processed through the shell, so variables like $HOME 
     state: directory
     owner: lloyd
     group: lloyd
-    mode: "0755"
+    mode: "0755" # should be quoted as its a string
                                         </code></pre>
 				</section>
 				<section>
@@ -161,7 +180,7 @@ Documentation: <a href="https://docs.ansible.com/ansible/latest/collections/ansi
   copy:
     src: "\{{ item }}"
     dest: "/\{{ item }}"
-  with_items:
+  loop:
     - etc/httpd/conf/httpd.conf
     - etc/samba/samba.conf
   become: true
@@ -174,10 +193,19 @@ Documentation: <a href="https://docs.ansible.com/ansible/latest/collections/ansi
   copy:
     remote_src: true
     src: /usr/share/syslinux/\{{ item }}
-    dest: \{{ tftpboot_dir }}/\{{ item }}
-  with_items:
+    dest: "\{{ tftpboot_dir }}/\{{ item }}"
+  loop:
     - pxelinux.0
     - menu.c32
+                                        </code></pre>
+				</section>
+				<section>
+					<h3>copy contents and create a file</h3>
+                                        <pre><code data-trim contenteditable>
+- name: copy contents into file
+  copy:
+    contents: "## replaced by /tmp/helloworld2"
+    dest: /tmp/helloworld
                                         </code></pre>
 Documentation: <a href="https://docs.ansible.com/ansible/latest/collections/ansible/builtin/copy_module.html">copy</a>
 				</section>
@@ -199,9 +227,9 @@ Documentation: <a href="https://docs.ansible.com/ansible/latest/collections/ansi
   ansible.posix.synchronize:
     mode: pull
     src: /usr/share/syslinux/\{{ item }}
-    dest: \{{ tftpboot_dir }}/\{{ item }}
+    dest: "\{{ tftpboot_dir }}/\{{ item }}"
   delegate_to: delegate.host
-  with_items:
+  loop:
     - pxelinux.0
     - menu.c32
                                         </code></pre>
@@ -226,12 +254,15 @@ apps_dir: /apps
 gateway: 192.168.0.1
 tftp_root: /apps/tftpboot
 reserved_addresses:
-  - { ip: "192.168.0.100", mac: "mac1", host: "host1" }
-  - { ip: "192.168.0.101", mac: "mac2", host: "host2" }
+  - ip: "192.168.0.100"
+    mac: "mac1"
+    host: "host1"
+  - ip: "192.168.0.101"
+    mac: "mac2"
+    host: "host2"
 dhcp_range: { min: 192.168.0.150, max: 192.168.0.160 }
 domain: domain.com
 platforms: [ "x86_64", "i386" ]
-
                                         </code></pre>
 				</section>
 				<section>
@@ -289,6 +320,7 @@ ansible -i hosts admin1 -m setup
 				<section>
 					<h3>register / show variable</h3>
                                         <pre><code data-trim contenteditable>
+## ignore syntax highlighting
 - name: get latest gparted version
   shell: curl -s -L "\{{ gparted_url }}" | grep iso \
          | grep href \
@@ -347,23 +379,24 @@ dhcp-range=\{{ dhcp_range.min }},\{{ dhcp_range.max }}
   template:
     src: menus/\{{ item }}.j2
     dest: "\{{ pxelinuxcfg_dir }}/\{{ item }}"
-  with_items:
+  ## with_list / with_items replacement
+  loop: ## with_items might need |flatten(levels=1) filter
     - main_menu
     - default
     - os_menu
     - tools_menu
                                         </code></pre>
+Documentation <a href="https://docs.ansible.com/ansible/latest/user_guide/playbooks_loops.html">loops</a>
 				</section>
 				<section>
 					<h3>nested loops</h3>
                                         <pre><code data-trim contenteditable>
 - name: mkdir tftpboot image dirs
   file:
-    path: \{{ bootimg_dir }}/\ 
-          \{{ item[0] }}/\
-          \{{ item[1].name }}/\
-          \{{ item[1].version}}/\
+    path: \{{ bootimg_dir }}/\{{ item[0] }}/\
+          \{{ item[1].name }}/\{{ item[1].version}}/\
           \{{ item[2] }}
+  # loop: "\{{ list_one|product(list_two)|list }}"
   with_nested:
     - [ "redhat" ]
     ## hash 
@@ -387,6 +420,56 @@ dhcp-range=\{{ dhcp_range.min }},\{{ dhcp_range.max }}
     - "srcdir/*"
                                         </code></pre>
 Documentation: <a href="https://docs.ansible.com/ansible/latest/user_guide/playbooks_loops.html">loops</a>
+				</section>
+				<section>
+					<h3>loop control (labels)</h3>
+                                        <pre><code data-trim contenteditable>
+- name: create servers
+  digital_ocean:
+    name: "\{{ item.name }}"
+    state: present
+  loop:
+    - name: server1
+      disks: 3gb
+  loop_control:
+    label: "\{{ item.name }}" ## label limits output
+    index_var: index ## refer to your loop index
+    extended: true ## extend loop info
+                                        </code></pre>
+				</section>
+				<section>
+					<h3>loop control (extended)</h3>
+                                        <pre><code data-trim contenteditable>
+ansible_loop.allitems
+ansible_loop.index
+ansible_loop.index0
+ansible_loop.revindex
+ansible_loop.revindex0
+ansible_loop.first
+ansible_loop.last
+ansible_loop.length
+ansible_loop.previtem
+ansible_loop.nextitem
+                                        </code></pre>
+				</section>
+				<section>
+					<h3>loop control (inner and outer variable names)</h3>
+                                        <pre><code data-trim contenteditable>
+# main.yml
+- include_tasks: inner.yml
+  loop:
+    - 1
+    - 2
+  loop_control:
+    loop_var: outer_item
+# inner.yml
+- name: Print outer and inner items
+  ansible.builtin.debug:
+    msg: "outer item=\{{ outer_item }} inner item=\{{ item }}"
+  loop:
+    - a
+    - b
+                                        </code></pre>
 				</section>
 				<section>
 					<h3>conditionals</h3>
@@ -433,7 +516,7 @@ Documentation: <a href="https://docs.ansible.com/ansible/latest/user_guide/playb
 
 - name: restart httpd
   service:
-    name:httpd
+    name: httpd
     enabled: true
     state: restarted
   become: true
@@ -450,14 +533,14 @@ Documentation: <a href="https://docs.ansible.com/ansible/latest/user_guide/playb
   notify:
     - restart httpd
   become: true
-handlers:
-# can stick this in handlers/main.yml instead
-  - name: restart httpd
-    service:
-      name: httpd
-      enabled: true
-      state: restarted
-    become: true
+  handlers:
+    # can stick this in handlers/main.yml instead
+    - name: restart httpd
+      service:
+        name: httpd
+        enabled: true
+        state: restarted
+      become: true
                                         </code></pre>
 Documentation: <a href="https://docs.ansible.com/ansible/latest/user_guide/playbooks_conditionals.html">conditionals</a>
 				</section>
@@ -479,11 +562,11 @@ Documentation: <a href="https://docs.ansible.com/ansible/latest/collections/ansi
                                           <pre><code data-trim contenteditable>
 tasks:
 - name: do my block tasks
-  block:
+  block: ## loops do not work against blocks
    - yum:
        name: "\{{ item }}"
        state: installed
-     with_items:
+     loop:
        - httpd
        - memcached
    - template:
@@ -510,11 +593,11 @@ tasks:
       ansible.builtin.command: /bin/false
     - name: Never print this
       ansible.builtin.debug:
-        msg: "I never execute, due to the above task failing, :-("
+        msg: "I never execute"
   rescue:
     - name: Print when errors
       ansible.builtin.debug:
-        msg: "I caught an error, can do stuff here to fix it, :-)"
+        msg: "I caught an error, fix it."
                                         </code></pre>
 Documentation: <a href="https://docs.ansible.com/ansible/latest/user_guide/playbooks_blocks.html">blocks</a>
 				</section>
@@ -531,6 +614,29 @@ Documentation: <a href="https://docs.ansible.com/ansible/latest/user_guide/playb
 \{{ ansible_mounts | map(attribute="mount") | join(",") }}
                                         </code></pre>
 Documentation: <a href="https://docs.ansible.com/ansible/latest/user_guide/playbooks_filters.html">filters</a>
+				</section>
+				<section>
+					<h3>lookup plugins</h3>
+                                        <pre><code data-trim contenteditable>
+backup_name: file_\{{ lookup('pipe', 'date +%Y%m%d') }}.tar.gz
+                                        </code></pre>
+				</section>
+				<section>
+					<h3>lookup plugins (cont.)</h3>
+                                        <pre><code data-trim contenteditable>
+- name: login
+  uri:
+    url: "https://someurl"
+    method: POST
+    headers:
+      Content-Type: "application/json"
+    body: "\{{ lookup('template', 'login.json.j2') }}"
+    body_format: json
+    status_code: 201
+    return_content: true
+  register: login ## login.json.somefield
+                                        </code></pre>
+Documentation: <a href="https://docs.ansible.com/ansible/latest/plugins/lookup.html">lookup</a>
 				</section>
 				<section>
 					<h3>lineinfile</h3>
@@ -669,7 +775,7 @@ Documentation: <a href="https://docs.ansible.com/ansible/latest/user_guide/playb
     state: restarted
     enable: true
   become: true
-  with_items:
+  loop:
     - nmb
     - smb
 - name: ensure samba is listening
@@ -721,8 +827,8 @@ ansible-playbook -v playbook.yml -i ./hosts.sh
     # results of inventory script as above go here
     "_meta" : {
        "hostvars" : {
-          "moocow.example.com"     : { "asdf" : 1234 },
-          "llama.example.com"      : { "asdf" : 5678 }
+          "moocow.example.com": { "asdf" : 1234 },
+          "llama.example.com": { "asdf" : 5678 }
        }
     }
 }
@@ -901,10 +1007,19 @@ Documentation: <a href="https://docs.ansible.com/ansible/latest/collections/comm
 Documentation: <a href="https://docs.ansible.com/ansible/latest/collections/community/docker/docker_container_module.html">docker_container</a>
 				</section>
 				<section>
+					<h3>bool in yaml</h3>
+                                        <pre><code data-trim contenteditable>
+y|Y|yes|Yes|YES|n|N|no|No|NO
+|true|True|TRUE|false|False|FALSE
+|on|On|ON|off|Off|OFF
+                                        </code></pre>
+Documentation: <a href="https://yaml.org/type/bool.html">bool</a>
+				</section>
+				<section>
 					<h3>resources</h3>
 					<ul>
 						<li><a href="https://docs.ansible.com">https://docs.ansible.com</a></li>
-						<li>ansible-doc (cli tool)</li>
+						<li>ansible-doc (cli tool) e.g. ansible-doc apt</li>
 					</ul>
 				</section>
 {{> partials/questions }}
